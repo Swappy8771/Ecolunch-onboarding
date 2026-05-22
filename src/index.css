@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* ── Design tokens ────────────────────────────────────── */
+:root {
+  /* Depth layers */
+  --bg-base:     #07070a;   /* page / main content */
+  --bg-surface:  #0e0e13;   /* header, sidebar */
+  --bg-card:     #131318;   /* cards, panels */
+  --bg-inner:    #1b1b24;   /* icon boxes, nested */
+
+  /* Borders */
+  --border-subtle:  #18181f;
+  --border-default: #22222c;
+  --border-strong:  #2c2c38;
+
+  /* Accent — lime */
+  --accent:        #a3e635;
+  --accent-dim:    rgba(163, 230, 53, 0.10);
+  --accent-border: rgba(163, 230, 53, 0.22);
+
+  /* Text */
+  --text-1: #ededf0;   /* primary */
+  --text-2: #9595a2;   /* secondary */
+  --text-3: #66666f;   /* muted */
+  --text-4: #42424a;   /* very muted / labels */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: var(--bg-base);
+  color: var(--text-1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #2a2a35; border-radius: 2px; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Smooth float / lift effect for cards */
+.card-float {
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  will-change: transform;
+}
+.card-float:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-float { transition: none; }
+  .card-float:hover { transform: none; }
+}
