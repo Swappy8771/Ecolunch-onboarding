@@ -20,9 +20,9 @@
 
   /* Text */
   --text-1: #ededf0;   /* primary */
-  --text-2: #9595a2;   /* secondary */
-  --text-3: #66666f;   /* muted */
-  --text-4: #42424a;   /* very muted / labels */
+  --text-2: #b8b8c4;   /* secondary */
+  --text-3: #8e8e9e;   /* muted */
+  --text-4: #6a6a7a;   /* labels */
 }
 
 * { box-sizing: border-box; }
@@ -42,6 +42,14 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Smooth float / lift effect for cards */

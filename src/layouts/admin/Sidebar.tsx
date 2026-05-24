@@ -3,7 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Users, UserCheck,
   ClipboardCheck, FolderInput, FolderLock,
-  MessageCircle, SlidersHorizontal, ChevronDown, Check,
+  MessageCircle, SlidersHorizontal, ChevronDown, ShieldCheck,
+  ChevronsLeft, ChevronsRight,
 } from 'lucide-react'
 
 export type NavItemId =
@@ -14,86 +15,21 @@ interface NavChild  { id: NavItemId; label: string; icon: ReactNode }
 interface NavSection { id: NavItemId; label: string; icon: ReactNode; children?: NavChild[] }
 
 const NAV: NavSection[] = [
-  { id: 'dashboard',         label: 'Dashboard',                  icon: <LayoutDashboard size={15} strokeWidth={1.8} /> },
+  { id: 'dashboard',         label: 'Dashboard',                   icon: <LayoutDashboard   size={16} strokeWidth={1.8} /> },
   {
-    id: 'onboarding', label: 'Onboarding', icon: <Users size={15} strokeWidth={1.8} />,
+    id: 'onboarding', label: 'Onboarding', icon: <Users size={16} strokeWidth={1.8} />,
     children: [
-      { id: 'traiteurs',  label: 'Traiteurs',  icon: <UserCheck size={13} strokeWidth={1.8} /> },
+      { id: 'traiteurs', label: 'Traiteurs', icon: <UserCheck size={14} strokeWidth={1.8} /> },
     ],
   },
-  { id: 'centre-validation', label: 'Centre de validation',       icon: <ClipboardCheck   size={15} strokeWidth={1.8} /> },
-  { id: 'centre-import',     label: "Centre d'import / Smart Im…",icon: <FolderInput      size={15} strokeWidth={1.8} /> },
-  { id: 'document-vault',    label: 'Document Vault',             icon: <FolderLock       size={15} strokeWidth={1.8} /> },
-  { id: 'ecoloop',           label: 'EcoLoop',                    icon: <MessageCircle    size={15} strokeWidth={1.8} /> },
-  { id: 'modules',           label: 'Modules / Configurations',   icon: <SlidersHorizontal size={15} strokeWidth={1.8} /> },
+  { id: 'centre-validation', label: 'Centre de validation',        icon: <ClipboardCheck    size={16} strokeWidth={1.8} /> },
+  { id: 'centre-import',     label: "Centre d'import / Smart Im…", icon: <FolderInput       size={16} strokeWidth={1.8} /> },
+  { id: 'document-vault',    label: 'Document Vault',              icon: <FolderLock        size={16} strokeWidth={1.8} /> },
+  { id: 'ecoloop',           label: 'EcoLoop',                     icon: <MessageCircle     size={16} strokeWidth={1.8} /> },
+  { id: 'modules',           label: 'Modules / Configurations',    icon: <SlidersHorizontal size={16} strokeWidth={1.8} /> },
 ]
 
 const PERMISSIONS = ['Création client', 'Configuration tiles', 'Demande corrections', 'Smart Import']
-
-/* ── Nav row ────────────────────────────────────────────── */
-
-function NavButtonRow({
-  icon, label, isActive, hasChildren, isExpanded, depth = 0, onClick,
-}: {
-  icon: ReactNode; label: string; isActive: boolean
-  hasChildren?: boolean; isExpanded?: boolean; depth?: number; onClick: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-2.5 rounded-lg text-left transition-all cursor-pointer"
-      style={{
-        padding: depth === 1 ? '7px 12px 7px 36px' : '8px 12px',
-        background: isActive ? 'var(--accent-dim)' : 'transparent',
-        borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-        color: isActive ? 'var(--text-1)' : 'var(--text-3)',
-      }}
-    >
-      <span style={{ color: isActive ? 'var(--accent)' : 'var(--text-4)', flexShrink: 0 }}>
-        {icon}
-      </span>
-      <span className="flex-1 text-[12.5px] font-medium truncate">{label}</span>
-      {hasChildren && (
-        <ChevronDown
-          size={13} strokeWidth={2}
-          className={`shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-          style={{ color: 'var(--text-4)' }}
-        />
-      )}
-    </button>
-  )
-}
-
-function NavLinkRow({
-  to, icon, label, depth = 0,
-}: {
-  to: string; icon: ReactNode; label: string; depth?: number
-}) {
-  return (
-    <NavLink
-      to={to}
-      className="w-full flex items-center gap-2.5 rounded-lg text-left transition-all cursor-pointer"
-      style={({ isActive }) => ({
-        padding: depth === 1 ? '7px 12px 7px 36px' : '8px 12px',
-        background: isActive ? 'var(--accent-dim)' : 'transparent',
-        borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-        color: isActive ? 'var(--text-1)' : 'var(--text-3)',
-      })}
-      end
-    >
-      {({ isActive }) => (
-        <>
-          <span style={{ color: isActive ? 'var(--accent)' : 'var(--text-4)', flexShrink: 0 }}>
-            {icon}
-          </span>
-          <span className="flex-1 text-[12.5px] font-medium truncate">{label}</span>
-        </>
-      )}
-    </NavLink>
-  )
-}
-
-/* ── Sidebar ────────────────────────────────────────────── */
 
 const ADMIN_PATHS: Partial<Record<NavItemId, string>> = {
   dashboard: '/admin/dashboard',
@@ -115,7 +51,12 @@ function inferActiveAdminNavId(pathname: string): NavItemId {
   return 'dashboard'
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
+
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const [expanded, setExpanded] = useState<Set<NavItemId>>(new Set(['onboarding']))
   const { pathname } = useLocation()
   const activeItem = useMemo(() => inferActiveAdminNavId(pathname), [pathname])
@@ -130,72 +71,206 @@ export function Sidebar() {
   }
 
   return (
-    /* Layer 1 — surface */
     <aside
-      className="fixed left-0 top-[52px] bottom-0 w-[232px] flex flex-col overflow-y-auto"
-      style={{ background: 'var(--bg-surface)', borderRight: '1px solid var(--border-subtle)' }}
+      className="fixed left-0 top-[52px] bottom-0 flex flex-col overflow-hidden"
+      style={{
+        width: collapsed ? 68 : 280,
+        background: 'var(--bg-surface)',
+        borderRight: '1px solid var(--border-subtle)',
+        transition: 'width 260ms cubic-bezier(0.4,0,0.2,1)',
+      }}
     >
-      {/* Persona card */}
-      <div className="mx-3 mt-3 mb-1">
-        <div
-          className="rounded-xl px-3.5 py-3"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
+      {/* Toggle button */}
+      <div
+        className="flex items-center mx-3 mt-3 mb-1"
+        style={{ justifyContent: collapsed ? 'center' : 'flex-end' }}
+      >
+        <button
+          onClick={onToggle}
+          className="flex items-center justify-center w-7 h-7 rounded-lg transition-all cursor-pointer"
+          style={{
+            background: 'var(--bg-inner)',
+            border: '1px solid var(--border-default)',
+            color: 'var(--text-3)',
+          }}
+          onMouseEnter={e => {
+            const el = e.currentTarget as HTMLButtonElement
+            el.style.borderColor = 'var(--accent-border)'
+            el.style.color = 'var(--accent)'
+          }}
+          onMouseLeave={e => {
+            const el = e.currentTarget as HTMLButtonElement
+            el.style.borderColor = 'var(--border-default)'
+            el.style.color = 'var(--text-3)'
+          }}
         >
-          <p className="text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-2" style={{ color: 'var(--text-4)' }}>
-            Persona
-          </p>
-          <div className="flex items-start gap-2">
-            <div className="mt-[5px] w-1.5 h-1.5 rounded-full bg-[#4ade80] shrink-0" />
-            <div>
-              <p className="text-[12.5px] font-semibold leading-tight" style={{ color: 'var(--text-1)' }}>
-                Onboarding Admin
-              </p>
-              <p className="text-[11px] mt-[3px] leading-tight" style={{ color: 'var(--text-4)' }}>
-                Pilote l'embarquement client
-              </p>
+          {collapsed
+            ? <ChevronsRight size={13} strokeWidth={2.5} />
+            : <ChevronsLeft  size={13} strokeWidth={2.5} />
+          }
+        </button>
+      </div>
+
+      {/* Persona card */}
+      {!collapsed && (
+        <div className="mx-4 mb-1">
+          <div
+            className="rounded-xl px-4 py-4"
+            style={{
+              background: 'linear-gradient(135deg, var(--bg-card), var(--bg-inner))',
+              border: '1px solid var(--border-default)',
+            }}
+          >
+            <p className="text-[11px] uppercase tracking-[0.15em] font-bold mb-3" style={{ color: 'var(--text-4)' }}>
+              Persona
+            </p>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 text-[12px] font-bold"
+                style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }}
+              >
+                OA
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13.5px] font-semibold leading-tight" style={{ color: 'var(--text-1)' }}>
+                  Onboarding Admin
+                </p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#4ade80] shrink-0" />
+                  <p className="text-[12px] leading-tight" style={{ color: 'var(--text-3)' }}>
+                    Pilote l'embarquement
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Collapsed avatar */}
+      {collapsed && (
+        <div className="flex justify-center mb-2">
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-[12px] font-bold"
+            style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }}
+          >
+            OA
+          </div>
+        </div>
+      )}
 
       {/* Nav */}
-      <nav className="flex-1 px-2 pt-4 pb-2">
-        <p className="px-3 mb-2 text-[9.5px] uppercase tracking-[0.13em] font-semibold" style={{ color: 'var(--text-4)' }}>
-          EcoLunch Admin
-        </p>
-        <div className="space-y-0.5">
+      <nav className="flex-1 px-3 pt-3 pb-2 overflow-y-auto overflow-x-hidden">
+        {!collapsed && (
+          <p className="px-2 mb-3 text-[11px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--text-4)' }}>
+            EcoLunch Admin
+          </p>
+        )}
+        <div className="space-y-1">
           {NAV.map((item) => {
             const isExpanded = expanded.has(item.id)
+            const isActive = item.id === activeItem || item.children?.some(c => c.id === activeItem)
             const itemPath = ADMIN_PATHS[item.id]
+
+            if (collapsed) {
+              const path = itemPath ?? (item.children ? ADMIN_PATHS[item.children[0].id] : undefined)
+              return (
+                <div key={item.id} className="flex justify-center">
+                  {path ? (
+                    <NavLink
+                      to={path}
+                      title={item.label}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-150"
+                      style={({ isActive: a }) => ({
+                        background: a || isActive ? 'var(--accent-dim)' : 'transparent',
+                        color: a || isActive ? 'var(--accent)' : 'var(--text-3)',
+                        borderLeft: a || isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                      })}
+                      end
+                    >
+                      {item.icon}
+                    </NavLink>
+                  ) : (
+                    <button
+                      title={item.label}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer"
+                      style={{
+                        background: isActive ? 'var(--accent-dim)' : 'transparent',
+                        color: isActive ? 'var(--accent)' : 'var(--text-3)',
+                        border: 'none',
+                      }}
+                    >
+                      {item.icon}
+                    </button>
+                  )}
+                </div>
+              )
+            }
+
             return (
               <div key={item.id}>
                 {item.children?.length ? (
-                  <NavButtonRow
-                    icon={item.icon} label={item.label}
-                    isActive={item.id === activeItem}
-                    hasChildren
-                    isExpanded={isExpanded}
+                  <button
                     onClick={() => toggle(item.id)}
-                  />
+                    className="w-full flex items-center gap-3 rounded-xl text-left transition-all duration-150 cursor-pointer"
+                    style={{
+                      padding: '10px 12px',
+                      background: isActive ? 'var(--accent-dim)' : 'transparent',
+                      borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+                      color: isActive ? 'var(--text-1)' : 'var(--text-3)',
+                    }}
+                  >
+                    <span style={{ color: isActive ? 'var(--accent)' : 'var(--text-3)', flexShrink: 0 }}>{item.icon}</span>
+                    <span className="flex-1 text-[13px] font-medium truncate">{item.label}</span>
+                    <ChevronDown
+                      size={13} strokeWidth={2.5}
+                      className={`shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                      style={{ color: 'var(--text-4)' }}
+                    />
+                  </button>
                 ) : itemPath ? (
-                  <NavLinkRow to={itemPath} icon={item.icon} label={item.label} />
-                ) : (
-                  <NavButtonRow
-                    icon={item.icon} label={item.label}
-                    isActive={item.id === activeItem}
-                    onClick={() => {}}
-                  />
-                )}
-                {item.children && isExpanded && (
-                  <div className="mt-0.5 space-y-0.5">
+                  <NavLink
+                    to={itemPath}
+                    className="w-full flex items-center gap-3 rounded-xl text-left transition-all duration-150 cursor-pointer"
+                    style={({ isActive: a }) => ({
+                      padding: '10px 12px',
+                      background: a ? 'var(--accent-dim)' : 'transparent',
+                      borderLeft: a ? '2px solid var(--accent)' : '2px solid transparent',
+                      color: a ? 'var(--text-1)' : 'var(--text-3)',
+                    })}
+                    end
+                  >
+                    {({ isActive: a }) => (
+                      <>
+                        <span style={{ color: a ? 'var(--accent)' : 'var(--text-3)', flexShrink: 0 }}>{item.icon}</span>
+                        <span className="flex-1 text-[13px] font-medium truncate">{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ) : null}
+
+                {item.children && isExpanded && !collapsed && (
+                  <div className="mt-1 space-y-1">
                     {item.children.map(child => (
-                      <NavLinkRow
+                      <NavLink
                         key={child.id}
                         to={ADMIN_PATHS[child.id] ?? '/admin/dashboard'}
-                        icon={child.icon}
-                        label={child.label}
-                        depth={1}
-                      />
+                        className="w-full flex items-center gap-3 rounded-xl text-left transition-all duration-150 cursor-pointer"
+                        style={({ isActive: a }) => ({
+                          padding: '9px 12px 9px 40px',
+                          background: a ? 'var(--accent-dim)' : 'transparent',
+                          borderLeft: a ? '2px solid var(--accent)' : '2px solid transparent',
+                          color: a ? 'var(--text-1)' : 'var(--text-3)',
+                        })}
+                        end
+                      >
+                        {({ isActive: a }) => (
+                          <>
+                            <span style={{ color: a ? 'var(--accent)' : 'var(--text-3)', flexShrink: 0 }}>{child.icon}</span>
+                            <span className="flex-1 text-[13px] font-medium truncate">{child.label}</span>
+                          </>
+                        )}
+                      </NavLink>
                     ))}
                   </div>
                 )}
@@ -206,24 +281,41 @@ export function Sidebar() {
       </nav>
 
       {/* Permissions */}
-      <div className="mx-3 mb-3">
-        <div
-          className="rounded-xl px-3.5 py-3"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
-        >
-          <p className="text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-2.5" style={{ color: 'var(--text-4)' }}>
-            Permissions ({PERMISSIONS.length})
-          </p>
-          <div className="space-y-2">
-            {PERMISSIONS.map(p => (
-              <div key={p} className="flex items-center gap-2">
-                <Check size={10} strokeWidth={3} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                <span className="text-[11.5px]" style={{ color: 'var(--text-3)' }}>{p}</span>
-              </div>
-            ))}
+      {!collapsed && (
+        <div className="mx-4 mb-4">
+          <div
+            className="rounded-xl px-4 py-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck size={13} strokeWidth={2} style={{ color: 'var(--accent)' }} />
+              <p className="text-[11px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--text-4)' }}>
+                Permissions ({PERMISSIONS.length})
+              </p>
+            </div>
+            <div className="space-y-2.5">
+              {PERMISSIONS.map(p => (
+                <div key={p} className="flex items-center gap-2.5">
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--accent)', opacity: 0.7 }} />
+                  <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>{p}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Collapsed shield icon */}
+      {collapsed && (
+        <div className="flex justify-center mb-4">
+          <div
+            className="w-9 h-9 flex items-center justify-center rounded-xl"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--accent)' }}
+          >
+            <ShieldCheck size={15} strokeWidth={2} />
+          </div>
+        </div>
+      )}
     </aside>
   )
 }
