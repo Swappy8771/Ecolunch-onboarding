@@ -4,6 +4,8 @@ import { AdminLayout } from '../layouts/admin/AdminLayout'
 import { ClientLayout } from '../layouts/client/ClientLayout'
 import { FullPageLoader } from '../shared/ui/FullPageLoader'
 import { ErrorBoundary } from '../shared/ui/ErrorBoundary'
+import { ThemeProvider } from '../shared/context/ThemeContext'
+import { LangProvider } from '../shared/context/LangContext'
 
 const Dashboard = lazy(() => import('../routes/admin/Dashboard').then(m => ({ default: m.Dashboard })))
 const OnboardingTraiteurs = lazy(() => import('../routes/admin/OnboardingTraiteurs').then(m => ({ default: m.OnboardingTraiteurs })))
@@ -24,6 +26,8 @@ const ClientDocumentVault = lazy(() => import('../routes/client/DocumentVault').
 
 function App() {
   return (
+    <ThemeProvider>
+    <LangProvider>
     <BrowserRouter>
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader label="Chargement…" />}>
@@ -95,6 +99,8 @@ function App() {
         </Suspense>
       </ErrorBoundary>
     </BrowserRouter>
+    </LangProvider>
+    </ThemeProvider>
   )
 }
 

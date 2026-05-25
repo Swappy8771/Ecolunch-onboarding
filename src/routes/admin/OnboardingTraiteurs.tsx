@@ -3,6 +3,7 @@ import {
   Users, MapPin, User, Calendar, AlertTriangle,
   MessageCircle, ArrowRight, Eye, Download, Plus, X, Check, Search,
 } from 'lucide-react'
+import { useLang } from '../../shared/context/LangContext'
 
 /* ── Types ──────────────────────────────────────────────── */
 type TraiteurStatus = 'pre-onboarding' | 'en-cours' | 'soumis' | 'corrections' | 'approuves' | 'go-live'
@@ -52,16 +53,6 @@ const TRAITEURS: Traiteur[] = [
 
 type FilterId = 'tous' | TraiteurStatus
 
-const FILTERS: { id: FilterId; label: string }[] = [
-  { id: 'tous',           label: 'Tous' },
-  { id: 'pre-onboarding', label: 'Pré-onboarding' },
-  { id: 'en-cours',       label: 'En cours' },
-  { id: 'soumis',         label: 'Soumis' },
-  { id: 'corrections',    label: 'Corrections' },
-  { id: 'approuves',      label: 'Approuvés' },
-  { id: 'go-live',        label: 'Go-live' },
-]
-
 /* ── Helpers ────────────────────────────────────────────── */
 function statusStyle(s: TraiteurStatus): { bg: string; color: string; border: string; dot: string } {
   const map: Record<TraiteurStatus, { bg: string; color: string; border: string; dot: string }> = {
@@ -95,14 +86,15 @@ function progressColor(status: TraiteurStatus) {
 
 /* ── Status pill ────────────────────────────────────────── */
 function StatusPill({ status }: { status: TraiteurStatus }) {
+  const { t } = useLang()
   const s = statusStyle(status)
   const labels: Record<TraiteurStatus, string> = {
-    'pre-onboarding': 'Pré-onboarding',
-    'en-cours': 'En cours',
-    'soumis': 'Soumis',
-    'corrections': 'Correction',
-    'approuves': 'Approuvé',
-    'go-live': 'Go-live',
+    'pre-onboarding': t.traiteurs.statusLabels['pre-onboarding'],
+    'en-cours':       t.traiteurs.statusLabels['en-cours'],
+    'soumis':         t.traiteurs.statusLabels['soumis'],
+    'corrections':    t.traiteurs.statusLabels['corrections'],
+    'approuves':      t.traiteurs.statusLabels['approuves'],
+    'go-live':        t.traiteurs.statusLabels['go-live'],
   }
   return (
     <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0"
@@ -115,6 +107,7 @@ function StatusPill({ status }: { status: TraiteurStatus }) {
 
 /* ── Traiteur card ──────────────────────────────────────── */
 function TraiteurCard({ t }: { t: Traiteur }) {
+  const { t: trans } = useLang()
   const rb = readinessBadge(t.readiness)
   const barColor = progressColor(t.status)
 
@@ -160,7 +153,7 @@ function TraiteurCard({ t }: { t: Traiteur }) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[9.5px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--text-4)' }}>
-            Progression
+            {trans.traiteurs.progression}
           </span>
           <span className="text-[12px] font-semibold" style={{ color: 'var(--text-2)' }}>{t.progress}%</span>
         </div>
@@ -177,15 +170,15 @@ function TraiteurCard({ t }: { t: Traiteur }) {
         </div>
         <div className="flex items-center gap-1.5">
           <Calendar size={11} strokeWidth={1.8} />
-          <span>MAJ {t.updatedAt}</span>
+          <span>{trans.traiteurs.updated} {t.updatedAt}</span>
         </div>
         <div className="flex items-center gap-1.5" style={{ color: t.validations > 0 ? '#fbbf24' : 'var(--text-4)' }}>
           <AlertTriangle size={11} strokeWidth={1.8} />
-          <span>{t.validations} validations</span>
+          <span>{t.validations} {trans.common.validations}</span>
         </div>
         <div className="flex items-center gap-1.5" style={{ color: t.tickets > 0 ? '#60a5fa' : 'var(--text-4)' }}>
           <MessageCircle size={11} strokeWidth={1.8} />
-          <span>{t.tickets} tickets</span>
+          <span>{t.tickets} {trans.common.tickets}</span>
         </div>
       </div>
 
@@ -196,14 +189,14 @@ function TraiteurCard({ t }: { t: Traiteur }) {
           style={{ background: 'var(--accent)', color: '#07070a' }}
         >
           <ArrowRight size={13} strokeWidth={2.5} />
-          Open onboarding
+          {trans.traiteurs.openOnboarding}
         </button>
         <button
           className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
           style={{ background: 'var(--bg-inner)', color: 'var(--text-2)', border: '1px solid var(--border-strong)' }}
         >
           <Eye size={13} strokeWidth={1.8} />
-          Switch to Caterer Portal
+          {trans.traiteurs.switchPortal}
         </button>
       </div>
     </div>
@@ -214,6 +207,7 @@ function TraiteurCard({ t }: { t: Traiteur }) {
 const VERTICALS: Vertical[] = ['Écoles', 'Garderies', 'Camps', 'CSS']
 
 function NewTraiteurModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLang()
   const [selected, setSelected] = useState<Set<Vertical>>(new Set(['Écoles']))
 
   function toggle(v: Vertical) {
@@ -239,13 +233,13 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-1" style={{ color: 'var(--accent)' }}>
-              Nouveau traiteur
+              {t.traiteurs.modal.title}
             </p>
             <h2 className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-1)' }}>
-              Créer un nouveau traiteur
+              {t.traiteurs.modal.title}
             </h2>
             <p className="text-[12.5px]" style={{ color: 'var(--text-3)' }}>
-              Lance un nouvel embarquement. Tous les champs peuvent être complétés plus tard via le workspace.
+              {t.traiteurs.modal.description}
             </p>
           </div>
           <button onClick={onClose} className="mt-1 cursor-pointer shrink-0" style={{ color: 'var(--text-4)' }}>
@@ -256,7 +250,7 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         {/* NOM COMMERCIAL */}
         <div>
           <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-            Nom commercial <span style={{ color: 'var(--accent)' }}>*</span>
+            {t.traiteurs.modal.businessName} <span style={{ color: 'var(--accent)' }}>*</span>
           </label>
           <input
             placeholder="ex : Concept Gourmet"
@@ -269,7 +263,7 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Raison sociale
+              {t.traiteurs.modal.legalName}
             </label>
             <input placeholder="ex : Concept Gourmet inc."
               className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none"
@@ -277,7 +271,7 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Ville
+              {t.traiteurs.modal.city}
             </label>
             <input placeholder="ex : Montréal, QC"
               className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none"
@@ -288,7 +282,7 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         {/* VERTICALES */}
         <div>
           <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-2" style={{ color: 'var(--text-4)' }}>
-            Verticales desservies
+            {t.traiteurs.modal.verticals}
           </label>
           <div className="flex items-center gap-2 flex-wrap">
             {VERTICALS.map(v => {
@@ -311,21 +305,21 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Admin assigné
+              {t.traiteurs.modal.adminAssigned}
             </label>
             <select className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer"
               style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
               defaultValue="onboarding-admin">
-              <option value="onboarding-admin">Onboarding Admin</option>
-              <option value="support">Support</option>
-              <option value="super-admin">Super Admin</option>
+              <option value="onboarding-admin">{t.traiteurs.adminOptions.onboardingAdmin}</option>
+              <option value="support">{t.traiteurs.adminOptions.support}</option>
+              <option value="super-admin">{t.traiteurs.adminOptions.superAdmin}</option>
             </select>
           </div>
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Contact principal
+              {t.traiteurs.modal.contact}
             </label>
-            <input placeholder="Nom complet"
+            <input placeholder={t.traiteurs.modal.fullName}
               className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none"
               style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-1)' }} />
           </div>
@@ -335,15 +329,15 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Rôle
+              {t.traiteurs.modal.role}
             </label>
-            <input placeholder="Directeur"
+            <input placeholder={t.traiteurs.modal.rolePlaceholder}
               className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none"
               style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-1)' }} />
           </div>
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>
-              Courriel
+              {t.traiteurs.modal.email}
             </label>
             <input placeholder="contact@traiteur.ca"
               className="w-full px-4 py-2.5 rounded-xl text-[13px] outline-none"
@@ -355,19 +349,19 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between gap-4 pt-1 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
           <p className="text-[11.5px] flex items-center gap-1.5" style={{ color: 'var(--text-4)' }}>
             <MessageCircle size={11} strokeWidth={1.8} />
-            Vous serez redirigé vers le workspace après création.
+            {t.traiteurs.modal.redirect}
           </p>
           <div className="flex items-center gap-2.5 shrink-0">
             <button onClick={onClose}
               className="px-5 py-2.5 rounded-full text-[13px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
               style={{ background: 'var(--bg-inner)', color: 'var(--text-2)', border: '1px solid var(--border-strong)' }}>
-              Annuler
+              {t.traiteurs.modal.cancel}
             </button>
             <button
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-semibold cursor-pointer transition-opacity hover:opacity-85"
               style={{ background: 'var(--accent)', color: '#07070a' }}>
               <Check size={13} strokeWidth={2.5} />
-              Créer le traiteur
+              {t.traiteurs.modal.createButton}
             </button>
           </div>
         </div>
@@ -378,16 +372,27 @@ function NewTraiteurModal({ onClose }: { onClose: () => void }) {
 
 /* ── Page ───────────────────────────────────────────────── */
 export function OnboardingTraiteurs() {
+  const { t } = useLang()
   const [activeFilter, setActiveFilter] = useState<FilterId>('tous')
   const [search, setSearch] = useState('')
   const [showModal, setShowModal] = useState(false)
 
+  const FILTERS: { id: FilterId; label: string }[] = [
+    { id: 'tous',           label: t.traiteurs.tabs.all },
+    { id: 'pre-onboarding', label: t.traiteurs.tabs.preOnboarding },
+    { id: 'en-cours',       label: t.traiteurs.tabs.inProgress },
+    { id: 'soumis',         label: t.traiteurs.tabs.submitted },
+    { id: 'corrections',    label: t.traiteurs.tabs.corrections },
+    { id: 'approuves',      label: t.traiteurs.tabs.approved },
+    { id: 'go-live',        label: t.traiteurs.tabs.goLive },
+  ]
+
   const countFor = (id: FilterId) =>
-    id === 'tous' ? TRAITEURS.length : TRAITEURS.filter(t => t.status === id).length
+    id === 'tous' ? TRAITEURS.length : TRAITEURS.filter(tr => tr.status === id).length
 
   const filtered = TRAITEURS
-    .filter(t => activeFilter === 'tous' || t.status === activeFilter)
-    .filter(t => t.name.toLowerCase().includes(search.toLowerCase()))
+    .filter(tr => activeFilter === 'tous' || tr.status === activeFilter)
+    .filter(tr => tr.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <div className="p-7">
@@ -400,15 +405,14 @@ export function OnboardingTraiteurs() {
               <Users size={12} strokeWidth={2} style={{ color: 'var(--accent)' }} />
             </div>
             <span className="text-[10px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--text-4)' }}>
-              Onboarding · Traiteurs
+              {t.traiteurs.title}
             </span>
           </div>
           <h1 className="text-[34px] font-bold tracking-tight leading-tight mb-2" style={{ color: 'var(--text-1)' }}>
-            Traiteurs en onboarding
+            {t.traiteurs.subtitle}
           </h1>
           <p className="text-[13px] leading-relaxed max-w-2xl" style={{ color: 'var(--text-3)' }}>
-            Pilotez chaque traiteur de l'embarquement au Go-live. Ouvrez le workspace pour accéder aux 8
-            sections d'onboarding ou basculez en vue impersonifiée caterer.
+            {t.traiteurs.description}
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
@@ -416,14 +420,14 @@ export function OnboardingTraiteurs() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
             style={{ background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border-default)' }}>
             <Download size={13} strokeWidth={2} />
-            Exporter
+            {t.traiteurs.export}
           </button>
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer transition-opacity hover:opacity-85"
             style={{ background: 'var(--accent)', color: '#07070a' }}>
             <Plus size={14} strokeWidth={2.5} />
-            Nouveau traiteur
+            {t.traiteurs.newCaterer}
           </button>
         </div>
       </div>
@@ -461,7 +465,7 @@ export function OnboardingTraiteurs() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher un traiteur..."
+            placeholder={t.traiteurs.search}
             className="pl-9 pr-4 py-2 rounded-xl text-[12.5px] outline-none w-[220px]"
             style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--text-2)' }}
           />
@@ -472,11 +476,11 @@ export function OnboardingTraiteurs() {
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center py-16 rounded-2xl"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-          <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>Aucun traiteur trouvé.</p>
+          <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>{t.traiteurs.notFound}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
-          {filtered.map(t => <TraiteurCard key={t.id} t={t} />)}
+          {filtered.map(tr => <TraiteurCard key={tr.id} t={tr} />)}
         </div>
       )}
 

@@ -1,5 +1,6 @@
 import { OctagonX } from 'lucide-react'
 import { SectionHeader } from '../../shared/ui/SectionHeader'
+import { useLang } from '../../shared/context/LangContext'
 
 interface BankFieldProps {
   label: string
@@ -26,30 +27,32 @@ function BankField({ label, value, placeholder }: BankFieldProps) {
   )
 }
 
-const DOCUMENTS = [
-  'Relevé bancaire (3 derniers mois)',
-  'Lettre de confirmation bancaire',
-  'Spécimen de chèque annulé',
-]
-
 export function ClientBanques() {
+  const { t } = useLang()
+
+  const DOCUMENTS = [
+    t.banques.documents.bankStatement,
+    t.banques.documents.confirmationLetter,
+    t.banques.documents.checkSpecimen,
+  ]
+
   return (
-    <div className="p-7">
+    <div className="p-4 sm:p-7">
       <SectionHeader
-        title="Banques & informations bancaires"
-        description="Coordonnées bancaires pour les versements et les prélèvements."
+        title={t.banques.title}
+        description={t.banques.description}
         progress={20}
         status="a-faire"
       />
 
       {/* Bank fields */}
-      <div className="grid grid-cols-2 gap-3.5 mb-5">
-        <BankField label="Banque" value="à fournir" placeholder />
-        <BankField label="IBAN / RIB" value="à fournir" placeholder />
-        <BankField label="Titulaire du compte" value="à fournir" placeholder />
-        <BankField label="Type de compte" value="Compte chèque entreprise" />
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-3.5 mb-5">
+        <BankField label={t.banques.fields.bank} value={t.banques.fields.toProvide} placeholder />
+        <BankField label={t.banques.fields.iban} value={t.banques.fields.toProvide} placeholder />
+        <BankField label={t.banques.fields.holder} value={t.banques.fields.toProvide} placeholder />
+        <BankField label={t.banques.fields.type} value={t.banques.fields.accountType} />
         <div className="col-span-2">
-          <BankField label="Fréquence de versement" value="Hebdomadaire" />
+          <BankField label={t.banques.fields.frequency} value={t.banques.fields.frequencyValue} />
         </div>
       </div>
 
@@ -59,7 +62,7 @@ export function ClientBanques() {
         style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
       >
         <p className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-4" style={{ color: 'var(--text-4)' }}>
-          Documents bancaires attendus
+          {t.banques.documents.title}
         </p>
         <div className="flex flex-col gap-3">
           {DOCUMENTS.map(doc => (
@@ -72,7 +75,7 @@ export function ClientBanques() {
                 className="px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold shrink-0"
                 style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.22)' }}
               >
-                Requis
+                {t.banques.documents.required}
               </span>
             </div>
           ))}

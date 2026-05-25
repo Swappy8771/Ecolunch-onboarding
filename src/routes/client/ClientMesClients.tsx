@@ -1,16 +1,8 @@
 import { useState } from 'react'
 import { MapPin, Plus, ArrowRight } from 'lucide-react'
+import { useLang } from '../../shared/context/LangContext'
 
 type TabId = 'ecoles' | 'garderies' | 'camps' | 'css' | 'calendriers'
-
-interface Tab { id: TabId; label: string; count: number }
-const TABS: Tab[] = [
-  { id: 'ecoles',     label: 'Écoles',         count: 4 },
-  { id: 'garderies',  label: 'Garderies CPE',  count: 2 },
-  { id: 'camps',      label: 'Camps',          count: 1 },
-  { id: 'css',        label: 'CSS',            count: 1 },
-  { id: 'calendriers',label: 'Calendriers',    count: 3 },
-]
 
 interface ClientRow { name: string; eleves: number; css: string }
 
@@ -22,7 +14,17 @@ const ECOLES: ClientRow[] = [
 ]
 
 export function ClientMesClients() {
+  const { t } = useLang()
   const [activeTab, setActiveTab] = useState<TabId>('ecoles')
+
+  interface Tab { id: TabId; label: string; count: number }
+  const TABS: Tab[] = [
+    { id: 'ecoles',      label: t.mesClients.tabs.ecoles,      count: 4 },
+    { id: 'garderies',   label: t.mesClients.tabs.garderies,   count: 2 },
+    { id: 'camps',       label: t.mesClients.tabs.camps,       count: 1 },
+    { id: 'css',         label: t.mesClients.tabs.css,         count: 1 },
+    { id: 'calendriers', label: t.mesClients.tabs.calendriers, count: 3 },
+  ]
 
   return (
     <div className="p-7">
@@ -38,14 +40,14 @@ export function ClientMesClients() {
           >
             <MapPin size={11} style={{ color: 'var(--accent)' }} />
             <span className="text-[10.5px] font-semibold" style={{ color: 'var(--accent)' }}>
-              Mes clients
+              {t.mesClients.title}
             </span>
           </div>
           <h1 className="text-[26px] font-bold tracking-tight leading-tight mb-1.5" style={{ color: 'var(--text-1)' }}>
-            Mes clients
+            {t.mesClients.title}
           </h1>
           <p className="text-[12.5px]" style={{ color: 'var(--text-3)' }}>
-            Gérez vos établissements clients — écoles, garderies, camps et CSS.
+            {t.mesClients.description}
           </p>
         </div>
         <button
@@ -53,7 +55,7 @@ export function ClientMesClients() {
           style={{ background: 'var(--accent)', color: '#07070a' }}
         >
           <Plus size={14} strokeWidth={2.5} />
-          Ajouter
+          {t.mesClients.add}
         </button>
       </div>
 
@@ -109,7 +111,7 @@ export function ClientMesClients() {
               <div>
                 <p className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{row.name}</p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-4)' }}>
-                  {row.eleves} élèves · {row.css}
+                  {row.eleves} {t.mesClients.students} · {row.css}
                 </p>
               </div>
             </div>
@@ -118,7 +120,7 @@ export function ClientMesClients() {
         ))}
         {activeTab !== 'ecoles' && (
           <div className="flex items-center justify-center py-16">
-            <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>Aucun élément pour cette catégorie.</p>
+            <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>{t.mesClients.noItems}</p>
           </div>
         )}
       </div>

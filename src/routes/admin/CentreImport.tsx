@@ -4,6 +4,7 @@ import {
   FileText, ArrowRight,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useLang } from '../../shared/context/LangContext'
 
 type ImportStatus = 'pret' | 'draft'
 interface ImportType { id: string; icon: ReactNode; title: string; path: string; status: ImportStatus }
@@ -25,15 +26,16 @@ const IMPORT_TYPES: ImportType[] = [
 ]
 
 function StatusPill({ status }: { status: ImportStatus }) {
+  const { t } = useLang()
   return status === 'pret' ? (
     <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
       style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.22)' }}>
-      Prêt
+      {t.centreImport.stats.ready}
     </span>
   ) : (
     <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
       style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.22)' }}>
-      Draft
+      {t.centreImport.stats.draft}
     </span>
   )
 }
@@ -73,6 +75,7 @@ const PRET  = IMPORT_TYPES.filter(i => i.status === 'pret').length
 const DRAFT = IMPORT_TYPES.filter(i => i.status === 'draft').length
 
 export function CentreImport() {
+  const { t } = useLang()
   return (
     <div className="p-7">
       <div className="mb-8">
@@ -82,24 +85,23 @@ export function CentreImport() {
             <FolderInput size={13} strokeWidth={2.5} style={{ color: 'var(--accent)' }} />
           </div>
           <span className="text-[10.5px] uppercase tracking-[0.16em] font-bold" style={{ color: 'var(--accent)' }}>
-            Smart Import — Centre
+            {t.centreImport.title}
           </span>
         </div>
         <h1 className="text-[38px] font-bold tracking-tight leading-tight mb-3" style={{ color: 'var(--text-1)' }}>
-          Centre d'import / Smart Import
+          {t.centreImport.breadcrumb}
         </h1>
         <p className="text-[13px] leading-relaxed max-w-2xl" style={{ color: 'var(--text-3)' }}>
-          {TOTAL} types d'import, chacun avec son template, son mapping et sa logique de validation propre.{' '}
-          L'outil est aussi disponible contextuellement dans chaque section du portail caterer.
+          {t.centreImport.description}
         </p>
       </div>
 
       {/* Summary chips */}
       <div className="flex items-center gap-3 mb-7">
         {[
-          { label: 'Total', value: TOTAL, color: 'var(--text-1)', bg: 'var(--bg-card)', border: 'var(--border-default)', dot: null },
-          { label: 'Prêt',  value: PRET,  color: '#4ade80', bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.18)', dot: '#4ade80' },
-          { label: 'Draft', value: DRAFT, color: '#fbbf24', bg: 'rgba(251,191,36,0.06)', border: 'rgba(251,191,36,0.18)', dot: '#fbbf24' },
+          { label: t.centreImport.stats.total, value: TOTAL, color: 'var(--text-1)', bg: 'var(--bg-card)', border: 'var(--border-default)', dot: null },
+          { label: t.centreImport.stats.ready, value: PRET,  color: '#4ade80', bg: 'rgba(74,222,128,0.06)', border: 'rgba(74,222,128,0.18)', dot: '#4ade80' },
+          { label: t.centreImport.stats.draft, value: DRAFT, color: '#fbbf24', bg: 'rgba(251,191,36,0.06)', border: 'rgba(251,191,36,0.18)', dot: '#fbbf24' },
         ].map(chip => (
           <div key={chip.label}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl"

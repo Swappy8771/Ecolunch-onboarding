@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ClipboardCheck, Check, X, CircleAlert } from 'lucide-react'
 import { StatCard } from '../../features/dashboard/components/StatCard'
 import { StatusBadge, type StatusType } from '../../shared/ui/StatusBadge'
+import { useLang } from '../../shared/context/LangContext'
 
 type FilterKey = 'tous' | StatusType
 
@@ -19,22 +20,6 @@ const ROWS: ValidationRow[] = [
   { id:6, traiteur:'Concept Gourmet', isBloquant:false, section:'Menus',               sousSection:'Cycle rotatif',     champ:'Prix semaine 3',     statut:'correction' },
 ]
 
-const FILTER_TABS: { key: FilterKey; label: string; count: number }[] = [
-  { key:'tous',         label:'Tous',        count:6 },
-  { key:'en-attente',   label:'En attente',  count:1 },
-  { key:'correction',   label:'Corrections', count:1 },
-  { key:'manquant',     label:'Manquants',   count:2 },
-  { key:'rejete',       label:'Rejetés',     count:1 },
-  { key:'approuve',     label:'Approuvés',   count:1 },
-]
-
-const STATS = [
-  { label:'Total items',      value:6, valueColor:'lime'  as const },
-  { label:'En attente',       value:1, valueColor:'blue'  as const },
-  { label:'Corrections',      value:1, valueColor:'amber' as const },
-  { label:'Bloquants Go-live',value:3, valueColor:'red'   as const },
-]
-
 function TH({ children }: { children: React.ReactNode }) {
   return (
     <th className="px-5 py-3 text-left whitespace-nowrap"
@@ -45,8 +30,25 @@ function TH({ children }: { children: React.ReactNode }) {
 }
 
 export function CentreDeValidation() {
+  const { t } = useLang()
   const [activeFilter, setActiveFilter] = useState<FilterKey>('tous')
   const [bloquantsOnly, setBloquantsOnly] = useState(false)
+
+  const FILTER_TABS: { key: FilterKey; label: string; count: number }[] = [
+    { key:'tous',         label: t.centreValidation.tabs.all,         count:6 },
+    { key:'en-attente',   label: t.centreValidation.tabs.pending,      count:1 },
+    { key:'correction',   label: t.centreValidation.tabs.corrections,  count:1 },
+    { key:'manquant',     label: t.centreValidation.tabs.missing,      count:2 },
+    { key:'rejete',       label: t.centreValidation.tabs.rejected,     count:1 },
+    { key:'approuve',     label: t.centreValidation.tabs.approved,     count:1 },
+  ]
+
+  const STATS = [
+    { label: t.centreValidation.stats.total,      value:6, valueColor:'lime'  as const },
+    { label: t.centreValidation.stats.pending,     value:1, valueColor:'blue'  as const },
+    { label: t.centreValidation.stats.corrections, value:1, valueColor:'amber' as const },
+    { label: t.centreValidation.stats.blocking,    value:3, valueColor:'red'   as const },
+  ]
 
   const filtered = ROWS.filter(r => {
     if (bloquantsOnly && !r.isBloquant) return false
@@ -63,15 +65,14 @@ export function CentreDeValidation() {
             <ClipboardCheck size={13} strokeWidth={2.5} style={{ color:'var(--accent)' }} />
           </div>
           <span className="text-[10.5px] uppercase tracking-[0.16em] font-bold" style={{ color:'var(--accent)' }}>
-            Centre de validation
+            {t.centreValidation.breadcrumb}
           </span>
         </div>
         <h1 className="text-[38px] font-bold tracking-tight leading-tight mb-3" style={{ color:'var(--text-1)' }}>
-          Centre de validation
+          {t.centreValidation.title}
         </h1>
         <p className="text-[13px] leading-relaxed max-w-2xl" style={{ color:'var(--text-3)' }}>
-          Vue globale de tous les items en attente de revue, tous traiteurs confondus.
-          Filtrez par statut, isolez les blockers de Go-live.
+          {t.centreValidation.description}
         </p>
       </div>
 
@@ -115,7 +116,7 @@ export function CentreDeValidation() {
             }>
             {bloquantsOnly && <Check size={10} strokeWidth={3} className="text-[#07070a]" />}
           </div>
-          <span className="text-[12.5px]" style={{ color:'var(--text-3)' }}>Bloquants uniquement</span>
+          <span className="text-[12.5px]" style={{ color:'var(--text-3)' }}>{t.centreValidation.blockingOnly}</span>
         </label>
       </div>
 
@@ -124,11 +125,11 @@ export function CentreDeValidation() {
         <table className="w-full border-collapse">
           <thead>
             <tr style={{ borderBottom:'1px solid var(--border-default)', background:'var(--bg-base)' }}>
-              <TH>Traiteur</TH>
-              <TH>Section / Sous-section</TH>
-              <TH>Champ / Doc</TH>
-              <TH>Statut</TH>
-              <TH>Actions</TH>
+              <TH>{t.centreValidation.table.caterer}</TH>
+              <TH>{t.centreValidation.table.section}</TH>
+              <TH>{t.centreValidation.table.field}</TH>
+              <TH>{t.centreValidation.table.status}</TH>
+              <TH>{t.centreValidation.table.actions}</TH>
             </tr>
           </thead>
           <tbody>
@@ -175,7 +176,7 @@ export function CentreDeValidation() {
             ))}
             {filtered.length === 0 && (
               <tr><td colSpan={5} className="px-5 py-10 text-center text-[13px]" style={{ color:'var(--text-4)' }}>
-                Aucun résultat pour ce filtre.
+                {t.centreValidation.noResults}
               </td></tr>
             )}
           </tbody>

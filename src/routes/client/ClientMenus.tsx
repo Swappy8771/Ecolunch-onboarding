@@ -1,4 +1,5 @@
 import { SectionHeader } from '../../shared/ui/SectionHeader'
+import { useLang } from '../../shared/context/LangContext'
 
 type SubStatus = 'en-cours' | 'a-faire'
 
@@ -13,68 +14,23 @@ interface SubSectionCard {
   fullWidth?: boolean
 }
 
-const SUBSECTIONS: SubSectionCard[] = [
-  {
-    id: 'ecoles-repas',
-    category: 'Écoles',
-    title: 'Repas commun',
-    status: 'en-cours',
-    count: '14 repas',
-  },
-  {
-    id: 'ecoles-cycle',
-    category: 'Écoles',
-    title: 'Cycle rotatif',
-    status: 'a-faire',
-    stats: [
-      { label: 'Semaines', value: '8' },
-      { label: 'Options / jour', value: '3' },
-      { label: 'Jours actifs', value: '5' },
-      { label: 'Début', value: '2025-09-02' },
-    ],
-  },
-  {
-    id: 'garderies-menus',
-    category: 'Garderies',
-    title: 'Menus',
-    status: 'a-faire',
-    count: '8 menus',
-  },
-  {
-    id: 'garderies-forfaits',
-    category: 'Garderies',
-    title: 'Forfaits',
-    status: 'a-faire',
-    count: '4 forfaits',
-  },
-  {
-    id: 'camps',
-    category: 'Camps',
-    title: 'Menus & Forfaits',
-    status: 'a-faire',
-    disabled: true,
-    count: 'Désactivé',
-    fullWidth: true,
-  },
-]
-
-function SubStatusBadge({ status }: { status: SubStatus }) {
+function SubStatusBadge({ status, t }: { status: SubStatus; t: ReturnType<typeof useLang>['t'] }) {
   if (status === 'en-cours')
     return (
       <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0"
         style={{ background: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: '1px solid rgba(96,165,250,0.22)' }}>
-        <span className="w-1.5 h-1.5 rounded-full bg-[#60a5fa]" />En cours
+        <span className="w-1.5 h-1.5 rounded-full bg-[#60a5fa]" />{t.status.inProgress}
       </span>
     )
   return (
     <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0"
       style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--text-4)' }} />À faire
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--text-4)' }} />{t.status.todo}
     </span>
   )
 }
 
-function SubCard({ card }: { card: SubSectionCard }) {
+function SubCard({ card, t }: { card: SubSectionCard; t: ReturnType<typeof useLang>['t'] }) {
   return (
     <div
       className={`rounded-2xl p-5 flex flex-col gap-4 card-float${card.fullWidth ? ' col-span-2' : ''}`}
@@ -91,7 +47,7 @@ function SubCard({ card }: { card: SubSectionCard }) {
           </p>
           <h3 className="text-[14px] font-semibold" style={{ color: 'var(--text-1)' }}>{card.title}</h3>
         </div>
-        <SubStatusBadge status={card.status} />
+        <SubStatusBadge status={card.status} t={t} />
       </div>
 
       {card.count !== undefined && (
@@ -120,16 +76,63 @@ function SubCard({ card }: { card: SubSectionCard }) {
 }
 
 export function ClientMenus() {
+  const { t } = useLang()
+
+  const SUBSECTIONS: SubSectionCard[] = [
+    {
+      id: 'ecoles-repas',
+      category: t.menus.tabs.ecoles,
+      title: 'Repas commun',
+      status: 'en-cours',
+      count: `14 ${t.menus.stats.repas}`,
+    },
+    {
+      id: 'ecoles-cycle',
+      category: t.menus.tabs.ecoles,
+      title: t.menus.fields.rotatingCycle,
+      status: 'a-faire',
+      stats: [
+        { label: t.menus.fields.weeks,          value: '8' },
+        { label: t.menus.fields.optionsPerDay,   value: '3' },
+        { label: t.menus.fields.activeDays,      value: '5' },
+        { label: t.menus.fields.start,           value: '2025-09-02' },
+      ],
+    },
+    {
+      id: 'garderies-menus',
+      category: t.menus.tabs.garderies,
+      title: 'Menus',
+      status: 'a-faire',
+      count: `8 ${t.menus.stats.menus}`,
+    },
+    {
+      id: 'garderies-forfaits',
+      category: t.menus.tabs.garderies,
+      title: 'Forfaits',
+      status: 'a-faire',
+      count: `4 ${t.menus.stats.forfaits}`,
+    },
+    {
+      id: 'camps',
+      category: t.menus.tabs.camps,
+      title: 'Menus & Forfaits',
+      status: 'a-faire',
+      disabled: true,
+      count: t.status.disabled,
+      fullWidth: true,
+    },
+  ]
+
   return (
     <div className="p-7">
       <SectionHeader
-        title="Menus & Forfaits"
-        description="Configurez vos menus et forfaits par type d'établissement."
+        title={t.menus.title}
+        description={t.menus.description}
         progress={15}
         status="a-faire"
       />
       <div className="grid grid-cols-2 gap-3.5">
-        {SUBSECTIONS.map(card => <SubCard key={card.id} card={card} />)}
+        {SUBSECTIONS.map(card => <SubCard key={card.id} card={card} t={t} />)}
       </div>
     </div>
   )

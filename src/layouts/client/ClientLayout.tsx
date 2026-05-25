@@ -2,15 +2,46 @@ import { useState } from 'react'
 import { ClientHeader } from './ClientHeader'
 import { Outlet } from 'react-router-dom'
 import { ClientSidebar } from './ClientSidebar'
+import { useIsDesktop } from '../../shared/hooks/useIsDesktop'
 
 export function ClientLayout() {
-  const [collapsed, setCollapsed] = useState(false)
-  const sidebarWidth = collapsed ? 68 : 280
+  const isDesktop = useIsDesktop()
+  const [collapsed, setCollapsed]   = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  const sidebarWidth = isDesktop ? (collapsed ? 68 : 280) : 0
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
-      <ClientHeader sidebarWidth={sidebarWidth} />
-      <ClientSidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} />
+    <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--bg-base)' }}>
+      <ClientHeader
+        sidebarWidth={sidebarWidth}
+        isDesktop={isDesktop}
+        onMenuClick={() => setDrawerOpen(o => !o)}
+      />
+
+      <ClientSidebar
+        isDesktop={isDesktop}
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(c => !c)}
+        drawerOpen={drawerOpen}
+        onDrawerClose={() => setDrawerOpen(false)}
+      />
+
+      {/* Mobile backdrop */}
+      {!isDesktop && (
+        <div
+          className="fixed inset-0 backdrop-blur-sm"
+          style={{
+            zIndex: 40,
+            background: 'var(--shadow-backdrop)',
+            opacity: drawerOpen ? 1 : 0,
+            visibility: drawerOpen ? 'visible' : 'hidden',
+            transition: 'opacity 280ms ease, visibility 280ms ease',
+          }}
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
       <main
         className="pt-[52px] min-h-screen"
         style={{

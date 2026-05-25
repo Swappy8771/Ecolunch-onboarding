@@ -6,6 +6,7 @@ import {
 import type { ReactNode } from 'react'
 import { CircularProgress } from '../../shared/ui/CircularProgress'
 import { StatusPill } from '../../shared/ui/StatusPill'
+import { useLang } from '../../shared/context/LangContext'
 
 /* ── Types ─────────────────────────────────────────────── */
 type SectionStatus = 'en-cours' | 'a-faire' | 'complete'
@@ -18,22 +19,6 @@ interface OnboardingSection {
   status: SectionStatus
   accentColor: string
 }
-
-/* ── Data ───────────────────────────────────────────────── */
-const SECTIONS: OnboardingSection[] = [
-  { id: 'profil',         icon: <Briefcase       size={20} strokeWidth={1.6} />, title: 'Profil',                          progress: 80, status: 'en-cours', accentColor: '#a3e635' },
-  { id: 'banques',        icon: <CreditCard      size={20} strokeWidth={1.6} />, title: 'Banques & informations bancaires', progress: 20, status: 'a-faire',  accentColor: '#fbbf24' },
-  { id: 'mes-clients',    icon: <MapPin          size={20} strokeWidth={1.6} />, title: 'Mes clients',                     progress: 60, status: 'en-cours', accentColor: '#60a5fa' },
-  { id: 'menus',          icon: <UtensilsCrossed size={20} strokeWidth={1.6} />, title: 'Menus & Forfaits',                progress: 15, status: 'a-faire',  accentColor: '#f97316' },
-  { id: 'modules',        icon: <Layers          size={20} strokeWidth={1.6} />, title: 'Modules',                         progress: 30, status: 'a-faire',  accentColor: '#a78bfa' },
-  { id: 'document-vault', icon: <FolderLock      size={20} strokeWidth={1.6} />, title: 'Document Vault',                  progress: 55, status: 'en-cours', accentColor: '#34d399' },
-  { id: 'validation',     icon: <ClipboardCheck  size={20} strokeWidth={1.6} />, title: 'Validation',                      progress: 0,  status: 'a-faire',  accentColor: '#60a5fa' },
-  { id: 'go-live',        icon: <Flag            size={20} strokeWidth={1.6} />, title: 'Go-live',                         progress: 0,  status: 'a-faire',  accentColor: '#f87171' },
-]
-
-const GLOBAL_PROGRESS = Math.round(SECTIONS.reduce((s, c) => s + c.progress, 0) / SECTIONS.length)
-const COMPLETE_COUNT  = SECTIONS.filter(s => s.status === 'complete').length
-const IN_PROGRESS_COUNT = SECTIONS.filter(s => s.status === 'en-cours').length
 
 /* ── Status pill ────────────────────────────────────────── */
 function SectionStatusPill({ status }: { status: SectionStatus }) {
@@ -72,7 +57,7 @@ function ProgressBar({ value, color }: { value: number; color: string }) {
 }
 
 /* ── Section card ───────────────────────────────────────── */
-function SectionCard({ section }: { section: OnboardingSection }) {
+function SectionCard({ section, continueLabel }: { section: OnboardingSection; continueLabel: string }) {
   const { accentColor } = section
   return (
     <div
@@ -131,7 +116,7 @@ function SectionCard({ section }: { section: OnboardingSection }) {
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.gap = '8px' }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.gap = '6px' }}
         >
-          Continuer
+          {continueLabel}
           <ArrowRight size={12} strokeWidth={2.5} />
         </button>
         <div className="w-1.5 h-1.5 rounded-full" style={{ background: accentColor, opacity: 0.4 }} />
@@ -142,12 +127,29 @@ function SectionCard({ section }: { section: OnboardingSection }) {
 
 /* ── Page ───────────────────────────────────────────────── */
 export function ClientDashboard() {
+  const { t } = useLang()
+
+  const SECTIONS: OnboardingSection[] = [
+    { id: 'profil',         icon: <Briefcase       size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.profil,         progress: 80, status: 'en-cours', accentColor: '#a3e635' },
+    { id: 'banques',        icon: <CreditCard      size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.banques,        progress: 20, status: 'a-faire',  accentColor: '#fbbf24' },
+    { id: 'mes-clients',    icon: <MapPin          size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.mesClients,     progress: 60, status: 'en-cours', accentColor: '#60a5fa' },
+    { id: 'menus',          icon: <UtensilsCrossed size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.menus,          progress: 15, status: 'a-faire',  accentColor: '#f97316' },
+    { id: 'modules',        icon: <Layers          size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.modules,        progress: 30, status: 'a-faire',  accentColor: '#a78bfa' },
+    { id: 'document-vault', icon: <FolderLock      size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.documentVault,  progress: 55, status: 'en-cours', accentColor: '#34d399' },
+    { id: 'validation',     icon: <ClipboardCheck  size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.validation,     progress: 0,  status: 'a-faire',  accentColor: '#60a5fa' },
+    { id: 'go-live',        icon: <Flag            size={20} strokeWidth={1.6} />, title: t.clientDashboard.sectionNames.goLive,         progress: 0,  status: 'a-faire',  accentColor: '#f87171' },
+  ]
+
+  const GLOBAL_PROGRESS = Math.round(SECTIONS.reduce((s, c) => s + c.progress, 0) / SECTIONS.length)
+  const COMPLETE_COUNT  = SECTIONS.filter(s => s.status === 'complete').length
+  const IN_PROGRESS_COUNT = SECTIONS.filter(s => s.status === 'en-cours').length
+
   return (
-    <div className="p-7 max-w-[1400px]">
+    <div className="p-4 lg:p-7 max-w-[1400px]">
 
       {/* Hero card */}
       <div
-        className="relative rounded-2xl p-7 mb-6 flex items-center justify-between gap-6 overflow-hidden"
+        className="relative rounded-2xl p-5 lg:p-7 mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 overflow-hidden"
         style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border-default)',
@@ -174,13 +176,13 @@ export function ClientDashboard() {
           >
             <div className="w-1.5 h-1.5 rounded-full bg-[#a3e635] animate-pulse" />
             <span className="text-[13px] font-bold" style={{ color: 'var(--accent)' }}>
-              Onboarding · {GLOBAL_PROGRESS}% complétée
+              {t.clientDashboard.badge.replace('{n}', String(GLOBAL_PROGRESS))}
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="text-[36px] font-black leading-tight mb-3 tracking-tight">
-            <span style={{ color: 'var(--text-1)' }}>Bienvenue,&nbsp;</span>
+            <span style={{ color: 'var(--text-1)' }}>{t.clientDashboard.welcome}&nbsp;</span>
             <span
               style={{
                 background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
@@ -194,19 +196,18 @@ export function ClientDashboard() {
           </h1>
 
           <p className="text-[13px] leading-relaxed max-w-xl mb-6" style={{ color: 'var(--text-3)' }}>
-            Complétez les sections ci-dessous pour activer votre compte sur la plateforme PRS EcoLunch.
-            Le moteur Smart Import peut préremplir jusqu'à 70% de vos informations.
+            {t.clientDashboard.description}
           </p>
 
           {/* Quick stats row */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
               style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.20)' }}
             >
               <CheckCircle2 size={13} strokeWidth={2.5} style={{ color: '#4ade80' }} />
               <span className="text-[13px] font-semibold" style={{ color: '#4ade80' }}>
-                {COMPLETE_COUNT} complétées
+                {COMPLETE_COUNT} {t.clientDashboard.completed}
               </span>
             </div>
             <div
@@ -215,7 +216,7 @@ export function ClientDashboard() {
             >
               <Clock size={13} strokeWidth={2.5} style={{ color: '#60a5fa' }} />
               <span className="text-[13px] font-semibold" style={{ color: '#60a5fa' }}>
-                {IN_PROGRESS_COUNT} en cours
+                {IN_PROGRESS_COUNT} {t.clientDashboard.inProgress}
               </span>
             </div>
             <div
@@ -224,7 +225,7 @@ export function ClientDashboard() {
             >
               <Zap size={13} strokeWidth={2.5} style={{ color: '#a3e635' }} />
               <span className="text-[13px] font-semibold" style={{ color: '#a3e635' }}>
-                Smart Import disponible
+                {t.clientDashboard.smartImport}
               </span>
             </div>
           </div>
@@ -239,17 +240,17 @@ export function ClientDashboard() {
       {/* Section heading */}
       <div className="flex items-center gap-3 mb-5">
         <span className="text-[10px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--text-4)' }}>
-          Sections d'onboarding
+          {t.clientDashboard.sectionsTitle}
         </span>
         <div className="flex-1 h-px" style={{ background: 'var(--border-subtle)' }} />
         <span className="text-[11px] font-medium" style={{ color: 'var(--text-4)' }}>
-          {SECTIONS.length} sections
+          {SECTIONS.length} {t.clientDashboard.sections}
         </span>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-4 gap-4">
-        {SECTIONS.map(s => <SectionCard key={s.id} section={s} />)}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 lg:gap-4">
+        {SECTIONS.map(s => <SectionCard key={s.id} section={s} continueLabel={t.clientDashboard.continue} />)}
       </div>
     </div>
   )

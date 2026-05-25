@@ -6,64 +6,66 @@ import {
 import { StatCard } from '../../features/dashboard/components/StatCard'
 import { FeatureCard } from '../../features/dashboard/components/FeatureCard'
 import { PageBadge } from '../../shared/ui/PageBadge'
-
-const STATS = [
-  { label: 'Traiteurs en onboarding', value: 3, icon: <Users size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: '+1 cette semaine' },
-  { label: 'Validations ouvertes',    value: 5, icon: <ExternalLink size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: '2 urgentes' },
-  { label: 'Tickets EcoLoop',         value: 3, icon: <MessageCircle size={15} strokeWidth={2} />, valueColor: 'blue' as const, trend: '1 nouveau' },
-  { label: 'Go-live bloqués',         value: 2, icon: <Clock size={15} strokeWidth={2} />, valueColor: 'red' as const,  trend: 'Action requise' },
-]
-
-const FEATURE_CARDS = [
-  {
-    icon: <UserCheck size={20} strokeWidth={1.8} />,
-    title: 'Onboarding · Traiteurs',
-    description: "3 traiteurs en cours d'embarquement",
-    accentColor: '#a3e635',
-    to: '/admin/traiteurs',
-  },
-  {
-    icon: <ClipboardCheck size={20} strokeWidth={1.8} />,
-    title: 'Centre de validation',
-    description: '5 éléments en attente de revue',
-    accentColor: '#60a5fa',
-    to: '/admin/centre-validation',
-  },
-  {
-    icon: <FolderInput size={20} strokeWidth={1.8} />,
-    title: "Centre d'Import",
-    description: "13 types d'import disponibles",
-    accentColor: '#a78bfa',
-    to: '/admin/centre-import',
-  },
-  {
-    icon: <FolderLock size={20} strokeWidth={1.8} />,
-    title: 'Document Vault',
-    description: 'Coffre-fort centralisé multi-traiteurs',
-    accentColor: '#fbbf24',
-    to: '/admin/document-vault',
-  },
-  {
-    icon: <MessageCircle size={20} strokeWidth={1.8} />,
-    title: 'EcoLoop',
-    description: '3 ticket(s) ouvert(s) — 2 bloquants',
-    accentColor: '#f87171',
-    to: '/admin/ecoloop',
-  },
-  {
-    icon: <SlidersHorizontal size={20} strokeWidth={1.8} />,
-    title: 'Modules / Configurations',
-    description: '6 catégories : Finance, Accounting, Operations…',
-    accentColor: '#34d399',
-    to: '/admin/modules',
-  },
-]
+import { useLang } from '../../shared/context/LangContext'
 
 export function Dashboard() {
+  const { t } = useLang()
   const now = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
+  const STATS = [
+    { label: t.dashboard.stats.traiteurs,   value: 3, icon: <Users size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: t.dashboard.stats.thisWeek },
+    { label: t.dashboard.stats.validations, value: 5, icon: <ExternalLink size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: t.dashboard.stats.urgent },
+    { label: t.dashboard.stats.tickets,     value: 3, icon: <MessageCircle size={15} strokeWidth={2} />, valueColor: 'blue' as const, trend: t.dashboard.stats.new },
+    { label: t.dashboard.stats.goLiveBlocked, value: 2, icon: <Clock size={15} strokeWidth={2} />, valueColor: 'red' as const, trend: t.dashboard.stats.actionRequired },
+  ]
+
+  const FEATURE_CARDS = [
+    {
+      icon: <UserCheck size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.onboarding,
+      description: t.dashboard.cards.onboardingDesc,
+      accentColor: '#a3e635',
+      to: '/admin/traiteurs',
+    },
+    {
+      icon: <ClipboardCheck size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.validation,
+      description: t.dashboard.cards.validationDesc,
+      accentColor: '#60a5fa',
+      to: '/admin/centre-validation',
+    },
+    {
+      icon: <FolderInput size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.import,
+      description: t.dashboard.cards.importDesc,
+      accentColor: '#a78bfa',
+      to: '/admin/centre-import',
+    },
+    {
+      icon: <FolderLock size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.vault,
+      description: t.dashboard.cards.vaultDesc,
+      accentColor: '#fbbf24',
+      to: '/admin/document-vault',
+    },
+    {
+      icon: <MessageCircle size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.ecoloop,
+      description: t.dashboard.cards.ecoloopDesc,
+      accentColor: '#f87171',
+      to: '/admin/ecoloop',
+    },
+    {
+      icon: <SlidersHorizontal size={20} strokeWidth={1.8} />,
+      title: t.dashboard.cards.modules,
+      description: t.dashboard.cards.modulesDesc,
+      accentColor: '#34d399',
+      to: '/admin/modules',
+    },
+  ]
+
   return (
-    <div className="p-7 max-w-[1400px]">
+    <div className="p-4 lg:p-7 max-w-[1400px]">
 
       {/* Header */}
       <div className="mb-8 relative">
@@ -75,7 +77,7 @@ export function Dashboard() {
 
         <PageBadge icon={<LayoutGrid size={13} strokeWidth={2.5} />} label="EcoLunch Admin" />
 
-        <div className="flex items-end justify-between mt-2">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between mt-2 gap-3">
           <div>
             <h1
               className="text-[40px] font-black tracking-tight leading-tight"
@@ -86,10 +88,10 @@ export function Dashboard() {
                 backgroundClip: 'text',
               }}
             >
-              Dashboard
+              {t.dashboard.title}
             </h1>
             <p className="text-[13px] leading-relaxed mt-1 max-w-xl" style={{ color: 'var(--text-3)' }}>
-              Vue d'ensemble du moteur d'onboarding EcoLunch / PRS — traiteurs, validations, tickets et configurations.
+              {t.dashboard.subtitle}
             </p>
           </div>
 
@@ -106,20 +108,20 @@ export function Dashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
         {STATS.map(s => <StatCard key={s.label} {...s} />)}
       </div>
 
       {/* Divider */}
       <div className="flex items-center gap-3 mb-5">
         <span className="text-[13px] uppercase tracking-[0.15em] font-bold" style={{ color: 'var(--text-4)' }}>
-          Accès rapide
+          {t.dashboard.quickAccess}
         </span>
         <div className="flex-1 h-px" style={{ background: 'var(--border-subtle)' }} />
       </div>
 
       {/* Feature cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
         {FEATURE_CARDS.map(c => <FeatureCard key={c.title} {...c} />)}
       </div>
     </div>

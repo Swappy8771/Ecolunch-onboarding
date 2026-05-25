@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { FileText } from 'lucide-react'
 import { CircularProgress } from '../../shared/ui/CircularProgress'
 import { StatusPill } from '../../shared/ui/StatusPill'
+import { useLang } from '../../shared/context/LangContext'
 
 type DocStatus = 'correction' | 'approved' | 'review' | 'required'
 
@@ -12,22 +13,6 @@ interface DocItem {
   status: DocStatus
   category: string
 }
-
-const TABS = [
-  'Tous',
-  'Profil',
-  'Banques & informations bancaires',
-  'Mes clients / Établissements desservis',
-  'Menus & Forfaits',
-  'Smart Import',
-  'Modules',
-  'Go-live',
-  'Documents légaux',
-  'Conformité & permis',
-  'Assurances',
-] as const
-
-type TabId = typeof TABS[number]
 
 const DOCS: DocItem[] = [
   {
@@ -53,7 +38,7 @@ const DOCS: DocItem[] = [
   },
   {
     id: 'doc-4',
-    title: "Police d’assurance responsabilité.pdf",
+    title: "Police d'assurance responsabilité.pdf",
     meta: 'Assurances · v2.0 · Smart Import (Acomba) · 2026-02-04',
     status: 'approved',
     category: 'Assurances',
@@ -74,34 +59,19 @@ const DOCS: DocItem[] = [
   },
 ]
 
-function statusConfig(status: DocStatus) {
+function statusConfig(status: DocStatus, t: ReturnType<typeof useLang>['t']) {
   const map: Record<DocStatus, { label: string; bg: string; color: string; border: string; icon?: ReactNode }> = {
-    correction: { label: 'Correction', bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: 'rgba(251,191,36,0.22)' },
-    approved: { label: 'Approuvé', bg: 'rgba(74,222,128,0.12)', color: '#4ade80', border: 'rgba(74,222,128,0.22)' },
-    review: { label: 'En revue', bg: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
-    required: { label: 'Reçu', bg: 'var(--bg-inner)', color: 'var(--text-3)', border: 'var(--border-strong)' },
+    correction: { label: t.documentVault.statuses.correction,  bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: 'rgba(251,191,36,0.22)' },
+    approved:   { label: t.documentVault.statuses.approved,    bg: 'rgba(74,222,128,0.12)', color: '#4ade80', border: 'rgba(74,222,128,0.22)' },
+    review:     { label: t.documentVault.statuses.underReview, bg: 'rgba(96,165,250,0.12)', color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
+    required:   { label: t.documentVault.statuses.received,    bg: 'var(--bg-inner)', color: 'var(--text-3)', border: 'var(--border-strong)' },
   }
   return map[status]
 }
 
-function TabPill({ id, active, onClick }: { id: TabId; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-medium cursor-pointer transition-all"
-      style={{
-        background: active ? 'var(--accent-dim)' : 'var(--bg-card)',
-        color: active ? 'var(--accent)' : 'var(--text-3)',
-        border: `1px solid ${active ? 'var(--accent-border)' : 'var(--border-default)'}`,
-      }}
-    >
-      {id}
-    </button>
-  )
-}
-
 function DocRow({ doc }: { doc: DocItem }) {
-  const cfg = statusConfig(doc.status)
+  const { t } = useLang()
+  const cfg = statusConfig(doc.status, t)
   return (
     <div
       className="rounded-2xl px-5 py-4 flex items-center justify-between gap-5 card-float"
@@ -128,12 +98,39 @@ function DocRow({ doc }: { doc: DocItem }) {
 }
 
 export function DocumentVault() {
-  const [activeTab, setActiveTab] = useState<TabId>('Tous')
+  const { t } = useLang()
+
+  const TABS = [
+    t.documentVault.categories.all,
+    t.documentVault.categories.profil,
+    t.documentVault.categories.banques,
+    t.documentVault.categories.clients,
+    t.documentVault.categories.menus,
+    t.documentVault.categories.smartImport,
+    t.documentVault.categories.modules,
+    t.documentVault.categories.goLive,
+    t.documentVault.sections.legal,
+    t.documentVault.sections.compliance,
+    t.documentVault.sections.insurance,
+  ] as const
+
+  type TabId = typeof TABS[number]
+
+  const TAB_TO_CATEGORY: Record<string, string> = {
+    [t.documentVault.sections.legal]:       'Documents légaux',
+    [t.documentVault.sections.compliance]:  'Conformité & permis',
+    [t.documentVault.sections.insurance]:   'Assurances',
+    [t.documentVault.categories.banques]:   'Banques & informations bancaires',
+    [t.documentVault.categories.menus]:     'Menus & Forfaits',
+  }
+
+  const [activeTab, setActiveTab] = useState<TabId>(TABS[0])
 
   const filtered = useMemo(() => {
-    if (activeTab === 'Tous') return DOCS
-    return DOCS.filter(d => d.category === activeTab)
-  }, [activeTab])
+    if (activeTab === t.documentVault.categories.all) return DOCS
+    const cat = TAB_TO_CATEGORY[activeTab] ?? activeTab
+    return DOCS.filter(d => d.category === cat)
+  }, [activeTab, t])
 
   return (
     <div className="p-7">
@@ -144,13 +141,13 @@ export function DocumentVault() {
       >
         <div className="min-w-0">
           <p className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-4)' }}>
-            Section
+            {t.documentVault.section}
           </p>
           <h1 className="text-[26px] font-bold tracking-tight leading-tight" style={{ color: 'var(--text-1)' }}>
-            Document Vault
+            {t.documentVault.title}
           </h1>
           <p className="text-[12.5px] mt-1" style={{ color: 'var(--text-3)' }}>
-            Coffre-fort multi-catégories pour ce traiteur
+            {t.documentVault.description}
           </p>
         </div>
 
@@ -162,8 +159,19 @@ export function DocumentVault() {
 
       {/* Tabs */}
       <div className="flex items-center gap-2 flex-wrap mb-5">
-        {TABS.map(t => (
-          <TabPill key={t} id={t} active={t === activeTab} onClick={() => setActiveTab(t)} />
+        {TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-medium cursor-pointer transition-all"
+            style={{
+              background: tab === activeTab ? 'var(--accent-dim)' : 'var(--bg-card)',
+              color: tab === activeTab ? 'var(--accent)' : 'var(--text-3)',
+              border: `1px solid ${tab === activeTab ? 'var(--accent-border)' : 'var(--border-default)'}`,
+            }}
+          >
+            {tab}
+          </button>
         ))}
       </div>
 

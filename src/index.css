@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
-/* ── Design tokens ────────────────────────────────────── */
-:root {
+/* ── Design tokens — dark (default) ──────────────────── */
+:root,
+[data-theme="dark"] {
   /* Depth layers */
-  --bg-base:     #07070a;   /* page / main content */
-  --bg-surface:  #0e0e13;   /* header, sidebar */
-  --bg-card:     #131318;   /* cards, panels */
-  --bg-inner:    #1b1b24;   /* icon boxes, nested */
+  --bg-base:     #07070a;
+  --bg-surface:  #0e0e13;
+  --bg-card:     #131318;
+  --bg-inner:    #1b1b24;
+
+  /* Header frosted glass */
+  --bg-header-glass: rgba(14, 14, 19, 0.92);
 
   /* Borders */
   --border-subtle:  #18181f;
@@ -19,10 +23,49 @@
   --accent-border: rgba(163, 230, 53, 0.22);
 
   /* Text */
-  --text-1: #ededf0;   /* primary */
-  --text-2: #b8b8c4;   /* secondary */
-  --text-3: #8e8e9e;   /* muted */
-  --text-4: #6a6a7a;   /* labels */
+  --text-1: #ededf0;
+  --text-2: #b8b8c4;
+  --text-3: #8e8e9e;
+  --text-4: #6a6a7a;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #2a2a35;
+
+  /* Shadows */
+  --shadow-card-hover: 0 18px 45px rgba(0, 0, 0, 0.38);
+  --shadow-drawer: 4px 0 40px rgba(0, 0, 0, 0.60);
+  --shadow-backdrop: rgba(0, 0, 0, 0.60);
+}
+
+/* ── Design tokens — light ────────────────────────────── */
+[data-theme="light"] {
+  --bg-base:     #f0f0f6;
+  --bg-surface:  #ffffff;
+  --bg-card:     #f7f7fc;
+  --bg-inner:    #eaeaf3;
+
+  --bg-header-glass: rgba(255, 255, 255, 0.92);
+
+  --border-subtle:  #e4e4ef;
+  --border-default: #d4d4e2;
+  --border-strong:  #bcbcd0;
+
+  /* Slightly darker lime so it's readable on white */
+  --accent:        #5c9e0f;
+  --accent-dim:    rgba(92, 158, 15, 0.10);
+  --accent-border: rgba(92, 158, 15, 0.28);
+
+  --text-1: #111118;
+  --text-2: #2e2e40;
+  --text-3: #52526a;
+  --text-4: #7a7a96;
+
+  --scrollbar-thumb: #c4c4d8;
+
+  /* Shadows */
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-drawer: 4px 0 40px rgba(0, 0, 0, 0.20);
+  --shadow-backdrop: rgba(0, 0, 0, 0.35);
 }
 
 * { box-sizing: border-box; }
@@ -38,7 +81,7 @@ body {
 
 ::-webkit-scrollbar        { width: 4px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: #2a2a35; border-radius: 2px; }
+::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 2px; }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -59,7 +102,7 @@ body {
 }
 .card-float:hover {
   transform: translateY(-3px);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card-hover);
 }
 @media (prefers-reduced-motion: reduce) {
   .card-float { transition: none; }

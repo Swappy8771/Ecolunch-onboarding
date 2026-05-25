@@ -4,6 +4,7 @@ import {
   Users, BarChart2, SlidersHorizontal, Power, Settings, Zap,
 } from 'lucide-react'
 import { StatusPill } from '../../shared/ui/StatusPill'
+import { useLang } from '../../shared/context/LangContext'
 
 /* ── Types ──────────────────────────────────────────────── */
 type ModuleStatus = 'active' | 'inactive' | 'configured' | 'todo'
@@ -91,15 +92,15 @@ const CATEGORIES: Category[] = [
 ]
 
 /* ── Status badge ───────────────────────────────────────── */
-const STATUS_MAP: Record<ModuleStatus, { label: string; bg: string; color: string; border: string }> = {
-  active:     { label: 'Activé',     bg: 'rgba(74,222,128,0.12)',  color: '#4ade80', border: 'rgba(74,222,128,0.25)' },
-  inactive:   { label: 'Désactivé',  bg: 'var(--bg-inner)',        color: 'var(--text-3)', border: 'var(--border-strong)' },
-  configured: { label: 'Configuré',  bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
-  todo:       { label: 'À faire',    bg: 'var(--bg-inner)',        color: 'var(--text-3)', border: 'var(--border-strong)' },
-}
-
 function ModuleStatusPill({ status }: { status: ModuleStatus }) {
-  const s = STATUS_MAP[status]
+  const { t } = useLang()
+  const map: Record<ModuleStatus, { label: string; bg: string; color: string; border: string }> = {
+    active:     { label: t.modules.statuses.enabled,    bg: 'rgba(74,222,128,0.12)',  color: '#4ade80', border: 'rgba(74,222,128,0.25)' },
+    inactive:   { label: t.modules.statuses.disabled,   bg: 'var(--bg-inner)',        color: 'var(--text-3)', border: 'var(--border-strong)' },
+    configured: { label: t.modules.statuses.configured, bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
+    todo:       { label: t.modules.statuses.todo,       bg: 'var(--bg-inner)',        color: 'var(--text-3)', border: 'var(--border-strong)' },
+  }
+  const s = map[status]
   return (
     <StatusPill label={s.label} bg={s.bg} color={s.color} border={s.border} size="sm" />
   )
@@ -113,16 +114,18 @@ const GOLIVE_COLOR: Record<GoLive, string> = {
 }
 
 function GoLiveTag({ level }: { level: GoLive }) {
+  const { t } = useLang()
   return (
     <span className="px-2 py-0.5 rounded text-[10px] font-semibold"
       style={{ background: 'var(--bg-base)', color: GOLIVE_COLOR[level] }}>
-      Go-live: {level}
+      {t.modules.goLiveLabel} {level}
     </span>
   )
 }
 
 /* ── Module card ────────────────────────────────────────── */
 function ModuleCard({ mod }: { mod: Module }) {
+  const { t } = useLang()
   const [status, setStatus] = useState<ModuleStatus>(mod.status)
   const isActive = status === 'active'
 
@@ -148,7 +151,7 @@ function ModuleCard({ mod }: { mod: Module }) {
         {mod.optional && (
           <span className="px-2 py-0.5 rounded text-[10px] font-semibold"
             style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-strong)' }}>
-            Optionnel
+            {t.modules.optional}
           </span>
         )}
         <GoLiveTag level={mod.golive} />
@@ -165,8 +168,8 @@ function ModuleCard({ mod }: { mod: Module }) {
           }
         >
           {isActive
-            ? <><Power size={12} strokeWidth={2} /> Désactiver</>
-            : <><Zap  size={12} strokeWidth={2} /> Activer</>
+            ? <><Power size={12} strokeWidth={2} /> {t.modules.disable}</>
+            : <><Zap  size={12} strokeWidth={2} /> {t.modules.enable}</>
           }
         </button>
         <button
@@ -215,6 +218,7 @@ function CategorySection({ cat }: { cat: Category }) {
 
 /* ── Page ───────────────────────────────────────────────── */
 export function ModulesConfig() {
+  const { t } = useLang()
   return (
     <div className="p-7">
       {/* Page header */}
@@ -225,16 +229,14 @@ export function ModulesConfig() {
             <SlidersHorizontal size={12} strokeWidth={2} style={{ color: 'var(--accent)' }} />
           </div>
           <span className="text-[10px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--text-4)' }}>
-            Modules / Configurations
+            {t.modules.title}
           </span>
         </div>
         <h1 className="text-[34px] font-bold tracking-tight leading-tight mb-2" style={{ color: 'var(--text-1)' }}>
-          Modules par catégorie
+          {t.modules.subtitle}
         </h1>
         <p className="text-[13px] leading-relaxed max-w-3xl" style={{ color: 'var(--text-3)' }}>
-          6 catégories : Finance · Accounting · Operations · Communication · Parents · Analytics.
-          Chaque module dispose d'un statut (enabled/disabled/configured), d'une dépendance Go-live
-          et d'une visibilité par portail.
+          {t.modules.description}
         </p>
       </div>
 

@@ -1,5 +1,6 @@
 import { Clock, CheckCircle2 } from 'lucide-react'
 import { SectionHeader } from '../../shared/ui/SectionHeader'
+import { useLang } from '../../shared/context/LangContext'
 
 interface FieldCardProps {
   label: string
@@ -30,23 +31,25 @@ function FieldCard({ label, value, validated }: FieldCardProps) {
   )
 }
 
-const FIELDS = [
-  { label: 'Raison sociale',        value: 'Concept Gourmet inc.',           validated: false },
-  { label: 'NEQ',                   value: '1170555432',                     validated: false },
-  { label: 'Siège social',          value: '2245 boul. René-Lévesque O., Montréal, QC H3H 2J5', validated: false },
-  { label: 'Contact principal',     value: 'Marc-André Tremblay',            validated: false },
-  { label: 'Courriel',              value: 'marca@conceptgourmet.ca',        validated: true  },
-  { label: 'Téléphone',             value: '+1 514 555-0142',                validated: true  },
-  { label: 'Forme juridique',       value: 'Société par actions (Inc.)',     validated: true  },
-  { label: 'Numéro TVQ',            value: '1018456789TQ0001',               validated: false },
-]
-
 export function ClientProfil() {
+  const { t } = useLang()
+
+  const FIELDS = [
+    { label: t.profil.fields.legalName,       value: 'Concept Gourmet inc.',           validated: false },
+    { label: t.profil.fields.neq,             value: '1170555432',                     validated: false },
+    { label: t.profil.fields.headOffice,      value: '2245 boul. René-Lévesque O., Montréal, QC H3H 2J5', validated: false },
+    { label: t.profil.fields.primaryContact,  value: 'Marc-André Tremblay',            validated: false },
+    { label: t.profil.fields.email,           value: 'marca@conceptgourmet.ca',        validated: true  },
+    { label: t.profil.fields.phone,           value: '+1 514 555-0142',                validated: true  },
+    { label: t.profil.fields.legalForm,       value: 'Société par actions (Inc.)',     validated: true  },
+    { label: t.profil.fields.tvq,             value: '1018456789TQ0001',               validated: false },
+  ]
+
   return (
     <div className="p-7">
       <SectionHeader
-        title="Profil"
-        description="Informations légales et coordonnées de votre entreprise."
+        title={t.profil.title}
+        description={t.profil.description}
         progress={80}
         status="en-cours"
       />

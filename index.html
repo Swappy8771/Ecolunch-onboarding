@@ -5,6 +5,16 @@
     <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ecolunch</title>
+    <!-- Prevent flash of wrong theme before React mounts -->
+    <script>
+      (function () {
+        var stored = localStorage.getItem('ecolunch-theme')
+        var theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.setAttribute('data-theme', theme)
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

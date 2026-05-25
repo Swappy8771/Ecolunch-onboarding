@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MessageCircle, Plus, X } from 'lucide-react'
 import { StatusPill } from '../../shared/ui/StatusPill'
+import { useLang } from '../../shared/context/LangContext'
 
 type TicketStatus = 'open' | 'waiting-caterer' | 'waiting-ecolunch' | 'corrected' | 'approved' | 'blocking'
 type Priority = 'low' | 'medium' | 'high'
@@ -42,44 +43,42 @@ const TICKETS: Ticket[] = [
 
 type FilterId = 'tous' | TicketStatus
 
-const FILTERS: { id: FilterId; label: string }[] = [
-  { id: 'tous',             label: 'Tous' },
-  { id: 'open',             label: 'Open' },
-  { id: 'waiting-caterer',  label: 'Waiting Caterer' },
-  { id: 'waiting-ecolunch', label: 'Waiting EcoLunch' },
-  { id: 'corrected',        label: 'Corrected' },
-  { id: 'approved',         label: 'Approved' },
-  { id: 'blocking',         label: 'Blocking' },
-]
-
 function TicketStatusPill({ status }: { status: TicketStatus }) {
+  const { t } = useLang()
   const map: Record<TicketStatus, { label: string; bg: string; color: string; border: string }> = {
-    open:               { label: 'Open',              bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
-    'waiting-caterer':  { label: 'Waiting for Caterer', bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: 'rgba(251,191,36,0.22)' },
-    'waiting-ecolunch': { label: 'Waiting EcoLunch',  bg: 'rgba(163,230,53,0.10)', color: '#a3e635', border: 'rgba(163,230,53,0.22)' },
-    corrected:          { label: 'Corrected',         bg: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: 'rgba(167,139,250,0.22)' },
-    approved:           { label: 'Approuvé',          bg: 'rgba(74,222,128,0.12)', color: '#4ade80', border: 'rgba(74,222,128,0.22)' },
-    blocking:           { label: 'Blocking Go-live',  bg: 'rgba(248,113,113,0.12)', color: '#f87171', border: 'rgba(248,113,113,0.22)' },
+    open:               { label: t.ecoloop.statuses.open,            bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa', border: 'rgba(96,165,250,0.22)' },
+    'waiting-caterer':  { label: t.ecoloop.statuses.waitingCaterer,  bg: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: 'rgba(251,191,36,0.22)' },
+    'waiting-ecolunch': { label: t.ecoloop.statuses.waitingEcoLunch, bg: 'rgba(163,230,53,0.10)', color: '#a3e635', border: 'rgba(163,230,53,0.22)' },
+    corrected:          { label: t.ecoloop.statuses.corrected,       bg: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: 'rgba(167,139,250,0.22)' },
+    approved:           { label: t.ecoloop.statuses.approved,        bg: 'rgba(74,222,128,0.12)', color: '#4ade80', border: 'rgba(74,222,128,0.22)' },
+    blocking:           { label: t.ecoloop.statuses.blockingGoLive,  bg: 'rgba(248,113,113,0.12)', color: '#f87171', border: 'rgba(248,113,113,0.22)' },
   }
   const s = map[status]
   return <StatusPill label={s.label} bg={s.bg} color={s.color} border={s.border} />
 }
 
 function PriorityPill({ priority }: { priority: Priority }) {
+  const { t } = useLang()
   const map: Record<Priority, { bg: string; color: string }> = {
     high:   { bg: 'rgba(248,113,113,0.15)', color: '#f87171' },
     medium: { bg: 'rgba(251,191,36,0.12)',  color: '#fbbf24' },
     low:    { bg: 'rgba(74,222,128,0.12)',  color: '#4ade80' },
   }
+  const labelMap: Record<Priority, string> = {
+    high:   t.ecoloop.priority.high,
+    medium: t.ecoloop.priority.medium,
+    low:    t.ecoloop.priority.low,
+  }
   const s = map[priority]
   return (
     <span className="px-2 py-0.5 rounded text-[10.5px] font-semibold" style={{ background: s.bg, color: s.color }}>
-      {priority}
+      {labelMap[priority]}
     </span>
   )
 }
 
 function TicketCard({ ticket }: { ticket: Ticket }) {
+  const { t } = useLang()
   return (
     <div
       className="rounded-2xl p-5 flex items-start justify-between gap-4 card-float"
@@ -94,7 +93,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
           <span className="text-[11px] font-mono" style={{ color: 'var(--text-4)' }}>{ticket.id}</span>
           {ticket.blocker && (
             <span className="px-2 py-0.5 rounded text-[10.5px] font-bold" style={{ background: 'rgba(248,113,113,0.15)', color: '#f87171' }}>
-              BLOCKER
+              {t.priority.blocker}
             </span>
           )}
           <PriorityPill priority={ticket.priority} />
@@ -104,7 +103,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
         </h3>
         <p className="text-[12px]" style={{ color: 'var(--text-4)' }}>{ticket.context}</p>
         <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>
-          Resp. {ticket.resp} · {ticket.date}
+          Resp. {ticket.resp === 'Système' ? t.ecoloop.system : ticket.resp} · {ticket.date}
         </p>
       </div>
       <TicketStatusPill status={ticket.status} />
@@ -113,6 +112,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
 }
 
 function NewTicketModal({ onClose }: { onClose: () => void }) {
+  const { t } = useLang()
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -126,10 +126,10 @@ function NewTicketModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-1" style={{ color: 'var(--text-4)' }}>
-              Nouveau ticket
+              {t.ecoloop.newTicket}
             </p>
             <h2 className="text-[17px] font-bold" style={{ color: 'var(--text-1)' }}>
-              Créer une discussion contextuelle
+              {t.ecoloop.modal.title}
             </h2>
           </div>
           <button onClick={onClose} className="mt-1 cursor-pointer" style={{ color: 'var(--text-4)' }}>
@@ -161,14 +161,14 @@ function NewTicketModal({ onClose }: { onClose: () => void }) {
           style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
           defaultValue="medium"
         >
-          <option value="low">Priorité basse</option>
-          <option value="medium">Priorité moyenne</option>
-          <option value="high">Priorité haute</option>
+          <option value="low">{t.ecoloop.priority.low}</option>
+          <option value="medium">{t.ecoloop.priority.medium}</option>
+          <option value="high">{t.ecoloop.priority.high}</option>
         </select>
 
         <label className="flex items-center gap-2.5 cursor-pointer">
           <input type="checkbox" className="w-4 h-4 rounded cursor-pointer accent-[#a3e635]" />
-          <span className="text-[13px]" style={{ color: 'var(--text-2)' }}>Bloquant pour Go-live</span>
+          <span className="text-[13px]" style={{ color: 'var(--text-2)' }}>{t.ecoloop.modal.blocking}</span>
         </label>
 
         <div className="flex items-center justify-end gap-3 pt-1">
@@ -177,13 +177,13 @@ function NewTicketModal({ onClose }: { onClose: () => void }) {
             className="px-5 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
             style={{ background: 'var(--bg-inner)', color: 'var(--text-2)', border: '1px solid var(--border-strong)' }}
           >
-            Annuler
+            {t.ecoloop.modal.cancel}
           </button>
           <button
             className="px-5 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
             style={{ background: 'var(--accent)', color: '#07070a' }}
           >
-            Créer
+            {t.ecoloop.modal.create}
           </button>
         </div>
       </div>
@@ -192,8 +192,19 @@ function NewTicketModal({ onClose }: { onClose: () => void }) {
 }
 
 export function EcoLoop() {
+  const { t } = useLang()
   const [activeFilter, setActiveFilter] = useState<FilterId>('tous')
   const [showModal, setShowModal] = useState(false)
+
+  const FILTERS: { id: FilterId; label: string }[] = [
+    { id: 'tous',             label: t.ecoloop.tabs.all },
+    { id: 'open',             label: t.ecoloop.tabs.open },
+    { id: 'waiting-caterer',  label: t.ecoloop.tabs.waitingCaterer },
+    { id: 'waiting-ecolunch', label: t.ecoloop.tabs.waitingEcoLunch },
+    { id: 'corrected',        label: t.ecoloop.tabs.corrected },
+    { id: 'approved',         label: t.ecoloop.tabs.approved },
+    { id: 'blocking',         label: t.ecoloop.tabs.blocking },
+  ]
 
   const filtered = activeFilter === 'tous'
     ? TICKETS
@@ -211,14 +222,14 @@ export function EcoLoop() {
               <MessageCircle size={12} strokeWidth={2} style={{ color: 'var(--accent)' }} />
             </div>
             <span className="text-[10px] uppercase tracking-[0.14em] font-semibold" style={{ color: 'var(--accent)' }}>
-              EcoLoop · Concept Gourmet
+              {t.ecoloop.clientTitle}
             </span>
           </div>
           <h1 className="text-[34px] font-bold tracking-tight leading-tight mb-2" style={{ color: 'var(--text-1)' }}>
-            EcoLoop
+            {t.ecoloop.title}
           </h1>
           <p className="text-[13px] leading-relaxed max-w-2xl" style={{ color: 'var(--text-3)' }}>
-            Tickets et conversations liés à ce traiteur uniquement. Chaque ticket est attaché à un contexte précis (section, sous-section, champ ou document).
+            {t.ecoloop.clientDescription}
           </p>
         </div>
 
@@ -228,7 +239,7 @@ export function EcoLoop() {
           style={{ background: 'var(--accent)', color: '#07070a' }}
         >
           <Plus size={15} strokeWidth={2.5} />
-          Nouveau ticket
+          {t.ecoloop.newTicket}
         </button>
       </div>
 
@@ -265,7 +276,7 @@ export function EcoLoop() {
       <div className="flex flex-col gap-3 max-w-3xl">
         {filtered.length === 0 ? (
           <div className="flex items-center justify-center py-16" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', borderRadius: '1rem' }}>
-            <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>Aucun ticket dans cette catégorie.</p>
+            <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>{t.ecoloop.noTickets}</p>
           </div>
         ) : (
           filtered.map(t => <TicketCard key={t.id} ticket={t} />)
@@ -276,4 +287,3 @@ export function EcoLoop() {
     </div>
   )
 }
-
