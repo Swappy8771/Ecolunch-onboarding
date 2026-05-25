@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../../assets/ecotech-logo.jpg'
 import { ThemeToggle } from '../../shared/ui/ThemeToggle'
 import { LangToggle } from '../../shared/ui/LangToggle'
+import { NotificationBell } from '../../shared/ui/NotificationBell'
 import { useLang } from '../../shared/context/LangContext'
 
 interface AdminHeaderProps {
@@ -62,6 +63,7 @@ export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeade
           <>
             <div className="flex-1" />
             <div className="flex items-center gap-2 shrink-0">
+              <NotificationBell count={3} />
               <ThemeToggle />
               <LangToggle />
               <div
@@ -92,6 +94,7 @@ export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeade
 
           <div className="flex-1" />
 
+          <NotificationBell count={3} />
           <ThemeToggle />
           <LangToggle />
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import logo from '../../assets/ecotech-logo.jpg'
 import { ThemeToggle } from '../../shared/ui/ThemeToggle'
 import { LangToggle } from '../../shared/ui/LangToggle'
+import { NotificationBell } from '../../shared/ui/NotificationBell'
 import { useLang } from '../../shared/context/LangContext'
 
 interface ClientHeaderProps {
@@ -62,6 +63,7 @@ export function ClientHeader({ sidebarWidth, isDesktop, onMenuClick }: ClientHea
           <>
             <div className="flex-1" />
             <div className="flex items-center gap-2 shrink-0">
+              <NotificationBell count={1} />
               <ThemeToggle />
               <LangToggle />
               <div
@@ -108,6 +110,7 @@ export function ClientHeader({ sidebarWidth, isDesktop, onMenuClick }: ClientHea
               CG
             </div>
             <div className="w-px h-5 shrink-0" style={{ background: 'var(--border-default)' }} />
+            <NotificationBell count={1} />
             <ThemeToggle />
             <LangToggle />
             <div className="w-px h-5 shrink-0" style={{ background: 'var(--border-default)' }} />
