@@ -9,7 +9,7 @@ export function AdminLayout() {
   const [collapsed, setCollapsed]   = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const sidebarWidth = isDesktop ? (collapsed ? 68 : 280) : 0
+  const sidebarWidth = isDesktop ? (collapsed ? 68 : 300) : 0
 
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ background: 'var(--bg-base)' }}>
@@ -46,6 +46,7 @@ export function AdminLayout() {
         className="pt-[52px] min-h-screen"
         style={{
           marginLeft: sidebarWidth,
+          paddingLeft: isDesktop ? 28 : 0,
           transition: 'margin-left 260ms cubic-bezier(0.4,0,0.2,1)',
           background: 'var(--bg-base)',
         }}

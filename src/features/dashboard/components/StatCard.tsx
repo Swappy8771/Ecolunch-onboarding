@@ -2,15 +2,16 @@ import type { ReactNode } from 'react'
 import { TrendingUp } from 'lucide-react'
 
 const VALUE_COLORS = {
-  lime:  { text: '#a3e635', glow: 'rgba(163,230,53,0.18)', border: 'rgba(163,230,53,0.30)', icon: 'rgba(163,230,53,0.12)' },
-  blue:  { text: '#60a5fa', glow: 'rgba(96,165,250,0.18)',  border: 'rgba(96,165,250,0.30)',  icon: 'rgba(96,165,250,0.12)'  },
-  red:   { text: '#f87171', glow: 'rgba(248,113,113,0.18)', border: 'rgba(248,113,113,0.30)', icon: 'rgba(248,113,113,0.12)' },
-  amber: { text: '#fbbf24', glow: 'rgba(251,191,36,0.18)',  border: 'rgba(251,191,36,0.30)',  icon: 'rgba(251,191,36,0.12)'  },
+  lime:   { text: '#a3e635', glow: 'rgba(163,230,53,0.18)',  border: 'rgba(163,230,53,0.30)',  icon: 'rgba(163,230,53,0.12)'  },
+  blue:   { text: '#60a5fa', glow: 'rgba(96,165,250,0.18)',  border: 'rgba(96,165,250,0.30)',  icon: 'rgba(96,165,250,0.12)'  },
+  red:    { text: '#f87171', glow: 'rgba(248,113,113,0.18)', border: 'rgba(248,113,113,0.30)', icon: 'rgba(248,113,113,0.12)' },
+  amber:  { text: '#fbbf24', glow: 'rgba(251,191,36,0.18)',  border: 'rgba(251,191,36,0.30)',  icon: 'rgba(251,191,36,0.12)'  },
+  purple: { text: '#a78bfa', glow: 'rgba(167,139,250,0.18)', border: 'rgba(167,139,250,0.30)', icon: 'rgba(167,139,250,0.12)' },
 }
 
 interface StatCardProps {
   label: string; value: string | number; icon?: ReactNode | null
-  valueColor?: 'lime' | 'blue' | 'red' | 'amber'
+  valueColor?: 'lime' | 'blue' | 'red' | 'amber' | 'purple'
   trend?: string
 }
 
