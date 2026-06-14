@@ -192,18 +192,11 @@ function StatusBadge({ status, required }: { status: DocStatus; required: boolea
 const ROW_COLS = '1fr 175px 110px 40px'
 
 function DocRow({ doc: vd, last }: { doc: VaultDoc; last: boolean }) {
-  const [status, setStatus]       = useState<DocStatus>(vd.status)
-  const [fileName, setFileName]   = useState<string | null>(vd.fileName)
-  const [fileSize, setFileSize]   = useState<string | null>(vd.fileSize)
-  const [uploadDate, setUploadDate] = useState<string | null>(vd.uploadDate)
-  const hasFile = fileName !== null
-
-  function simulateUpload() {
-    setFileName(`${vd.id}_document.pdf`)
-    setFileSize('1.2 MB')
-    setUploadDate(new Date().toISOString().slice(0, 10))
-    setStatus('under-review')
-  }
+  const status     = vd.status
+  const fileName   = vd.fileName
+  const fileSize   = vd.fileSize
+  const uploadDate = vd.uploadDate
+  const hasFile    = fileName !== null
 
   const borderBottom = last ? 'none' : '1px solid var(--border-subtle)'
 
