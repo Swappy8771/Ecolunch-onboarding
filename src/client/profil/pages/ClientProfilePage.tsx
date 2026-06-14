@@ -3,6 +3,8 @@ import {
   CheckCircle2, AlertTriangle, Clock, Eye, Edit3,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { CompletionChart } from '../../../shared/components/CompletionChart'
+import type { ChartRow } from '../../../shared/components/CompletionChart'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -267,66 +269,26 @@ export function ClientProfilePage() {
       {/* ── Body ────────────────────────────────────────────── */}
       <div className="px-5 py-6 flex flex-col gap-6">
 
-        {/* ── Completion overview card ──────────────────────── */}
-        <div className="rounded-2xl p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-          <p className="text-[11px] uppercase tracking-[0.14em] font-bold mb-4"
-            style={{ color: 'var(--text-4)' }}>
-            Profile Completion & Validation Status
-          </p>
-
-          <div className="flex items-start gap-8 flex-wrap">
-            {/* Big % display */}
-            <div className="shrink-0">
-              <span className="text-[52px] font-black leading-none block" style={{ color: 'var(--accent)' }}>
-                {overallPct}%
-              </span>
-              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-4)' }}>
-                overall complete
-              </p>
-              <p className="text-[11.5px] font-semibold mt-0.5" style={{ color: 'var(--text-3)' }}>
-                {allFilled.length} / {allRequired.length} required fields
-              </p>
-              <div className="mt-3 h-2 w-[120px] rounded-full overflow-hidden"
-                style={{ background: 'var(--bg-inner)' }}>
-                <div className="h-full rounded-full"
-                  style={{ width: `${overallPct}%`, background: 'var(--accent)' }} />
-              </div>
-            </div>
-
-            {/* Per-section breakdown */}
-            <div className="flex-1 min-w-0 flex flex-col gap-3" style={{ minWidth: 240 }}>
-              {SECTIONS.map(section => {
-                const { filled, total } = sectionCompletion(section)
-                const pct      = total > 0 ? Math.round(filled / total * 100) : 100
-                const barColor = pct === 100 ? '#4ade80' : pct >= 60 ? 'var(--accent)' : '#fbbf24'
-                const vm       = VALIDATION_META[section.validation]
-                return (
-                  <div key={section.id} className="flex items-center gap-3">
-                    <span className="text-[12px] font-medium shrink-0 truncate"
-                      style={{ color: 'var(--text-2)', width: 175 }}>
-                      {section.title}
-                    </span>
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden"
-                      style={{ background: 'var(--bg-inner)', minWidth: 60 }}>
-                      <div className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: barColor }} />
-                    </div>
-                    <span className="text-[11px] font-bold shrink-0 text-right"
-                      style={{ color: 'var(--text-3)', width: 32 }}>
-                      {pct}%
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{ background: vm.bg, color: vm.color, border: `1px solid ${vm.border}` }}>
-                      <vm.Icon size={9} strokeWidth={2.5} />
-                      {vm.label}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
+        {/* ── Completion overview chart ─────────────────────── */}
+        {(() => {
+          const chartRows: ChartRow[] = SECTIONS.map(section => {
+            const { filled, total } = sectionCompletion(section)
+            const pct      = total > 0 ? Math.round(filled / total * 100) : 100
+            const barColor = pct === 100 ? '#4ade80' : pct >= 60 ? 'var(--accent)' : '#fbbf24'
+            const vm       = VALIDATION_META[section.validation]
+            return { id: section.id, label: section.title, pct, barColor, badge: vm }
+          })
+          return (
+            <CompletionChart
+              title="Profile Completion & Validation Status"
+              overallPct={overallPct}
+              filled={allFilled.length}
+              total={allRequired.length}
+              subtitle="overall complete"
+              rows={chartRows}
+            />
+          )
+        })()}
 
         {/* ── Missing required fields alert ─────────────────── */}
         {missingFields.length > 0 && (

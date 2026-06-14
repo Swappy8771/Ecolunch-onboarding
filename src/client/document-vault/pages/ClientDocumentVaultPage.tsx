@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
+import { RowMenu } from '../../../shared/components/DropdownMenu'
 import {
   User2, Scale, Building2, ShieldCheck, Shield,
   FilePen, Rocket, BookOpen, Baby, Tent, Calculator, FileBarChart2,
@@ -185,41 +187,9 @@ function StatusBadge({ status, required }: { status: DocStatus; required: boolea
   )
 }
 
-function UploadBtn({ required, onClick }: { required: boolean; onClick: () => void }) {
-  return (
-    <button onClick={onClick}
-      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80 whitespace-nowrap"
-      style={required
-        ? { background: 'var(--accent)', color: '#07070a', border: '1px solid transparent' }
-        : { background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-default)' }}>
-      <Upload size={11} strokeWidth={2} />
-      Upload
-    </button>
-  )
-}
-
-function ViewReplaceBtn({ onView, onReplace }: { onView: () => void; onReplace: () => void }) {
-  return (
-    <div className="flex items-center gap-1">
-      <button onClick={onView}
-        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
-        style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-default)' }}>
-        <Eye size={11} strokeWidth={2} />
-        <span className="hidden sm:inline">View</span>
-      </button>
-      <button onClick={onReplace}
-        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80"
-        style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-default)' }}>
-        <RefreshCcw size={11} strokeWidth={2} />
-        <span className="hidden sm:inline">Replace</span>
-      </button>
-    </div>
-  )
-}
-
 // ─── Document row ─────────────────────────────────────────────
 
-const ROW_COLS = '1fr 175px 110px 106px'
+const ROW_COLS = '1fr 175px 110px 40px'
 
 function DocRow({ doc: vd, last }: { doc: VaultDoc; last: boolean }) {
   const [status, setStatus]       = useState<DocStatus>(vd.status)
@@ -285,10 +255,15 @@ function DocRow({ doc: vd, last }: { doc: VaultDoc; last: boolean }) {
         <StatusBadge status={status} required={vd.required} />
 
         {/* Actions */}
-        {hasFile
-          ? <ViewReplaceBtn onView={() => {}} onReplace={simulateUpload} />
-          : <UploadBtn required={vd.required} onClick={simulateUpload} />
-        }
+        <RowMenu actions={hasFile
+          ? [
+              { label: 'View',    icon: <Eye        size={12} strokeWidth={2} /> },
+              { label: 'Replace', icon: <RefreshCcw size={12} strokeWidth={2} /> },
+            ]
+          : [
+              { label: 'Upload', icon: <Upload size={12} strokeWidth={2} />, color: 'var(--accent)' },
+            ]
+        } minWidth="140px" />
       </div>
 
       {/* ── Mobile card ───────────────────────── */}
@@ -308,7 +283,18 @@ function DocRow({ doc: vd, last }: { doc: VaultDoc; last: boolean }) {
               <p className="text-[11px] mt-0.5 leading-snug" style={{ color: 'var(--text-4)' }}>{vd.description}</p>
             </div>
           </div>
-          <StatusBadge status={status} required={vd.required} />
+          <div className="flex items-center gap-2 shrink-0">
+            <StatusBadge status={status} required={vd.required} />
+            <RowMenu actions={hasFile
+              ? [
+                  { label: 'View',    icon: <Eye        size={12} strokeWidth={2} /> },
+                  { label: 'Replace', icon: <RefreshCcw size={12} strokeWidth={2} /> },
+                ]
+              : [
+                  { label: 'Upload', icon: <Upload size={12} strokeWidth={2} />, color: 'var(--accent)' },
+                ]
+            } minWidth="140px" />
+          </div>
         </div>
 
         {hasFile && (
@@ -316,13 +302,6 @@ function DocRow({ doc: vd, last }: { doc: VaultDoc; last: boolean }) {
             {fileName} · {fileSize} · {uploadDate}
           </p>
         )}
-
-        <div className="flex items-center gap-2 pt-0.5">
-          {hasFile
-            ? <ViewReplaceBtn onView={() => {}} onReplace={simulateUpload} />
-            : <UploadBtn required={vd.required} onClick={simulateUpload} />
-          }
-        </div>
       </div>
     </div>
   )
@@ -417,25 +396,25 @@ function CategoryCard({ category, defaultOpen = false }: { category: DocCategory
           : <ChevronDown size={15} strokeWidth={2} style={{ color: 'var(--text-4)', flexShrink: 0 }} />}
       </button>
 
-      {/* ── Desktop column headers ─────────── */}
+      {/* ── Desktop column headers + rows ─── */}
       {open && (
-        <div className="hidden sm:grid px-5 py-2 gap-4"
-          style={{
-            gridTemplateColumns: ROW_COLS,
-            background: 'var(--bg-surface)',
-            borderBottom: '1px solid var(--border-default)',
-          }}>
-          {['Document', 'File', 'Status', 'Actions'].map(h => (
-            <span key={h} className="text-[10.5px] uppercase tracking-[0.11em] font-bold"
-              style={{ color: 'var(--text-4)' }}>{h}</span>
+        <>
+          <div className="hidden sm:grid px-5 py-2 gap-4"
+            style={{
+              gridTemplateColumns: ROW_COLS,
+              background: 'var(--bg-surface)',
+              borderBottom: '1px solid var(--border-default)',
+            }}>
+            {['Document', 'File', 'Status', ''].map(h => (
+              <span key={h} className="text-[10.5px] uppercase tracking-[0.11em] font-bold"
+                style={{ color: 'var(--text-4)' }}>{h}</span>
+            ))}
+          </div>
+          {category.docs.map((doc, idx) => (
+            <DocRow key={doc.id} doc={doc} last={idx === category.docs.length - 1} />
           ))}
-        </div>
+        </>
       )}
-
-      {/* ── Doc rows ──────────────────────── */}
-      {open && category.docs.map((doc, idx) => (
-        <DocRow key={doc.id} doc={doc} last={idx === category.docs.length - 1} />
-      ))}
     </div>
   )
 }
@@ -465,16 +444,6 @@ function InactiveCategoryStub({ category }: { category: DocCategory }) {
 }
 
 // ─── Section divider ──────────────────────────────────────────
-
-function SectionDivider({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-3 py-1">
-      <span className="text-[11px] uppercase tracking-[0.14em] font-black whitespace-nowrap"
-        style={{ color: 'var(--text-4)' }}>{label}</span>
-      <div className="flex-1 h-px" style={{ background: 'var(--border-default)' }} />
-    </div>
-  )
-}
 
 // ─── Overall vault progress ───────────────────────────────────
 
@@ -560,39 +529,38 @@ export function ClientDocumentVaultPage() {
         </p>
       </div>
 
-      <div className="px-5 py-5 flex flex-col gap-5">
+      <PageTabs
+        tabs={[
+          { id: 'base',    label: 'Base Documents',   icon: <FileText size={13} strokeWidth={1.8} />, badge: BASE_CATEGORIES.length },
+          { id: 'modules', label: 'Module Documents', icon: <BookOpen size={13} strokeWidth={1.8} />, badge: DYNAMIC_CATEGORIES.length },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-5 flex flex-col gap-5">
 
-        {/* ── Overall progress ──────────────────────── */}
-        <VaultProgressBar categories={allCategories} />
+            <VaultProgressBar categories={allCategories} />
 
-        {/* ── Base categories ───────────────────────── */}
-        <SectionDivider label="Base Documents" />
+            {activeTab === 'base' && (
+              <>
+                {BASE_CATEGORIES.map(cat => (
+                  <CategoryCard key={cat.id} category={cat} defaultOpen={completionStats(cat.docs).missing > 0} />
+                ))}
+              </>
+            )}
 
-        {BASE_CATEGORIES.map(cat => (
-          <CategoryCard
-            key={cat.id}
-            category={cat}
-            defaultOpen={completionStats(cat.docs).missing > 0}
-          />
-        ))}
+            {activeTab === 'modules' && (
+              <>
+                {DYNAMIC_CATEGORIES.map(cat => {
+                  const isActive = cat.moduleKey === null || ACTIVE_MODULES[cat.moduleKey]
+                  if (!isActive) return <InactiveCategoryStub key={cat.id} category={cat} />
+                  return <CategoryCard key={cat.id} category={cat} defaultOpen={completionStats(cat.docs).missing > 0} />
+                })}
+              </>
+            )}
 
-        {/* ── Dynamic categories ────────────────────── */}
-        <SectionDivider label="Module Documents" />
-
-        {DYNAMIC_CATEGORIES.map(cat => {
-          const isActive = cat.moduleKey === null || ACTIVE_MODULES[cat.moduleKey]
-          if (!isActive) return <InactiveCategoryStub key={cat.id} category={cat} />
-          return (
-            <CategoryCard
-              key={cat.id}
-              category={cat}
-              defaultOpen={completionStats(cat.docs).missing > 0}
-            />
-          )
-        })}
-
-        <div className="h-4" />
-      </div>
+            <div className="h-4" />
+          </div>
+        )}
+      </PageTabs>
     </div>
   )
 }

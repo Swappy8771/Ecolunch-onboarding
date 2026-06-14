@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
 import {
   BookOpen, Baby, Tent,
   UtensilsCrossed, RotateCcw, Package,
@@ -723,38 +724,45 @@ export function ClientMenusPage() {
         </div>
       </div>
 
-      {/* ── Body ──────────────────────────────────────── */}
-      <div className="px-5 py-6 flex flex-col gap-8">
+      <PageTabs
+        tabs={[
+          { id: 'school',  label: 'School Meals',    icon: <BookOpen size={13} strokeWidth={1.8} /> },
+          { id: 'daycare', label: 'Daycare / CPE',   icon: <Baby size={13} strokeWidth={1.8} /> },
+          { id: 'camp',    label: 'Camp Meals',      icon: <Tent size={13} strokeWidth={1.8} /> },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-6 flex flex-col gap-8">
 
-        {/* School Meals */}
-        {ACTIVE_MODULES.schoolMeals && (
-          <ModuleSection Icon={BookOpen} title="School Meals Module" accentColor="#4ade80">
-            {SCHOOL_SECTIONS.map(cfg => (
-              <MenuSection key={cfg.id} config={cfg} />
-            ))}
-          </ModuleSection>
+            {activeTab === 'school' && (
+              ACTIVE_MODULES.schoolMeals
+                ? <ModuleSection Icon={BookOpen} title="School Meals Module" accentColor="#4ade80">
+                    {SCHOOL_SECTIONS.map(cfg => <MenuSection key={cfg.id} config={cfg} />)}
+                  </ModuleSection>
+                : <InactiveModule Icon={BookOpen} title="School Meals Module"
+                    description="Activate the School Meals module in Modules & Required Setup to manage school menus here." />
+            )}
+
+            {activeTab === 'daycare' && (
+              ACTIVE_MODULES.daycare
+                ? <ModuleSection Icon={Baby} title="Daycare / CPE Meals Module" accentColor="#60a5fa">
+                    {DAYCARE_SECTIONS.map(cfg => <MenuSection key={cfg.id} config={cfg} />)}
+                  </ModuleSection>
+                : <InactiveModule Icon={Baby} title="Daycare / CPE Meals Module"
+                    description="Activate the Daycare module in Modules & Required Setup to manage daycare menus here." />
+            )}
+
+            {activeTab === 'camp' && (
+              <InactiveModule
+                Icon={Tent}
+                title="Camp Meals Module"
+                description="Camp Menus and Camp Packages will appear here once the Camp Meals module is activated in Modules & Required Setup."
+              />
+            )}
+
+            <div className="h-4" />
+          </div>
         )}
-
-        {/* Daycare / CPE */}
-        {ACTIVE_MODULES.daycare && (
-          <ModuleSection Icon={Baby} title="Daycare / CPE Meals Module" accentColor="#60a5fa">
-            {DAYCARE_SECTIONS.map(cfg => (
-              <MenuSection key={cfg.id} config={cfg} />
-            ))}
-          </ModuleSection>
-        )}
-
-        {/* Camp Meals — inactive */}
-        {!ACTIVE_MODULES.campMeals && (
-          <InactiveModule
-            Icon={Tent}
-            title="Camp Meals Module"
-            description="Camp Menus and Camp Packages will appear here once the Camp Meals module is activated in Modules &amp; Required Setup."
-          />
-        )}
-
-        <div className="h-4" />
-      </div>
+      </PageTabs>
     </div>
   )
 }

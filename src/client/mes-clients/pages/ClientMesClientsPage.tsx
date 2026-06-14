@@ -1,4 +1,6 @@
 import { type ReactNode } from 'react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
+import { RowMenu } from '../../../shared/components/DropdownMenu'
 import {
   BookOpen, Baby, Tent,
   GraduationCap, Building2, Users, CalendarDays,
@@ -105,17 +107,6 @@ const DAYCARE_CALENDARS: ClosureCalendar[] = [
   { id: 'dcal3', name: 'CPE Arc-en-Ciel 2025-26', linkedTo: 'CPE Arc-en-Ciel',           year: '2025–26', uploadDate: null,         status: 'missing'  },
 ]
 
-// ─── Action button styles ────────────────────────────────────
-
-const BTN_STYLES = {
-  default: { bg: 'var(--bg-inner)',          color: 'var(--text-3)', border: 'var(--border-default)'      },
-  danger:  { bg: 'rgba(248,113,113,0.10)',   color: '#f87171',       border: 'rgba(248,113,113,0.22)'     },
-  accent:  { bg: 'var(--accent-dim)',        color: 'var(--accent)', border: 'var(--accent-border)'        },
-  muted:   { bg: 'var(--bg-card)',           color: 'var(--text-4)', border: 'var(--border-default)'      },
-} as const
-
-type BtnVariant = keyof typeof BTN_STYLES
-
 // ─── Shared micro-components ─────────────────────────────────
 
 function Badge({ label, color, bg, border }: { label: string; color: string; bg: string; border: string }) {
@@ -127,20 +118,6 @@ function Badge({ label, color, bg, border }: { label: string; color: string; bg:
   )
 }
 
-function Btn({ icon, label, onClick, variant = 'default' }: {
-  icon: ReactNode; label: string; onClick: () => void; variant?: BtnVariant
-}) {
-  const s = BTN_STYLES[variant]
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-opacity hover:opacity-80 shrink-0"
-      style={{ background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
-      <span style={{ flexShrink: 0 }}>{icon}</span>
-      <span className="hidden sm:inline">{label}</span>
-    </button>
-  )
-}
 
 function ColHeader({ label }: { label: string }) {
   return (
@@ -171,8 +148,8 @@ interface SubSectionCardProps {
 
 function SubSectionCard({ Icon, title, count, addLabel, children }: SubSectionCardProps) {
   return (
-    <div className="rounded-2xl overflow-hidden"
-      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+    <div className="rounded-2xl"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', overflow: 'hidden' }}>
 
       {/* Section header */}
       <div className="flex items-center justify-between px-5 py-3.5"
@@ -265,7 +242,7 @@ function InactiveModule({ Icon, title, description }: { Icon: LucideIcon; title:
 
 // ─── Schools section ─────────────────────────────────────────
 
-const SCHOOLS_COLS = '2fr 72px 92px 155px 85px 110px'
+const SCHOOLS_COLS    = '2fr 72px 100px 140px 85px 40px'
 const SCHOOLS_HEADERS = ['School Name', 'Type', 'City', 'CSS / District', 'Status', 'Actions']
 
 function SchoolsSection() {
@@ -304,11 +281,11 @@ function SchoolsSection() {
                 ? <span className="text-[12px] truncate" style={{ color: 'var(--text-3)' }}>{school.cssName}</span>
                 : <span className="text-[11.5px] italic" style={{ color: 'var(--text-4)' }}>Not linked</span>}
               <Badge {...em} />
-              <div className="flex items-center gap-1">
-                <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Del" onClick={() => {}} variant="danger" />
-              </div>
+              <RowMenu actions={[
+                { label: 'View',   icon: <Eye   size={12} strokeWidth={2} /> },
+                { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+              ]} minWidth="140px" />
             </div>
 
             {/* Mobile card */}
@@ -332,9 +309,11 @@ function SchoolsSection() {
                 )}
               </div>
               <div className="flex items-center gap-2 pt-0.5">
-                <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Delete" onClick={() => {}} variant="danger" />
+                <RowMenu actions={[
+                  { label: 'View',   icon: <Eye   size={12} strokeWidth={2} /> },
+                  { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                  { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+                ]} minWidth="140px" />
               </div>
             </div>
           </div>
@@ -346,7 +325,7 @@ function SchoolsSection() {
 
 // ─── CSS / School Districts section ──────────────────────────
 
-const CSS_COLS    = '1fr 140px 130px 82px 85px 90px'
+const CSS_COLS    = '1fr 130px 120px 70px 85px 40px'
 const CSS_HEADERS = ['District Name', 'Municipality', 'Contact', 'Schools', 'Status', 'Actions']
 
 function CSSDistrictsSection() {
@@ -380,10 +359,10 @@ function CSSDistrictsSection() {
                 {css.schoolCount} school{css.schoolCount !== 1 ? 's' : ''}
               </span>
               <Badge {...em} />
-              <div className="flex items-center gap-1">
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Del" onClick={() => {}} variant="danger" />
-              </div>
+              <RowMenu actions={[
+                { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+              ]} minWidth="130px" />
             </div>
 
             {/* Mobile */}
@@ -395,9 +374,11 @@ function CSSDistrictsSection() {
               <p className="text-[11.5px]" style={{ color: 'var(--text-4)' }}>
                 {css.municipality} · {css.contactName} · {css.schoolCount} schools
               </p>
-              <div className="flex items-center gap-2 pt-0.5">
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Delete" onClick={() => {}} variant="danger" />
+              <div className="pt-0.5">
+                <RowMenu actions={[
+                  { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                  { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+                ]} minWidth="130px" />
               </div>
             </div>
           </div>
@@ -409,8 +390,8 @@ function CSSDistrictsSection() {
 
 // ─── Contacts section (shared for school + daycare) ──────────
 
-const CONTACTS_COLS    = '130px 1fr 110px 1fr 120px 90px'
-const CONTACTS_HEADERS = ['Name', 'Establishment', 'Role', 'Email', 'Phone', 'Actions']
+const CONTACTS_COLS    = '130px 1fr 100px 1fr 40px'
+const CONTACTS_HEADERS = ['Name', 'Establishment', 'Role', 'Email', '']
 
 function ContactsSection({ contacts, title, addLabel }: {
   contacts: Contact[]; title: string; addLabel: string
@@ -444,11 +425,12 @@ function ContactsSection({ contacts, title, addLabel }: {
                 {c.role}
               </span>
               <p className="text-[12px] truncate" style={{ color: 'var(--text-3)' }}>{c.email}</p>
-              <p className="text-[12px]" style={{ color: 'var(--text-3)' }}>{c.phone}</p>
-              <div className="flex items-center gap-1">
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Del" onClick={() => {}} variant="danger" />
-              </div>
+              <RowMenu actions={[
+                { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                { label: 'Call',   icon: <Phone size={12} strokeWidth={2} />, onClick: () => window.open(`tel:${c.phone}`) },
+                { label: 'Email',  icon: <Mail  size={12} strokeWidth={2} />, onClick: () => window.open(`mailto:${c.email}`) },
+                { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+              ]} minWidth="150px" />
             </div>
 
             {/* Mobile card */}
@@ -471,9 +453,13 @@ function ContactsSection({ contacts, title, addLabel }: {
                   <Phone size={11} strokeWidth={2} />{c.phone}
                 </p>
               </div>
-              <div className="flex items-center gap-2 pt-0.5">
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Delete" onClick={() => {}} variant="danger" />
+              <div className="pt-0.5">
+                <RowMenu actions={[
+                  { label: 'Edit',   icon: <Edit3 size={12} strokeWidth={2} /> },
+                  { label: 'Call',   icon: <Phone size={12} strokeWidth={2} />, onClick: () => window.open(`tel:${c.phone}`) },
+                  { label: 'Email',  icon: <Mail  size={12} strokeWidth={2} />, onClick: () => window.open(`mailto:${c.email}`) },
+                  { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+                ]} minWidth="150px" />
               </div>
             </div>
           </div>
@@ -485,7 +471,7 @@ function ContactsSection({ contacts, title, addLabel }: {
 
 // ─── Calendars section (shared for school + daycare) ─────────
 
-const CAL_COLS    = '1fr 155px 72px 100px 85px 115px'
+const CAL_COLS    = '1fr 145px 70px 90px 85px 40px'
 const CAL_HEADERS = ['Calendar Name', 'Linked To', 'Year', 'Uploaded', 'Status', 'Actions']
 
 function CalendarsSection({ calendars, title, addLabel }: {
@@ -522,17 +508,14 @@ function CalendarsSection({ calendars, title, addLabel }: {
                 {cal.uploadDate ?? '—'}
               </span>
               <Badge {...cm} />
-              <div className="flex items-center gap-1">
-                {needsUpload ? (
-                  <Btn icon={<Upload size={11} strokeWidth={2} />} label="Upload" onClick={() => {}} variant="accent" />
-                ) : (
-                  <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />
-                )}
-                {!needsUpload && (
-                  <Btn icon={<Upload size={11} strokeWidth={2} />} label="Replace" onClick={() => {}} />
-                )}
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Del" onClick={() => {}} variant="danger" />
-              </div>
+              <RowMenu actions={[
+                ...(needsUpload
+                  ? [{ label: 'Upload', icon: <Upload size={12} strokeWidth={2} />, color: 'var(--accent)' }]
+                  : [{ label: 'View', icon: <Eye size={12} strokeWidth={2} /> },
+                     { label: 'Replace', icon: <Upload size={12} strokeWidth={2} /> }]
+                ),
+                { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+              ]} minWidth="140px" />
             </div>
 
             {/* Mobile */}
@@ -549,11 +532,15 @@ function CalendarsSection({ calendars, title, addLabel }: {
               <p className="text-[11.5px]" style={{ color: 'var(--text-4)' }}>
                 {cal.uploadDate ? `Uploaded: ${cal.uploadDate}` : 'Not yet uploaded'}
               </p>
-              <div className="flex items-center gap-2 pt-0.5">
-                {needsUpload
-                  ? <Btn icon={<Upload size={11} strokeWidth={2} />} label="Upload Document" onClick={() => {}} variant="accent" />
-                  : <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />}
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Delete" onClick={() => {}} variant="danger" />
+              <div className="pt-0.5">
+                <RowMenu actions={[
+                  ...(needsUpload
+                    ? [{ label: 'Upload', icon: <Upload size={12} strokeWidth={2} />, color: 'var(--accent)' }]
+                    : [{ label: 'View', icon: <Eye size={12} strokeWidth={2} /> },
+                       { label: 'Replace', icon: <Upload size={12} strokeWidth={2} /> }]
+                  ),
+                  { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+                ]} minWidth="140px" />
               </div>
             </div>
           </div>
@@ -565,7 +552,7 @@ function CalendarsSection({ calendars, title, addLabel }: {
 
 // ─── Daycares / CPEs section ─────────────────────────────────
 
-const DAYCARE_COLS    = '1fr 80px 100px 82px 85px 115px'
+const DAYCARE_COLS    = '1fr 80px 100px 70px 85px 40px'
 const DAYCARE_HEADERS = ['Name', 'Type', 'City', 'Capacity', 'Status', 'Actions']
 
 function DaycaresSection() {
@@ -601,11 +588,11 @@ function DaycaresSection() {
               <span className="text-[12px]" style={{ color: 'var(--text-3)' }}>{d.city}</span>
               <span className="text-[12px]" style={{ color: 'var(--text-3)' }}>{d.capacity} children</span>
               <Badge {...em} />
-              <div className="flex items-center gap-1">
-                <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Del" onClick={() => {}} variant="danger" />
-              </div>
+              <RowMenu actions={[
+                { label: 'View',   icon: <Eye    size={12} strokeWidth={2} /> },
+                { label: 'Edit',   icon: <Edit3  size={12} strokeWidth={2} /> },
+                { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+              ]} minWidth="140px" />
             </div>
 
             {/* Mobile */}
@@ -617,18 +604,20 @@ function DaycaresSection() {
                     <MapPin size={10} strokeWidth={2} />{d.address} · {d.city}
                   </p>
                 </div>
-                <Badge {...em} />
+                <div className="flex items-center gap-2">
+                  <Badge {...em} />
+                  <RowMenu actions={[
+                    { label: 'View',   icon: <Eye    size={12} strokeWidth={2} /> },
+                    { label: 'Edit',   icon: <Edit3  size={12} strokeWidth={2} /> },
+                    { label: 'Delete', icon: <Trash2 size={12} strokeWidth={2} />, color: '#f87171' },
+                  ]} minWidth="140px" />
+                </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge {...tm} />
                 <span className="text-[11.5px] font-medium" style={{ color: 'var(--text-4)' }}>
                   Capacity: {d.capacity}
                 </span>
-              </div>
-              <div className="flex items-center gap-2 pt-0.5">
-                <Btn icon={<Eye size={11} strokeWidth={2} />} label="View" onClick={() => {}} />
-                <Btn icon={<Edit3 size={11} strokeWidth={2} />} label="Edit" onClick={() => {}} />
-                <Btn icon={<Trash2 size={11} strokeWidth={2} />} label="Delete" onClick={() => {}} variant="danger" />
               </div>
             </div>
           </div>
@@ -705,55 +694,50 @@ export function ClientMesClientsPage() {
         </div>
       </div>
 
-      {/* ── Body ────────────────────────────────────────────── */}
-      <div className="px-5 py-6 flex flex-col gap-8">
+      <PageTabs
+        tabs={[
+          { id: 'school',  label: 'School Meals',  icon: <BookOpen size={13} strokeWidth={1.8} /> },
+          { id: 'daycare', label: 'Daycare / CPE', icon: <Baby size={13} strokeWidth={1.8} /> },
+          { id: 'camp',    label: 'Camp Meals',    icon: <Tent size={13} strokeWidth={1.8} /> },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-6 flex flex-col gap-8">
 
-        {/* ── School Meals Module ───────────────────────────── */}
-        {ACTIVE_MODULES.schoolMeals && (
-          <ModuleSection Icon={BookOpen} title="School Meals Module" accentColor="#4ade80">
-            <SchoolsSection />
-            <CSSDistrictsSection />
-            <ContactsSection
-              contacts={SCHOOL_CONTACTS}
-              title="School Contacts"
-              addLabel="Add Contact"
-            />
-            <CalendarsSection
-              calendars={SCHOOL_CALENDARS}
-              title="School Closure Calendars"
-              addLabel="Add Calendar"
-            />
-          </ModuleSection>
+            {activeTab === 'school' && (
+              ACTIVE_MODULES.schoolMeals
+                ? <ModuleSection Icon={BookOpen} title="School Meals Module" accentColor="#4ade80">
+                    <SchoolsSection />
+                    <CSSDistrictsSection />
+                    <ContactsSection contacts={SCHOOL_CONTACTS} title="School Contacts" addLabel="Add Contact" />
+                    <CalendarsSection calendars={SCHOOL_CALENDARS} title="School Closure Calendars" addLabel="Add Calendar" />
+                  </ModuleSection>
+                : <InactiveModule Icon={BookOpen} title="School Meals Module"
+                    description="Activate School Meals in Modules & Required Setup to configure schools here." />
+            )}
+
+            {activeTab === 'daycare' && (
+              ACTIVE_MODULES.daycare
+                ? <ModuleSection Icon={Baby} title="Daycare / CPE Meals Module" accentColor="#60a5fa">
+                    <DaycaresSection />
+                    <ContactsSection contacts={DAYCARE_CONTACTS} title="Daycare Contacts" addLabel="Add Contact" />
+                    <CalendarsSection calendars={DAYCARE_CALENDARS} title="Closure Calendars" addLabel="Add Calendar" />
+                  </ModuleSection>
+                : <InactiveModule Icon={Baby} title="Daycare / CPE Meals Module"
+                    description="Activate the Daycare module in Modules & Required Setup to configure daycares here." />
+            )}
+
+            {activeTab === 'camp' && (
+              <InactiveModule
+                Icon={Tent}
+                title="Camp Meals Module"
+                description="Camps, Camp Contacts, and Camp Dates / Weeks sections will appear here once the Camp Meals module is activated in Modules & Required Setup."
+              />
+            )}
+
+            <div className="h-4" />
+          </div>
         )}
-
-        {/* ── Daycare / CPE Meals Module ────────────────────── */}
-        {ACTIVE_MODULES.daycare && (
-          <ModuleSection Icon={Baby} title="Daycare / CPE Meals Module" accentColor="#60a5fa">
-            <DaycaresSection />
-            <ContactsSection
-              contacts={DAYCARE_CONTACTS}
-              title="Daycare Contacts"
-              addLabel="Add Contact"
-            />
-            <CalendarsSection
-              calendars={DAYCARE_CALENDARS}
-              title="Closure Calendars"
-              addLabel="Add Calendar"
-            />
-          </ModuleSection>
-        )}
-
-        {/* ── Camp Meals — Inactive ─────────────────────────── */}
-        {!ACTIVE_MODULES.campMeals && (
-          <InactiveModule
-            Icon={Tent}
-            title="Camp Meals Module"
-            description="Camps, Camp Contacts, and Camp Dates / Weeks sections will appear here once the Camp Meals module is activated in Modules &amp; Required Setup."
-          />
-        )}
-
-        <div className="h-4" />
-      </div>
+      </PageTabs>
     </div>
   )
 }

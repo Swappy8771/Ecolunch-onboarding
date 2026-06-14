@@ -4,6 +4,9 @@ import {
   Edit3, Upload, Shield, Lock, FileCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
+import { CompletionChart } from '../../../shared/components/CompletionChart'
+import type { ChartRow } from '../../../shared/components/CompletionChart'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -422,274 +425,206 @@ export function ClientBanquesPage() {
         </div>
       </div>
 
-      {/* ── Body ────────────────────────────────────────────── */}
-      <div className="px-5 py-6 flex flex-col gap-6">
+      <PageTabs
+        tabs={[
+          { id: 'overview',     label: 'Overview',      icon: <Shield size={13} strokeWidth={1.8} />, badge: totalMissing > 0 ? totalMissing : undefined },
+          { id: 'bank-details', label: 'Bank Details',  icon: <Building2 size={13} strokeWidth={1.8} /> },
+          { id: 'documents',    label: 'Documents',     icon: <FileText size={13} strokeWidth={1.8} />, badge: BANK_DOCUMENTS.length },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-6 flex flex-col gap-6">
 
-        {/* ── Security notice ───────────────────────────────── */}
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-          <Shield size={14} strokeWidth={1.8} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-          <p className="text-[12px]" style={{ color: 'var(--text-4)' }}>
-            Your banking information is encrypted at rest and in transit using industry-standard AES-256 encryption.
-            Only authorized EcoLunch administrators can access this data for onboarding verification purposes.
-          </p>
-        </div>
+            {/* ── Overview ─────────────────────────────────────── */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Validation overview chart */}
+                {(() => {
+                  const docsPct = Math.round(
+                    BANK_DOCUMENTS.filter(d => d.status !== 'missing').length / BANK_DOCUMENTS.length * 100
+                  )
+                  const chartRows: ChartRow[] = [
+                    ...SECTIONS.map(section => {
+                      const { filled, total } = sectionCompletion(section)
+                      const pct      = total > 0 ? Math.round(filled / total * 100) : 100
+                      const barColor = pct === 100 ? '#4ade80' : pct >= 60 ? 'var(--accent)' : '#fbbf24'
+                      const vm       = VALIDATION_META[section.validation]
+                      return { id: section.id, label: section.title, pct, barColor, badge: vm }
+                    }),
+                    {
+                      id: 'docs',
+                      label: 'Banking Documents',
+                      pct: docsPct,
+                      barColor: docsPct === 100 ? '#4ade80' : '#fbbf24',
+                      badge: {
+                        label: 'Incomplete',
+                        color: '#f87171',
+                        bg: 'rgba(248,113,113,0.12)',
+                        border: 'rgba(248,113,113,0.25)',
+                        Icon: XCircle,
+                      },
+                    },
+                  ]
+                  return (
+                    <CompletionChart
+                      title="Banking Completion & Validation Status"
+                      overallPct={overallPct}
+                      filled={allFilled.length}
+                      total={allRequired.length}
+                      subtitle="banking complete"
+                      rows={chartRows}
+                    />
+                  )
+                })()}
 
-        {/* ── Completion & validation overview ──────────────── */}
-        <div className="rounded-2xl p-5"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-          <p className="text-[11px] uppercase tracking-[0.14em] font-bold mb-4"
-            style={{ color: 'var(--text-4)' }}>
-            Validation Status by Section
-          </p>
-
-          <div className="flex items-start gap-8 flex-wrap">
-            {/* Big % */}
-            <div className="shrink-0">
-              <span className="text-[52px] font-black leading-none block" style={{ color: 'var(--accent)' }}>
-                {overallPct}%
-              </span>
-              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-4)' }}>banking complete</p>
-              <p className="text-[11.5px] font-semibold mt-0.5" style={{ color: 'var(--text-3)' }}>
-                {allFilled.length} / {allRequired.length} required fields
-              </p>
-              <div className="mt-3 h-2 w-[120px] rounded-full overflow-hidden"
-                style={{ background: 'var(--bg-inner)' }}>
-                <div className="h-full rounded-full"
-                  style={{ width: `${overallPct}%`, background: 'var(--accent)' }} />
-              </div>
-            </div>
-
-            {/* Per-section breakdown */}
-            <div className="flex-1 min-w-0 flex flex-col gap-3 pt-1" style={{ minWidth: 240 }}>
-              {SECTIONS.map(section => {
-                const { filled, total } = sectionCompletion(section)
-                const pct      = total > 0 ? Math.round(filled / total * 100) : 100
-                const barColor = pct === 100 ? '#4ade80' : pct >= 60 ? 'var(--accent)' : '#fbbf24'
-                const vm       = VALIDATION_META[section.validation]
-                return (
-                  <div key={section.id} className="flex items-center gap-3">
-                    <span className="text-[12px] font-medium shrink-0 truncate"
-                      style={{ color: 'var(--text-2)', width: 175 }}>
-                      {section.title}
-                    </span>
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden"
-                      style={{ background: 'var(--bg-inner)', minWidth: 60 }}>
-                      <div className="h-full rounded-full"
-                        style={{ width: `${pct}%`, background: barColor }} />
+                {/* Missing requirements alert */}
+                {totalMissing > 0 && (
+                  <div className="rounded-2xl p-4"
+                    style={{ background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.22)' }}>
+                    <div className="flex items-start gap-3">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                        style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.25)' }}>
+                        <AlertTriangle size={14} strokeWidth={2} style={{ color: '#f87171' }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-bold" style={{ color: '#f87171' }}>
+                          {totalMissing} Banking Requirement{totalMissing !== 1 ? 's' : ''} Missing
+                        </p>
+                        <p className="text-[12px] mt-0.5 mb-3" style={{ color: 'var(--text-4)' }}>
+                          The following must be completed before your banking details can be validated.
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {missingFields.map(({ field, section }) => (
+                            <span key={`${section}-${field}`}
+                              className="flex items-center gap-1.5 text-[11.5px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer"
+                              style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.20)' }}>
+                              {field}<span className="text-[10px] font-normal" style={{ opacity: 0.7 }}>· Field</span>
+                            </span>
+                          ))}
+                          {missingDocs.map(doc => (
+                            <span key={doc.id}
+                              className="flex items-center gap-1.5 text-[11.5px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer"
+                              style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.20)' }}>
+                              {doc.name.split('(')[0].trim()}<span className="text-[10px] font-normal" style={{ opacity: 0.7 }}>· Document</span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[11px] font-bold shrink-0 text-right"
-                      style={{ color: 'var(--text-3)', width: 32 }}>
-                      {pct}%
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{ background: vm.bg, color: vm.color, border: `1px solid ${vm.border}` }}>
-                      <vm.Icon size={9} strokeWidth={2.5} />
-                      {vm.label}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ── Bank Details ─────────────────────────────────── */}
+            {activeTab === 'bank-details' && (
+              <>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                  <Shield size={14} strokeWidth={1.8} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                  <p className="text-[12px]" style={{ color: 'var(--text-4)' }}>
+                    Your banking information is encrypted at rest and in transit using industry-standard AES-256 encryption.
+                    Only authorized EcoLunch administrators can access this data for onboarding verification purposes.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+                  <div className="flex flex-col gap-5">
+                    {[SECTIONS[0], SECTIONS[2]].map(s => <SectionCard key={s.id} section={s} />)}
+                  </div>
+                  <div className="flex flex-col gap-5">
+                    <SectionCard section={SECTIONS[1]} />
+                    <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
+                      style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.20)' }}>
+                      <XCircle size={14} strokeWidth={2} style={{ color: '#f87171', flexShrink: 0, marginTop: 1 }} />
+                      <div>
+                        <p className="text-[12.5px] font-bold" style={{ color: '#f87171' }}>IBAN Format Correction Required</p>
+                        <p className="text-[11.5px] mt-0.5" style={{ color: 'var(--text-4)' }}>
+                          Your submitted IBAN is under review. An admin has flagged a potential format issue.
+                          Please verify the full 27-character French IBAN (FR76 + 23 digits) and resubmit if needed.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* ── Documents ───────────────────────────────────── */}
+            {activeTab === 'documents' && (
+              <>
+                <section>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+                      <Upload size={13} strokeWidth={1.8} style={{ color: 'var(--accent)' }} />
+                    </div>
+                    <h2 className="text-[14px] font-bold" style={{ color: 'var(--text-1)' }}>Banking Documents Upload</h2>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-default)' }}>
+                      {BANK_DOCUMENTS.length}
                     </span>
                   </div>
-                )
-              })}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {BANK_DOCUMENTS.map(doc => <DocumentUploadCard key={doc.id} doc={doc} />)}
+                  </div>
+                </section>
 
-              {/* Documents row */}
-              <div className="flex items-center gap-3">
-                <span className="text-[12px] font-medium shrink-0 truncate"
-                  style={{ color: 'var(--text-2)', width: 175 }}>
-                  Banking Documents
-                </span>
-                <div className="flex-1 h-1.5 rounded-full overflow-hidden"
-                  style={{ background: 'var(--bg-inner)', minWidth: 60 }}>
-                  <div className="h-full rounded-full"
-                    style={{
-                      width: `${Math.round(BANK_DOCUMENTS.filter(d => d.status !== 'missing').length / BANK_DOCUMENTS.length * 100)}%`,
-                      background: '#fbbf24',
-                    }} />
-                </div>
-                <span className="text-[11px] font-bold shrink-0 text-right"
-                  style={{ color: 'var(--text-3)', width: 32 }}>
-                  {Math.round(BANK_DOCUMENTS.filter(d => d.status !== 'missing').length / BANK_DOCUMENTS.length * 100)}%
-                </span>
-                <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                  style={{ background: 'rgba(248,113,113,0.12)', color: '#f87171', border: '1px solid rgba(248,113,113,0.25)' }}>
-                  <XCircle size={9} strokeWidth={2.5} />
-                  Incomplete
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+                <section>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
+                      <FileText size={13} strokeWidth={1.8} style={{ color: 'var(--accent)' }} />
+                    </div>
+                    <h2 className="text-[14px] font-bold" style={{ color: 'var(--text-1)' }}>Linked Documents</h2>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-default)' }}>
+                      {LINKED_DOCS.length}
+                    </span>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                    <div className="hidden sm:grid px-5 py-2.5"
+                      style={{ gridTemplateColumns: '1fr 90px 110px 110px', gap: '1rem', background: 'var(--bg-inner)', borderBottom: '1px solid var(--border-default)' }}>
+                      {['Document', 'Type', 'Status', 'Date'].map(col => (
+                        <span key={col} className="text-[10.5px] uppercase tracking-[0.11em] font-bold" style={{ color: 'var(--text-4)' }}>{col}</span>
+                      ))}
+                    </div>
+                    {LINKED_DOCS.map((doc, idx) => {
+                      const dm = LINKED_DOC_META[doc.status]
+                      return (
+                        <div key={doc.id} style={{ borderBottom: idx < LINKED_DOCS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+                          <div className="hidden sm:grid items-start px-5 py-3.5"
+                            style={{ gridTemplateColumns: '1fr 90px 110px 110px', gap: '1rem' }}>
+                            <div>
+                              <p className="text-[12.5px] font-semibold" style={{ color: 'var(--text-1)' }}>{doc.name}</p>
+                              {doc.notes && <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-4)' }}>{doc.notes}</p>}
+                            </div>
+                            <span className="text-[11.5px] pt-0.5" style={{ color: 'var(--text-4)' }}>{doc.type}</span>
+                            <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full w-fit"
+                              style={{ background: dm.bg, color: dm.color, border: `1px solid ${dm.border}` }}>{dm.label}</span>
+                            <span className="text-[11.5px] pt-0.5" style={{ color: 'var(--text-4)' }}>{doc.date}</span>
+                          </div>
+                          <div className="sm:hidden px-5 py-3.5 flex flex-col gap-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-[12.5px] font-semibold" style={{ color: 'var(--text-1)' }}>{doc.name}</p>
+                              <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                                style={{ background: dm.bg, color: dm.color }}>{dm.label}</span>
+                            </div>
+                            <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{doc.type} · {doc.date}</p>
+                            {doc.notes && <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{doc.notes}</p>}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </section>
+              </>
+            )}
 
-        {/* ── Missing requirements alert ─────────────────────── */}
-        {totalMissing > 0 && (
-          <div className="rounded-2xl p-4"
-            style={{ background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.22)' }}>
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-                style={{ background: 'rgba(248,113,113,0.12)', border: '1px solid rgba(248,113,113,0.25)' }}>
-                <AlertTriangle size={14} strokeWidth={2} style={{ color: '#f87171' }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-bold" style={{ color: '#f87171' }}>
-                  {totalMissing} Banking Requirement{totalMissing !== 1 ? 's' : ''} Missing
-                </p>
-                <p className="text-[12px] mt-0.5 mb-3" style={{ color: 'var(--text-4)' }}>
-                  The following must be completed before your banking details can be validated.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {missingFields.map(({ field, section }) => (
-                    <span key={`${section}-${field}`}
-                      className="flex items-center gap-1.5 text-[11.5px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer"
-                      style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.20)' }}>
-                      {field}
-                      <span className="text-[10px] font-normal" style={{ opacity: 0.7 }}>· Field</span>
-                    </span>
-                  ))}
-                  {missingDocs.map(doc => (
-                    <span key={doc.id}
-                      className="flex items-center gap-1.5 text-[11.5px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer"
-                      style={{ background: 'rgba(248,113,113,0.10)', color: '#f87171', border: '1px solid rgba(248,113,113,0.20)' }}>
-                      {doc.name.split('(')[0].trim()}
-                      <span className="text-[10px] font-normal" style={{ opacity: 0.7 }}>· Document</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <div className="h-4" />
           </div>
         )}
-
-        {/* ── Field sections grid ───────────────────────────── */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
-          {/* Left: Institution + Transit */}
-          <div className="flex flex-col gap-5">
-            {[SECTIONS[0], SECTIONS[2]].map(s => (
-              <SectionCard key={s.id} section={s} />
-            ))}
-          </div>
-          {/* Right: Account */}
-          <div className="flex flex-col gap-5">
-            <SectionCard section={SECTIONS[1]} />
-
-            {/* Action required notice inline with account card */}
-            <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl"
-              style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.20)' }}>
-              <XCircle size={14} strokeWidth={2} style={{ color: '#f87171', flexShrink: 0, marginTop: 1 }} />
-              <div>
-                <p className="text-[12.5px] font-bold" style={{ color: '#f87171' }}>
-                  IBAN Format Correction Required
-                </p>
-                <p className="text-[11.5px] mt-0.5" style={{ color: 'var(--text-4)' }}>
-                  Your submitted IBAN is under review. An admin has flagged a potential format issue.
-                  Please verify the full 27-character French IBAN (FR76 + 23 digits) and resubmit if needed.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Banking documents upload ──────────────────────── */}
-        <section>
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
-              <Upload size={13} strokeWidth={1.8} style={{ color: 'var(--accent)' }} />
-            </div>
-            <h2 className="text-[14px] font-bold" style={{ color: 'var(--text-1)' }}>
-              Banking Documents Upload
-            </h2>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-default)' }}>
-              {BANK_DOCUMENTS.length}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {BANK_DOCUMENTS.map(doc => (
-              <DocumentUploadCard key={doc.id} doc={doc} />
-            ))}
-          </div>
-        </section>
-
-        {/* ── Linked documents ──────────────────────────────── */}
-        <section>
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: 'var(--accent-dim)', border: '1px solid var(--accent-border)' }}>
-              <FileText size={13} strokeWidth={1.8} style={{ color: 'var(--accent)' }} />
-            </div>
-            <h2 className="text-[14px] font-bold" style={{ color: 'var(--text-1)' }}>
-              Linked Documents
-            </h2>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-              style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-default)' }}>
-              {LINKED_DOCS.length}
-            </span>
-          </div>
-
-          <div className="rounded-2xl overflow-hidden"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-
-            {/* Desktop header */}
-            <div className="hidden sm:grid px-5 py-2.5"
-              style={{ gridTemplateColumns: '1fr 90px 110px 110px', gap: '1rem', background: 'var(--bg-inner)', borderBottom: '1px solid var(--border-default)' }}>
-              {['Document', 'Type', 'Status', 'Date'].map(col => (
-                <span key={col} className="text-[10.5px] uppercase tracking-[0.11em] font-bold"
-                  style={{ color: 'var(--text-4)' }}>
-                  {col}
-                </span>
-              ))}
-            </div>
-
-            {LINKED_DOCS.map((doc, idx) => {
-              const dm = LINKED_DOC_META[doc.status]
-              return (
-                <div key={doc.id}
-                  style={{ borderBottom: idx < LINKED_DOCS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
-
-                  {/* Desktop row */}
-                  <div className="hidden sm:grid items-start px-5 py-3.5"
-                    style={{ gridTemplateColumns: '1fr 90px 110px 110px', gap: '1rem' }}>
-                    <div>
-                      <p className="text-[12.5px] font-semibold" style={{ color: 'var(--text-1)' }}>
-                        {doc.name}
-                      </p>
-                      {doc.notes && (
-                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-4)' }}>{doc.notes}</p>
-                      )}
-                    </div>
-                    <span className="text-[11.5px] pt-0.5" style={{ color: 'var(--text-4)' }}>{doc.type}</span>
-                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full w-fit"
-                      style={{ background: dm.bg, color: dm.color, border: `1px solid ${dm.border}` }}>
-                      {dm.label}
-                    </span>
-                    <span className="text-[11.5px] pt-0.5" style={{ color: 'var(--text-4)' }}>{doc.date}</span>
-                  </div>
-
-                  {/* Mobile card */}
-                  <div className="sm:hidden px-5 py-3.5 flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-[12.5px] font-semibold" style={{ color: 'var(--text-1)' }}>
-                        {doc.name}
-                      </p>
-                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                        style={{ background: dm.bg, color: dm.color }}>
-                        {dm.label}
-                      </span>
-                    </div>
-                    <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>
-                      {doc.type} · {doc.date}
-                    </p>
-                    {doc.notes && (
-                      <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{doc.notes}</p>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-
-        <div className="h-4" />
-      </div>
+      </PageTabs>
     </div>
   )
 }

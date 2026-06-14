@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
 import {
   CheckCircle2, XCircle, AlertTriangle,
   Rocket, ShieldCheck, Scale, Building2,
@@ -567,44 +568,39 @@ export function ClientGolivePage() {
         </p>
       </div>
 
-      <div className="px-5 py-5 flex flex-col gap-5">
+      <PageTabs
+        tabs={[
+          { id: 'status',    label: 'Status & Blockers',    icon: <Rocket size={13} strokeWidth={1.8} />, badge: result.failedBlockers.length > 0 ? result.failedBlockers.length : undefined },
+          { id: 'checklist', label: 'Validation Checklist', icon: <ClipboardList size={13} strokeWidth={1.8} />, badge: CHECK_GROUPS.length },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-5 flex flex-col gap-5">
 
-        {/* ── Status hero ───────────────── */}
-        <GoLiveStatusHero result={result} />
+            {activeTab === 'status' && (
+              <>
+                <GoLiveStatusHero result={result} />
+                <BlockersPanel failedBlockers={result.failedBlockers} />
+                <ChecklistProgress result={result} />
+              </>
+            )}
 
-        {/* ── Blockers panel ─────────────── */}
-        <BlockersPanel failedBlockers={result.failedBlockers} />
+            {activeTab === 'checklist' && (
+              <>
+                {CHECK_GROUPS.map(group => <CheckGroupCard key={group.id} group={group} />)}
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="text-[11px] uppercase tracking-[0.13em] font-black whitespace-nowrap" style={{ color: 'var(--text-4)' }}>
+                    Final Readiness Result
+                  </span>
+                  <div className="flex-1 h-px" style={{ background: 'var(--border-default)' }} />
+                </div>
+                <FinalResult result={result} />
+              </>
+            )}
 
-        {/* ── Checklist progress ─────────── */}
-        <ChecklistProgress result={result} />
-
-        {/* ── Section label ──────────────── */}
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] uppercase tracking-[0.13em] font-black whitespace-nowrap"
-            style={{ color: 'var(--text-4)' }}>
-            Validation Checklist — {CHECK_GROUPS.length} Sections
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'var(--border-default)' }} />
-        </div>
-
-        {/* ── Check groups ───────────────── */}
-        {CHECK_GROUPS.map(group => (
-          <CheckGroupCard key={group.id} group={group} />
-        ))}
-
-        {/* ── Final result ───────────────── */}
-        <div className="flex items-center gap-3 mt-1">
-          <span className="text-[11px] uppercase tracking-[0.13em] font-black whitespace-nowrap"
-            style={{ color: 'var(--text-4)' }}>
-            Final Readiness Result
-          </span>
-          <div className="flex-1 h-px" style={{ background: 'var(--border-default)' }} />
-        </div>
-
-        <FinalResult result={result} />
-
-        <div className="h-4" />
-      </div>
+            <div className="h-4" />
+          </div>
+        )}
+      </PageTabs>
     </div>
   )
 }

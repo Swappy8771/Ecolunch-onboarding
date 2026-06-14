@@ -3,9 +3,10 @@ import {
   School, Baby, BarChart3, Receipt, Users, FileBarChart,
   AlertTriangle, XCircle, CheckCircle2, Clock,
   Rocket, MessageCircle, AlertCircle, FileText,
-  ChevronRight, CircleDot, ShieldAlert,
+  ChevronRight, CircleDot, ShieldAlert, TrendingUp,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { PageTabs } from '../../../shared/ui/PageTabs'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -136,7 +137,156 @@ const TICKET_PRIORITY_COLOR: Record<TicketPriority, string> = {
   low:    'var(--text-4)',
 }
 
-// ─── Sub-components ─────────────────────────────────────────
+// ─── Bar color helper ────────────────────────────────────────
+
+function barHex(pct: number) {
+  return pct >= 80 ? '#4ade80' : pct >= 50 ? '#bbf70a' : '#fbbf24'
+}
+
+// ─── KPI stat tile ───────────────────────────────────────────
+
+interface KpiTileProps {
+  label: string; value: string | number; icon: ReactNode
+  color: string; trend: string
+}
+
+function KpiTile({ label, value, icon, color, trend }: KpiTileProps) {
+  const glow   = color + '22'
+  const border = color + '55'
+  return (
+    <div
+      className="relative flex-1 min-w-0 rounded-2xl overflow-hidden card-float"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = border
+        ;(e.currentTarget as HTMLElement).style.boxShadow = `0 0 28px ${glow}`
+      }}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+      }}
+    >
+      {/* Top accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-[2px]"
+        style={{ background: `linear-gradient(90deg, ${color}88, transparent)` }} />
+
+      <div className="px-5 pt-5 pb-5">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
+          <span className="text-[11.5px] uppercase tracking-[0.15em] font-bold leading-tight max-w-[130px]"
+            style={{ color: 'var(--text-3)' }}>
+            {label}
+          </span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: color + '18', color }}>
+            {icon}
+          </div>
+        </div>
+
+        {/* Big value */}
+        <div className="text-[44px] font-black leading-none tracking-tighter"
+          style={{ color, textShadow: `0 0 32px ${glow}`, fontVariantNumeric: 'tabular-nums' }}>
+          {value}
+        </div>
+
+        {/* Trend */}
+        <div className="mt-3 flex items-center gap-1">
+          <TrendingUp size={11} strokeWidth={2.5} style={{ color }} />
+          <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-3)' }}>{trend}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Module progress card ────────────────────────────────────
+
+function ModuleCard({ mod }: { mod: Module }) {
+  const sm        = MODULE_STATUS_META[mod.status]
+  const isStarted = mod.status !== 'not-started'
+  const hex       = barHex(mod.progress)
+  const glow      = hex + '22'
+  const borderHov = hex + '55'
+
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden card-float"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = isStarted ? borderHov : 'var(--border-strong)'
+        ;(e.currentTarget as HTMLElement).style.boxShadow  = isStarted ? `0 0 28px ${glow}` : 'none'
+      }}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)'
+        ;(e.currentTarget as HTMLElement).style.boxShadow  = 'none'
+      }}
+    >
+      {/* Top accent bar */}
+      {isStarted && (
+        <div className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{ background: `linear-gradient(90deg, ${hex}88, transparent)` }} />
+      )}
+
+      <div className="px-5 pt-5 pb-5">
+        {/* Icon + status badge */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={isStarted
+              ? { background: `linear-gradient(135deg, ${hex}18, ${hex}08)`, border: `1px solid ${hex}30`, color: hex }
+              : { background: 'var(--bg-inner)', border: '1px solid var(--border-default)', color: 'var(--text-4)' }}>
+            <mod.Icon size={18} strokeWidth={1.8} />
+          </div>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}` }}>
+            {sm.label}
+          </span>
+        </div>
+
+        {/* Module name */}
+        <h3 className="text-[14.5px] font-bold leading-snug"
+          style={{ color: 'var(--text-1)' }}>
+          {mod.name}
+        </h3>
+
+        {isStarted ? (
+          <>
+            {/* Big progress % */}
+            <div className="text-[40px] font-black leading-none mt-3"
+              style={{ color: hex, textShadow: `0 0 28px ${hex}44`, fontVariantNumeric: 'tabular-nums' }}>
+              {mod.progress}%
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-3.5 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-inner)' }}>
+              <div className="h-full rounded-full" style={{ width: `${mod.progress}%`, background: hex, boxShadow: `0 0 8px ${hex}66` }} />
+            </div>
+
+            {/* Trend line */}
+            <div className="mt-2.5 flex items-center gap-1.5">
+              {mod.missingCount > 0 ? (
+                <>
+                  <AlertTriangle size={11} strokeWidth={2} style={{ color: '#f87171' }} />
+                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-3)' }}>
+                    {mod.missingCount} item{mod.missingCount !== 1 ? 's' : ''} missing
+                  </span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={11} strokeWidth={2} style={{ color: '#4ade80' }} />
+                  <span className="text-[12px] font-medium" style={{ color: 'var(--text-3)' }}>All items complete</span>
+                </>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="text-[13px] mt-3" style={{ color: 'var(--text-4)' }}>Not yet configured</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Section header ──────────────────────────────────────────
 
 interface SectionHeaderProps {
   icon: ReactNode; title: string; count?: number; accent?: boolean
@@ -238,335 +388,285 @@ export function ClientDashboardPage() {
         </div>
       </div>
 
-      {/* ── Body ────────────────────────────────────────────── */}
-      <div className="px-5 py-6 flex flex-col gap-8">
+      <PageTabs
+        tabs={[
+          { id: 'overview',     label: 'Overview',       icon: <CircleDot size={13} strokeWidth={1.8} />, badge: MODULES.length },
+          { id: 'missing',      label: 'Missing Items',  icon: <AlertTriangle size={13} strokeWidth={1.8} />, badge: MISSING_ITEMS.length },
+          { id: 'documents',    label: 'Documents',      icon: <FileText size={13} strokeWidth={1.8} />, badge: LINKED_DOCS.length },
+          { id: 'corrections',  label: 'Corrections & Comms', icon: <ShieldAlert size={13} strokeWidth={1.8} />, badge: openCorrections + totalUnread },
+        ]}>
+        {activeTab => (
+          <div className="px-5 py-6 flex flex-col gap-8">
 
-        {/* ── Section 1 & 2: Active Modules & Progress ─────── */}
-        <section>
-          <SectionHeader
-            icon={<CircleDot size={14} strokeWidth={1.8} />}
-            title="Active Modules & Progress"
-            count={MODULES.length}
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-            {MODULES.map(mod => {
-              const sm        = MODULE_STATUS_META[mod.status]
-              const isStarted = mod.status !== 'not-started'
-              const barColor  = mod.progress >= 80 ? '#4ade80' : mod.progress >= 50 ? 'var(--accent)' : '#fbbf24'
-              return (
-                <div key={mod.id} className="rounded-2xl p-4 flex flex-col gap-3"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{
-                        background: isStarted ? 'var(--accent-dim)' : 'var(--bg-inner)',
-                        border: `1px solid ${isStarted ? 'var(--accent-border)' : 'var(--border-default)'}`,
-                      }}>
-                      <mod.Icon size={16} strokeWidth={1.8} style={{ color: isStarted ? 'var(--accent)' : 'var(--text-4)' }} />
-                    </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                      style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}` }}>
-                      {sm.label}
-                    </span>
+            {/* ── Overview ────────────────────────────────── */}
+            {activeTab === 'overview' && (
+              <div className="flex flex-col gap-8">
+
+                {/* KPI stat tiles */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                  <KpiTile
+                    label="Overall Progress"
+                    value={`${overallProgress}%`}
+                    icon={<CircleDot size={15} strokeWidth={2} />}
+                    color="#bbf70a"
+                    trend={`${activeCount} active modules`}
+                  />
+                  <KpiTile
+                    label="Active Modules"
+                    value={activeCount}
+                    icon={<CheckCircle2 size={15} strokeWidth={2} />}
+                    color="#4ade80"
+                    trend="School · Daycare · ReportIQ"
+                  />
+                  <KpiTile
+                    label="Blocking Items"
+                    value={blockingCount}
+                    icon={<XCircle size={15} strokeWidth={2} />}
+                    color="#f87171"
+                    trend="Action required"
+                  />
+                  <KpiTile
+                    label="Pending Items"
+                    value={MISSING_ITEMS.length}
+                    icon={<AlertTriangle size={15} strokeWidth={2} />}
+                    color="#fbbf24"
+                    trend="Across all modules"
+                  />
+                </div>
+
+                {/* Module cards */}
+                <section>
+                  <SectionHeader
+                    icon={<CircleDot size={14} strokeWidth={1.8} />}
+                    title="Active Modules & Progress"
+                    count={MODULES.length}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {MODULES.map(mod => <ModuleCard key={mod.id} mod={mod} />)}
                   </div>
+                </section>
+              </div>
+            )}
 
-                  <div>
-                    <p className="text-[12.5px] font-bold leading-snug mb-2" style={{ color: 'var(--text-1)' }}>
-                      {mod.name}
-                    </p>
-                    {isStarted ? (
-                      <>
-                        <div className="h-1.5 rounded-full overflow-hidden mb-1.5"
-                          style={{ background: 'var(--bg-inner)' }}>
-                          <div className="h-full rounded-full" style={{ width: `${mod.progress}%`, background: barColor }} />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold" style={{ color: barColor }}>
-                            {mod.progress}%
+            {/* ── Missing Items + Go-Live Blockers ── */}
+            {activeTab === 'missing' && (
+              <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6">
+                <section>
+                  <SectionHeader
+                    icon={<AlertTriangle size={14} strokeWidth={1.8} />}
+                    title="Missing Items"
+                    count={MISSING_ITEMS.length}
+                  />
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                    {MISSING_ITEMS.map((item, idx) => {
+                      const pm = ITEM_PRIORITY_META[item.priority]
+                      return (
+                        <div key={item.id}
+                          className="flex items-center gap-3 px-4 py-3"
+                          style={{ borderBottom: idx < MISSING_ITEMS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+                          <span style={{ color: pm.color, flexShrink: 0 }}>{pm.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--text-1)' }}>{item.label}</p>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{item.section}</span>
+                              {item.module && (
+                                <>
+                                  <span style={{ color: 'var(--border-strong)', fontSize: 10 }}>·</span>
+                                  <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{item.module}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                            style={{ background: pm.bg, color: pm.color, border: `1px solid ${pm.border}` }}>
+                            {pm.label}
                           </span>
-                          {mod.missingCount > 0 && (
-                            <span className="text-[10px] font-semibold" style={{ color: '#f87171' }}>
-                              {mod.missingCount} missing
-                            </span>
-                          )}
-                          {mod.missingCount === 0 && mod.progress === 100 && (
-                            <CheckCircle2 size={12} strokeWidth={2} style={{ color: '#4ade80' }} />
-                          )}
                         </div>
-                      </>
-                    ) : (
-                      <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>Not yet configured</p>
-                    )}
+                      )
+                    })}
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        </section>
+                </section>
 
-        {/* ── Section 3 & 6: Missing Items / Go-Live Blockers ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6">
-
-          {/* Missing Items */}
-          <section>
-            <SectionHeader
-              icon={<AlertTriangle size={14} strokeWidth={1.8} />}
-              title="Missing Items"
-              count={MISSING_ITEMS.length}
-            />
-            <div className="rounded-2xl overflow-hidden"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-              {MISSING_ITEMS.map((item, idx) => {
-                const pm = ITEM_PRIORITY_META[item.priority]
-                return (
-                  <div key={item.id}
-                    className="flex items-center gap-3 px-4 py-3"
-                    style={{ borderBottom: idx < MISSING_ITEMS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
-                    <span style={{ color: pm.color, flexShrink: 0 }}>{pm.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[12.5px] font-semibold truncate" style={{ color: 'var(--text-1)' }}>
-                        {item.label}
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{item.section}</span>
-                        {item.module && (
-                          <>
-                            <span style={{ color: 'var(--border-strong)', fontSize: 10 }}>·</span>
-                            <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{item.module}</span>
-                          </>
-                        )}
+                <section>
+                  <SectionHeader
+                    icon={<Rocket size={14} strokeWidth={1.8} />}
+                    title="Go-Live Blockers"
+                    count={GOLIVE_BLOCKERS.length}
+                    accent={GOLIVE_BLOCKERS.length > 0}
+                  />
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                    {GOLIVE_BLOCKERS.map((blocker, idx) => (
+                      <div key={blocker.id}
+                        className="flex items-start gap-3 px-4 py-3.5"
+                        style={{ borderBottom: idx < GOLIVE_BLOCKERS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                          style={{
+                            background: blocker.severity === 'blocking' ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)',
+                            border: `1px solid ${blocker.severity === 'blocking' ? 'rgba(248,113,113,0.30)' : 'rgba(251,191,36,0.30)'}`,
+                          }}>
+                          {blocker.severity === 'blocking'
+                            ? <XCircle       size={11} strokeWidth={2.5} style={{ color: '#f87171' }} />
+                            : <AlertTriangle size={10} strokeWidth={2.5} style={{ color: '#fbbf24' }} />}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[12.5px] font-semibold leading-snug" style={{ color: 'var(--text-1)' }}>{blocker.description}</p>
+                          <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-4)' }}>{blocker.section}</p>
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full shrink-0"
-                      style={{ background: pm.bg, color: pm.color, border: `1px solid ${pm.border}` }}>
-                      {pm.label}
-                    </span>
+                    ))}
                   </div>
-                )
-              })}
-            </div>
-          </section>
+                </section>
+              </div>
+            )}
 
-          {/* Go-Live Blockers */}
-          <section>
-            <SectionHeader
-              icon={<Rocket size={14} strokeWidth={1.8} />}
-              title="Go-Live Blockers"
-              count={GOLIVE_BLOCKERS.length}
-              accent={GOLIVE_BLOCKERS.length > 0}
-            />
-            <div className="rounded-2xl overflow-hidden"
-              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-              {GOLIVE_BLOCKERS.map((blocker, idx) => (
-                <div key={blocker.id}
-                  className="flex items-start gap-3 px-4 py-3.5"
-                  style={{ borderBottom: idx < GOLIVE_BLOCKERS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                    style={{
-                      background: blocker.severity === 'blocking' ? 'rgba(248,113,113,0.12)' : 'rgba(251,191,36,0.12)',
-                      border: `1px solid ${blocker.severity === 'blocking' ? 'rgba(248,113,113,0.30)' : 'rgba(251,191,36,0.30)'}`,
-                    }}>
-                    {blocker.severity === 'blocking'
-                      ? <XCircle       size={11} strokeWidth={2.5} style={{ color: '#f87171' }} />
-                      : <AlertTriangle size={10} strokeWidth={2.5} style={{ color: '#fbbf24' }} />}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[12.5px] font-semibold leading-snug" style={{ color: 'var(--text-1)' }}>
-                      {blocker.description}
-                    </p>
-                    <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-4)' }}>{blocker.section}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {/* ── Section 4: Linked Documents ──────────────────── */}
-        <section>
-          <SectionHeader
-            icon={<FileText size={14} strokeWidth={1.8} />}
-            title="Linked Documents"
-            count={LINKED_DOCS.length}
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-            {LINKED_DOCS.map(doc => {
-              const sm = DOC_STATUS_META[doc.status]
-              return (
-                <div key={doc.id} className="rounded-xl px-4 py-3.5 flex flex-col gap-2"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.10em]"
-                      style={{ color: 'var(--text-4)' }}>
-                      {doc.type}
-                    </span>
-                    <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
-                      style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}` }}>
-                      {sm.label}
-                    </span>
-                  </div>
-                  <p className="text-[12px] font-semibold leading-snug" style={{ color: 'var(--text-1)' }}>
-                    {doc.name}
-                  </p>
-                  <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{doc.date}</p>
-                </div>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* ── Section 5: Linked Corrections ────────────────── */}
-        <section>
-          <SectionHeader
-            icon={<ShieldAlert size={14} strokeWidth={1.8} />}
-            title="Linked Corrections"
-            count={openCorrections}
-          />
-          <div className="rounded-2xl overflow-hidden"
-            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-
-            {/* Desktop header */}
-            <div className="hidden md:grid px-4 py-2.5"
-              style={{ gridTemplateColumns: '80px 1fr 120px 80px 110px', gap: '1rem', background: 'var(--bg-inner)', borderBottom: '1px solid var(--border-default)' }}>
-              {['Ref', 'Description', 'Section', 'Priority', 'Status'].map(col => (
-                <span key={col} className="text-[10.5px] uppercase tracking-[0.11em] font-bold"
-                  style={{ color: 'var(--text-4)' }}>
-                  {col}
-                </span>
-              ))}
-            </div>
-
-            {LINKED_CORRECTIONS.map((cr, idx) => {
-              const prm = CORRECTION_PRIORITY_META[cr.priority]
-              const stm = CORRECTION_STATUS_META[cr.status]
-              const border = idx < LINKED_CORRECTIONS.length - 1 ? '1px solid var(--border-subtle)' : 'none'
-              return (
-                <div key={cr.id} style={{ borderBottom: border }}>
-                  {/* Desktop row */}
-                  <div className="hidden md:grid px-4 py-3.5 items-center"
-                    style={{ gridTemplateColumns: '80px 1fr 120px 80px 110px', gap: '1rem' }}>
-                    <span className="text-[11.5px] font-mono font-bold" style={{ color: 'var(--text-3)' }}>
-                      {cr.id}
-                    </span>
-                    <p className="text-[12.5px] font-medium truncate" style={{ color: 'var(--text-2)' }}>
-                      {cr.description}
-                    </p>
-                    <span className="text-[11.5px]" style={{ color: 'var(--text-4)' }}>{cr.section}</span>
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full w-fit"
-                      style={{ background: prm.bg, color: prm.color, border: `1px solid ${prm.border}` }}>
-                      {prm.label}
-                    </span>
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full w-fit"
-                      style={{ background: stm.bg, color: stm.color }}>
-                      {stm.label}
-                    </span>
-                  </div>
-
-                  {/* Mobile card */}
-                  <div className="md:hidden px-4 py-3.5 flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11.5px] font-mono font-bold" style={{ color: 'var(--text-3)' }}>
-                        {cr.id}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: prm.bg, color: prm.color }}>
-                          {prm.label}
-                        </span>
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: stm.bg, color: stm.color }}>
-                          {stm.label}
-                        </span>
+            {/* ── Documents ──────────────────────────────────── */}
+            {activeTab === 'documents' && (
+              <section>
+                <SectionHeader
+                  icon={<FileText size={14} strokeWidth={1.8} />}
+                  title="Linked Documents"
+                  count={LINKED_DOCS.length}
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+                  {LINKED_DOCS.map(doc => {
+                    const sm = DOC_STATUS_META[doc.status]
+                    return (
+                      <div key={doc.id} className="rounded-xl px-4 py-3.5 flex flex-col gap-2"
+                        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.10em]" style={{ color: 'var(--text-4)' }}>{doc.type}</span>
+                          <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
+                            style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}` }}>
+                            {sm.label}
+                          </span>
+                        </div>
+                        <p className="text-[12px] font-semibold leading-snug" style={{ color: 'var(--text-1)' }}>{doc.name}</p>
+                        <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{doc.date}</p>
                       </div>
-                    </div>
-                    <p className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>
-                      {cr.description}
-                    </p>
-                    <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>
-                      {cr.section} · {cr.date}
-                    </p>
-                  </div>
+                    )
+                  })}
                 </div>
-              )
-            })}
-          </div>
-        </section>
+              </section>
+            )}
 
-        {/* ── Section 7: Linked EcoLoop Conversations ──────── */}
-        <section>
-          <SectionHeader
-            icon={<MessageCircle size={14} strokeWidth={1.8} />}
-            title="Linked EcoLoop Conversations"
-            count={totalUnread > 0 ? totalUnread : ECOLOOP.length}
-          />
-          <div className="flex flex-col gap-3">
-            {ECOLOOP.map(conv => {
-              const stm = TICKET_STATUS_META[conv.status]
-              const priorityColor = TICKET_PRIORITY_COLOR[conv.priority]
-              return (
-                <div key={conv.id} className="rounded-2xl px-5 py-4 flex flex-col gap-2.5"
-                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-
-                  {/* Top row: badges + meta */}
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded"
-                        style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-strong)' }}>
-                        {conv.id}
-                      </span>
-                      <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: stm.bg, color: stm.color }}>
-                        {stm.label}
-                      </span>
-                      <span className="text-[10.5px] font-semibold capitalize" style={{ color: priorityColor }}>
-                        {conv.priority} priority
-                      </span>
+            {/* ── Corrections & EcoLoop ─────────────────────── */}
+            {activeTab === 'corrections' && (
+              <>
+                <section>
+                  <SectionHeader
+                    icon={<ShieldAlert size={14} strokeWidth={1.8} />}
+                    title="Linked Corrections"
+                    count={openCorrections}
+                  />
+                  <div className="rounded-2xl overflow-hidden"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                    <div className="hidden md:grid px-4 py-2.5"
+                      style={{ gridTemplateColumns: '80px 1fr 120px 80px 110px', gap: '1rem', background: 'var(--bg-inner)', borderBottom: '1px solid var(--border-default)' }}>
+                      {['Ref', 'Description', 'Section', 'Priority', 'Status'].map(col => (
+                        <span key={col} className="text-[10.5px] uppercase tracking-[0.11em] font-bold" style={{ color: 'var(--text-4)' }}>{col}</span>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-2.5 shrink-0">
-                      {conv.unread > 0 && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
-                          {conv.unread} new
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-4)' }}>
-                        <Clock size={10} strokeWidth={2} />
-                        {conv.timeAgo}
-                      </span>
-                    </div>
+                    {LINKED_CORRECTIONS.map((cr, idx) => {
+                      const prm = CORRECTION_PRIORITY_META[cr.priority]
+                      const stm = CORRECTION_STATUS_META[cr.status]
+                      return (
+                        <div key={cr.id} style={{ borderBottom: idx < LINKED_CORRECTIONS.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}>
+                          <div className="hidden md:grid px-4 py-3.5 items-center"
+                            style={{ gridTemplateColumns: '80px 1fr 120px 80px 110px', gap: '1rem' }}>
+                            <span className="text-[11.5px] font-mono font-bold" style={{ color: 'var(--text-3)' }}>{cr.id}</span>
+                            <p className="text-[12.5px] font-medium truncate" style={{ color: 'var(--text-2)' }}>{cr.description}</p>
+                            <span className="text-[11.5px]" style={{ color: 'var(--text-4)' }}>{cr.section}</span>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full w-fit"
+                              style={{ background: prm.bg, color: prm.color, border: `1px solid ${prm.border}` }}>
+                              {prm.label}
+                            </span>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full w-fit"
+                              style={{ background: stm.bg, color: stm.color }}>
+                              {stm.label}
+                            </span>
+                          </div>
+                          <div className="md:hidden px-4 py-3.5 flex flex-col gap-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11.5px] font-mono font-bold" style={{ color: 'var(--text-3)' }}>{cr.id}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{ background: prm.bg, color: prm.color }}>{prm.label}</span>
+                                <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{ background: stm.bg, color: stm.color }}>{stm.label}</span>
+                              </div>
+                            </div>
+                            <p className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{cr.description}</p>
+                            <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{cr.section} · {cr.date}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
+                </section>
 
-                  {/* Subject */}
-                  <h3 className="text-[13.5px] font-bold" style={{ color: 'var(--text-1)' }}>
-                    {conv.subject}
-                  </h3>
-
-                  {/* Last message preview */}
-                  <p className="text-[12px] leading-relaxed truncate" style={{ color: 'var(--text-4)' }}>
-                    {conv.lastMessage}
-                  </p>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-1.5"
-                    style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                    <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>
-                      EcoLoop Communication Thread
-                    </span>
-                    <button
-                      className="flex items-center gap-1 text-[12px] font-semibold cursor-pointer transition-opacity hover:opacity-70"
-                      style={{ color: 'var(--accent)' }}>
-                      View Thread <ChevronRight size={12} strokeWidth={2.5} />
-                    </button>
+                <section>
+                  <SectionHeader
+                    icon={<MessageCircle size={14} strokeWidth={1.8} />}
+                    title="Linked EcoLoop Conversations"
+                    count={totalUnread > 0 ? totalUnread : ECOLOOP.length}
+                  />
+                  <div className="flex flex-col gap-3">
+                    {ECOLOOP.map(conv => {
+                      const stm = TICKET_STATUS_META[conv.status]
+                      const priorityColor = TICKET_PRIORITY_COLOR[conv.priority]
+                      return (
+                        <div key={conv.id} className="rounded-2xl px-5 py-4 flex flex-col gap-2.5"
+                          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded"
+                                style={{ background: 'var(--bg-inner)', color: 'var(--text-4)', border: '1px solid var(--border-strong)' }}>
+                                {conv.id}
+                              </span>
+                              <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full"
+                                style={{ background: stm.bg, color: stm.color }}>
+                                {stm.label}
+                              </span>
+                              <span className="text-[10.5px] font-semibold capitalize" style={{ color: priorityColor }}>
+                                {conv.priority} priority
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2.5 shrink-0">
+                              {conv.unread > 0 && (
+                                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
+                                  {conv.unread} new
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1 text-[11px]" style={{ color: 'var(--text-4)' }}>
+                                <Clock size={10} strokeWidth={2} />
+                                {conv.timeAgo}
+                              </span>
+                            </div>
+                          </div>
+                          <h3 className="text-[13.5px] font-bold" style={{ color: 'var(--text-1)' }}>{conv.subject}</h3>
+                          <p className="text-[12px] leading-relaxed truncate" style={{ color: 'var(--text-4)' }}>{conv.lastMessage}</p>
+                          <div className="flex items-center justify-between pt-1.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                            <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>EcoLoop Communication Thread</span>
+                            <button className="flex items-center gap-1 text-[12px] font-semibold cursor-pointer transition-opacity hover:opacity-70"
+                              style={{ color: 'var(--accent)' }}>
+                              View Thread <ChevronRight size={12} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
-                </div>
-              )
-            })}
+                </section>
+              </>
+            )}
+
+            <div className="h-4" />
           </div>
-        </section>
-
-        {/* Bottom padding */}
-        <div className="h-4" />
-      </div>
+        )}
+      </PageTabs>
     </div>
   )
 }

@@ -1,11 +1,12 @@
 import { MoreHorizontal } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 
 export interface DropdownAction {
   label: string
   icon: ReactNode
   color?: string
+  onClick?: () => void
 }
 
 interface DropdownMenuProps {
@@ -73,6 +74,7 @@ export function DropdownMenu({
           {actions.map((a, i) => (
             <button
               key={i}
+              onClick={e => { e.stopPropagation(); a.onClick?.(); onClose() }}
               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[12.5px] font-medium text-left cursor-pointer"
               style={{ color: a.color || 'var(--text-2)' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
@@ -85,5 +87,18 @@ export function DropdownMenu({
         </div>
       )}
     </div>
+  )
+}
+
+export function RowMenu({ actions, minWidth }: { actions: DropdownAction[]; minWidth?: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <DropdownMenu
+      open={open}
+      onToggle={() => setOpen(o => !o)}
+      onClose={() => setOpen(false)}
+      actions={actions}
+      minWidth={minWidth}
+    />
   )
 }
