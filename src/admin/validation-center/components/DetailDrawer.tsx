@@ -29,23 +29,33 @@ export function DetailDrawer({ item, onClose }: DetailDrawerProps) {
   return (
     <>
       <div
-        className="fixed inset-0 z-40"
+        onClick={onClose}
         style={{
-          background: 'rgba(0,0,0,0.45)',
-          backdropFilter: 'blur(2px)',
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: 9998,
+          background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)',
           opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
           transition: 'opacity 220ms ease',
         }}
-        onClick={onClose}
       />
       <div
-        className="fixed right-0 top-[52px] bottom-0 z-50 flex flex-col w-full sm:w-[520px]"
+        className="flex flex-col"
         style={{
+          position: 'fixed',
+          top: '50%', left: '50%',
+          transform: open ? 'translate(-50%, -50%)' : 'translate(-50%, -48%)',
+          zIndex: 9999,
+          width: 'min(560px, calc(100vw - 32px))',
+          maxHeight: 'calc(100vh - 48px)',
           background: 'var(--bg-surface)',
-          borderLeft: '1px solid var(--border-default)',
-          transform: open ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 260ms cubic-bezier(0.4,0,0.2,1)',
-          boxShadow: '-12px 0 48px rgba(0,0,0,0.3)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '16px',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+          opacity: open ? 1 : 0,
+          pointerEvents: open ? 'auto' : 'none',
+          transition: 'opacity 260ms ease, transform 260ms cubic-bezier(0.32,0.72,0,1)',
+          overflow: 'hidden',
         }}
       >
         {/* Header */}

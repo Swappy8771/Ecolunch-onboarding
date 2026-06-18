@@ -30,15 +30,28 @@ export function ContractSlideOver({ contract, onClose, onSend }: ContractSlideOv
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: 9998,
+          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)',
+        }}
+      />
       <div
         ref={ref}
-        className="fixed right-0 top-0 bottom-0 z-50 flex flex-col overflow-hidden"
+        className="flex flex-col overflow-hidden"
         style={{
-          width: 'min(540px, 100vw)',
+          position: 'fixed',
+          top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999,
+          width: 'min(600px, calc(100vw - 32px))',
+          maxHeight: 'calc(100vh - 48px)',
           background: 'var(--bg-surface)',
-          borderLeft: '1px solid var(--border-default)',
-          boxShadow: '-20px 0 60px rgba(0,0,0,0.4)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '16px',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
         }}
       >
         {/* Header */}

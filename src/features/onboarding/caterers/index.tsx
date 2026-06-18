@@ -169,7 +169,15 @@ function NewCatererModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
+        <FormField label="Primary contact" placeholder="Full name" />
+
         <div className="grid grid-cols-2 gap-3">
+          <FormField label="Role"  placeholder="Director" />
+          <FormField label="Email" placeholder="contact@caterer.ca" />
+        </div>
+
+        <div className="pt-1 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+          <p className="text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-3" style={{ color: 'var(--text-4)' }}>Internal</p>
           <div>
             <label className="block text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-1.5" style={{ color: 'var(--text-4)' }}>Assigned admin</label>
             <div className="relative">
@@ -183,12 +191,6 @@ function NewCatererModal({ onClose }: { onClose: () => void }) {
               <ChevronDown size={11} strokeWidth={2} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-4)' }} />
             </div>
           </div>
-          <FormField label="Primary contact" placeholder="Full name" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <FormField label="Role"  placeholder="Director" />
-          <FormField label="Email" placeholder="contact@caterer.ca" />
         </div>
 
         <div className="flex items-center justify-between gap-4 pt-1 border-t" style={{ borderColor: 'var(--border-subtle)' }}>

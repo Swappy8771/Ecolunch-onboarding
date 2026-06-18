@@ -165,24 +165,22 @@ export function ValidationCenter() {
                   style={{ borderBottom: idx < filtered.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
-                  <td className="px-4 py-3.5">
-                    <button className="text-left w-full cursor-pointer" onClick={() => setDrawerItem(item)}>
-                      <div className="text-[13.5px] font-semibold leading-snug group-hover:underline"
-                        style={{ color: 'var(--text-1)', textDecorationColor: 'var(--border-default)' }}>
-                        {item.title}
-                      </div>
-                      <div className="text-[12px] mt-0.5 line-clamp-1 max-w-[320px]" style={{ color: 'var(--text-4)' }}>
-                        {item.description}
-                      </div>
-                    </button>
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}>
+                    <div className="text-[13.5px] font-semibold leading-snug group-hover:underline"
+                      style={{ color: 'var(--text-1)', textDecorationColor: 'var(--border-default)' }}>
+                      {item.title}
+                    </div>
+                    <div className="text-[12px] mt-0.5 line-clamp-1 max-w-[320px]" style={{ color: 'var(--text-4)' }}>
+                      {item.description}
+                    </div>
                   </td>
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}>
                     <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{item.caterer}</span>
                   </td>
-                  <td className="px-4 py-3.5"><TypeBadge type={item.type} /></td>
-                  <td className="px-4 py-3.5"><VStatusPill status={item.status} /></td>
-                  <td className="px-4 py-3.5"><PriorityBadge priority={item.priority} /></td>
-                  <td className="px-4 py-3.5">
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}><TypeBadge type={item.type} /></td>
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}><VStatusPill status={item.status} /></td>
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}><PriorityBadge priority={item.priority} /></td>
+                  <td className="px-4 py-3.5 cursor-pointer" onClick={() => setDrawerItem(item)}>
                     <span className="text-[12px] tabular-nums" style={{ color: 'var(--text-4)' }}>{item.created}</span>
                   </td>
                   <td className="px-4 py-3.5">

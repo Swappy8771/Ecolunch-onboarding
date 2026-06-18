@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Users, MapPin, User, Calendar, AlertTriangle, MessageCircle,
   Download, Plus, Search, ChevronDown,
   ExternalLink, ClipboardCheck, FolderLock, FileText, Rocket,
   ShieldCheck, CheckCircle2, X, Check, ChevronLeft, ChevronRight,
+  ArrowRight,
 } from 'lucide-react'
 import { useLang } from '@shared/context/LangContext'
 import { PageHeader } from '@shared/components/PageHeader'
@@ -12,7 +14,7 @@ import { DropdownMenu } from '@shared/components/DropdownMenu'
 import { FilterBar } from '@shared/components/FilterBar'
 import { StatCard } from '@/features/dashboard/components/StatCard'
 import { CATERERS } from '../services/mock/caterersMock'
-import type { Status, Vertical } from '../services/mock/caterersMock'
+import type { Status, Vertical, Caterer } from '../services/mock/caterersMock'
 
 /* ── Style maps ─────────────────────────────────────────── */
 const STATUS_META: Record<Status, { label: string; color: string; bg: string; border: string }> = {
@@ -164,6 +166,134 @@ function NewCatererModal({ onClose }: { onClose: () => void }) {
   )
 }
 
+/* ── Caterer detail modal ───────────────────────────────── */
+const WORKSPACE_SECTIONS = [
+  { label: 'Onboarding',          icon: <ExternalLink   size={15} strokeWidth={1.8} />, color: '#60a5fa' },
+  { label: 'Validation Items',    icon: <ClipboardCheck size={15} strokeWidth={1.8} />, color: '#a78bfa' },
+  { label: 'Document Vault',      icon: <FolderLock     size={15} strokeWidth={1.8} />, color: '#34d399' },
+  { label: 'Contract Management', icon: <FileText       size={15} strokeWidth={1.8} />, color: '#fb923c' },
+  { label: 'EcoLoop Thread',      icon: <MessageCircle  size={15} strokeWidth={1.8} />, color: '#60a5fa' },
+  { label: 'Go-Live Blockers',    icon: <Rocket         size={15} strokeWidth={1.8} />, color: '#a3e635' },
+  { label: 'Support Access',      icon: <ShieldCheck    size={15} strokeWidth={1.8} />, color: '#f87171' },
+]
+
+function CatererDetailModal({ caterer, onClose }: { caterer: Caterer; onClose: () => void }) {
+  const sm = STATUS_META[caterer.status]
+  const bar = caterer.status === 'corrections' ? '#fbbf24'
+    : caterer.status === 'approuves' || caterer.status === 'go-live' ? '#a3e635'
+    : caterer.status === 'soumis' ? '#a78bfa' : '#3b82f6'
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: 9998,
+          background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(4px)',
+        }}
+      />
+      {/* Modal */}
+      <div style={{
+        position: 'fixed',
+        top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        width: 'min(560px, calc(100vw - 32px))',
+        borderRadius: '16px', overflow: 'hidden',
+        background: 'var(--bg-card)', border: '1px solid var(--border-default)',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+      }}>
+
+        {/* Header */}
+        <div className="px-7 pt-6 pb-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-1" style={{ color: '#a3e635' }}>Caterer Workspace</p>
+              <h2 className="text-[20px] font-black" style={{ color: 'var(--text-1)' }}>{caterer.name}</h2>
+              <div className="flex items-center gap-1.5 mt-1">
+                <MapPin size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)' }} />
+                <span className="text-[12.5px]" style={{ color: 'var(--text-3)' }}>{caterer.city}</span>
+              </div>
+            </div>
+            <button onClick={onClose} className="cursor-pointer p-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--text-4)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+              <X size={15} strokeWidth={2} />
+            </button>
+          </div>
+
+          {/* Status + progress */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+              style={{ background: sm.bg, color: sm.color, border: `1px solid ${sm.border}` }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: sm.color }} />
+              {sm.label}
+            </span>
+            <div className="flex items-center gap-2 flex-1" style={{ minWidth: '160px' }}>
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+                <div className="h-full rounded-full" style={{ width: `${caterer.progress}%`, background: bar }} />
+              </div>
+              <span className="text-[12px] font-bold tabular-nums shrink-0" style={{ color: bar }}>{caterer.progress}%</span>
+            </div>
+          </div>
+
+          {/* Verticals */}
+          <div className="flex items-center gap-1.5 flex-wrap mt-3">
+            {caterer.verticals.map(v => {
+              const vm = VERTICAL_META[v]
+              return (
+                <span key={v} className="text-[10.5px] font-semibold px-2.5 py-0.5 rounded-md"
+                  style={{ background: vm.bg, color: vm.color }}>{v}</span>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-3 divide-x" style={{ borderBottom: '1px solid var(--border-subtle)', borderColor: 'var(--border-subtle)' }}>
+          {[
+            { label: 'Assigned Admin', value: caterer.admin,                    icon: <User         size={12} strokeWidth={1.8} /> },
+            { label: 'Validations',    value: String(caterer.validations),       icon: <AlertTriangle size={12} strokeWidth={1.8} />, color: caterer.validations > 0 ? '#fbbf24' : undefined },
+            { label: 'Tickets',        value: String(caterer.tickets),           icon: <MessageCircle size={12} strokeWidth={1.8} />, color: caterer.tickets > 0 ? '#60a5fa' : undefined },
+          ].map(s => (
+            <div key={s.label} className="px-5 py-3.5">
+              <div className="flex items-center gap-1.5 mb-0.5" style={{ color: s.color ?? 'var(--text-4)' }}>
+                {s.icon}
+                <span className="text-[9.5px] uppercase tracking-[0.12em] font-semibold">{s.label}</span>
+              </div>
+              <span className="text-[13px] font-semibold" style={{ color: s.color ?? 'var(--text-2)' }}>{s.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Workspace sections */}
+        <div className="px-7 py-5">
+          <p className="text-[9.5px] uppercase tracking-[0.13em] font-semibold mb-3" style={{ color: 'var(--text-4)' }}>Workspace sections</p>
+          <div className="grid grid-cols-2 gap-2">
+            {WORKSPACE_SECTIONS.map(s => (
+              <button key={s.label}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-left cursor-pointer transition-all group"
+                style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = s.color + '60' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)' }}>
+                <div className="flex items-center gap-2.5">
+                  <span style={{ color: s.color }}>{s.icon}</span>
+                  <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{s.label}</span>
+                </div>
+                <ArrowRight size={12} strokeWidth={2} style={{ color: 'var(--text-4)' }} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </>
+  )
+}
+
 /* ── Page ───────────────────────────────────────────────── */
 const PAGE_SIZE_OPTIONS = [5, 10, 20]
 
@@ -190,8 +320,9 @@ export function CaterersInOnboarding() {
   const [applied,      setApplied]      = useState({ search: '', status: '', vert: '', admin: '' })
   const [page,         setPage]         = useState(1)
   const [pageSize,     setPageSize]     = useState(10)
-  const [showModal,    setShowModal]    = useState(false)
-  const [openMenuId,   setOpenMenuId]   = useState<string | null>(null)
+  const [showModal,       setShowModal]       = useState(false)
+  const [openMenuId,      setOpenMenuId]      = useState<string | null>(null)
+  const [selectedCaterer, setSelectedCaterer] = useState<Caterer | null>(null)
 
   const filtered = CATERERS.filter(c => {
     if (applied.search && !c.name.toLowerCase().includes(applied.search.toLowerCase())) return false
@@ -314,16 +445,16 @@ export function CaterersInOnboarding() {
                     style={{ borderBottom: isLast ? 'none' : '1px solid var(--border-subtle)' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <span className="text-[13.5px] font-bold" style={{ color: 'var(--text-1)' }}>{c.name}</span>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1.5">
                         <MapPin size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
                         <span className="text-[12px]" style={{ color: 'var(--text-3)' }}>{c.city}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1 flex-wrap">
                         {c.verticals.map(v => {
                           const vm = VERTICAL_META[v]
@@ -336,7 +467,7 @@ export function CaterersInOnboarding() {
                         })}
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)', minWidth: '60px' }}>
                           <div className="h-full rounded-full transition-all" style={{ width: `${c.progress}%`, background: bar }} />
@@ -346,28 +477,28 @@ export function CaterersInOnboarding() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5"><StatusPill status={c.status} /></td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}><StatusPill status={c.status} /></td>
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1.5"
                         style={{ color: c.validations > 0 ? '#fbbf24' : 'var(--text-4)' }}>
                         {c.validations > 0 && <AlertTriangle size={12} strokeWidth={2} />}
                         <span className="text-[12.5px] font-semibold tabular-nums">{c.validations}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1.5"
                         style={{ color: c.tickets > 0 ? '#60a5fa' : 'var(--text-4)' }}>
                         {c.tickets > 0 && <MessageCircle size={12} strokeWidth={2} />}
                         <span className="text-[12.5px] font-semibold tabular-nums">{c.tickets}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1.5">
                         <User size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
                         <span className="text-[12px]" style={{ color: 'var(--text-3)' }}>{c.admin}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5">
+                    <td className="px-4 py-3.5 cursor-pointer" onClick={() => setSelectedCaterer(c)}>
                       <div className="flex items-center gap-1.5">
                         <Calendar size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
                         <span className="text-[12px] tabular-nums" style={{ color: 'var(--text-4)' }}>{c.updatedAt}</span>
@@ -432,6 +563,10 @@ export function CaterersInOnboarding() {
       </div>
 
       {showModal && <NewCatererModal onClose={() => setShowModal(false)} />}
+      {selectedCaterer && createPortal(
+        <CatererDetailModal caterer={selectedCaterer} onClose={() => setSelectedCaterer(null)} />,
+        document.body
+      )}
     </div>
   )
 }

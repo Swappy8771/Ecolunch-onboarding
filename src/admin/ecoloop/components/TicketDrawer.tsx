@@ -32,22 +32,35 @@ export function TicketDrawer({ ticket, onClose }: TicketDrawerProps) {
     <>
       {/* ── Backdrop ── */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        style={{ background: 'rgba(7,7,10,0.60)', backdropFilter: 'blur(6px)' }}
         onClick={onClose}
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          zIndex: 9998,
+          background: 'rgba(7,7,10,0.65)', backdropFilter: 'blur(6px)',
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? 'auto' : 'none',
+          transition: 'opacity 300ms ease',
+        }}
       />
 
-      {/* ── Drawer panel ── */}
+      {/* ── Modal panel ── */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 flex flex-col transition-transform duration-[340ms] ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className="flex flex-col"
         style={{
-          width: 'min(820px, 100vw)',
+          position: 'fixed',
+          top: '50%', left: '50%',
+          transform: isOpen ? 'translate(-50%, -50%)' : 'translate(-50%, -48%)',
+          zIndex: 9999,
+          width: 'min(820px, calc(100vw - 32px))',
+          maxHeight: 'calc(100vh - 48px)',
           background: 'var(--bg-surface)',
-          borderLeft: '1px solid var(--border-default)',
-          boxShadow: '-32px 0 96px rgba(0,0,0,0.45)',
-          transitionTimingFunction: isOpen
-            ? 'cubic-bezier(0.32, 0.72, 0, 1)'
-            : 'cubic-bezier(0.4, 0, 1, 1)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '16px',
+          boxShadow: '0 32px 96px rgba(0,0,0,0.5)',
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? 'auto' : 'none',
+          transition: 'opacity 280ms ease, transform 280ms cubic-bezier(0.32,0.72,0,1)',
+          overflow: 'hidden',
         }}
       >
         {displayTicket && (
