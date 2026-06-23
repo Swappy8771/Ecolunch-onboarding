@@ -1,0 +1,1546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoLunch — Admin Onboarding Portal: Developer Reference</title>
+<style>
+:root {
+  --ground:    #0d0f10;
+  --surface:   #14171a;
+  --surface2:  #1b1f22;
+  --border:    #252b2f;
+  --border2:   #313a3f;
+  --text-1:    #e4e7ea;
+  --text-2:    #8f9aa3;
+  --text-3:    #4e5a62;
+  --accent:    #bbf70a;
+  --adim:      rgba(187,247,10,0.09);
+  --blue:      #60a5fa;
+  --bdim:      rgba(96,165,250,0.09);
+  --green:     #4ade80;
+  --gdim:      rgba(74,222,128,0.09);
+  --amber:     #fbbf24;
+  --amdim:     rgba(251,191,36,0.09);
+  --red:       #f87171;
+  --rdim:      rgba(248,113,113,0.09);
+  --purple:    #a78bfa;
+  --pdim:      rgba(167,139,250,0.09);
+  --nav-w:     232px;
+  --ff-sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --ff-serif:  Georgia, 'Times New Roman', serif;
+  --ff-mono:   'SFMono-Regular','SF Mono',Menlo,Consolas,'Courier New',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ground);color:var(--text-1);
+  font-family:var(--ff-sans);font-size:14px;line-height:1.6;
+  display:flex;min-height:100vh;
+}
+
+/* ── NAV ────────────────────────────────────── */
+nav{
+  width:var(--nav-w);min-width:var(--nav-w);
+  background:var(--surface);border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;bottom:0;overflow-y:auto;
+  z-index:100;display:flex;flex-direction:column;padding-bottom:28px;
+}
+.nav-head{
+  padding:22px 20px 18px;border-bottom:1px solid var(--border);margin-bottom:6px;
+}
+.nav-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-3);display:block;margin-bottom:5px;
+}
+.nav-title{
+  font-family:var(--ff-serif);font-size:14.5px;color:var(--text-1);line-height:1.35;
+}
+.nav-grp{
+  font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-3);padding:12px 20px 5px;
+}
+a.nl{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 20px;text-decoration:none;
+  color:var(--text-2);font-size:12.5px;font-weight:500;
+  border-left:2px solid transparent;
+  transition:color .12s,background .12s;cursor:pointer;
+}
+a.nl:hover{color:var(--text-1);background:rgba(255,255,255,.035);}
+a.nl.active{color:var(--accent);border-left-color:var(--accent);background:var(--adim);}
+.nl-num{
+  font-family:var(--ff-mono);font-size:9.5px;color:var(--text-3);
+  width:18px;flex-shrink:0;
+}
+a.nl.active .nl-num{color:var(--accent);}
+.nav-sep{height:1px;background:var(--border);margin:8px 20px;}
+
+/* ── MAIN ───────────────────────────────────── */
+main{margin-left:var(--nav-w);flex:1;min-width:0;max-width:960px;padding:0 44px 100px;}
+
+/* ── HERO ───────────────────────────────────── */
+.hero{padding:52px 0 36px;border-bottom:1px solid var(--border);margin-bottom:52px;}
+.hero-ew{
+  font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.hero-ew::before{content:'';display:block;width:28px;height:1px;background:var(--accent);}
+.hero h1{
+  font-family:var(--ff-serif);font-size:40px;font-weight:normal;
+  line-height:1.15;color:var(--text-1);letter-spacing:-.02em;margin-bottom:14px;
+}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-lead{font-size:14.5px;color:var(--text-2);max-width:560px;line-height:1.75;margin-bottom:26px;}
+.chips{display:flex;gap:8px;flex-wrap:wrap;}
+.chip{
+  font-size:11.5px;font-weight:600;padding:4px 11px;
+  border-radius:6px;border:1px solid;
+}
+.chip-lime  {background:var(--adim);  color:var(--accent);border-color:rgba(187,247,10,.22);}
+.chip-blue  {background:var(--bdim);  color:var(--blue);  border-color:rgba(96,165,250,.22);}
+.chip-amber {background:var(--amdim); color:var(--amber); border-color:rgba(251,191,36,.22);}
+.chip-red   {background:var(--rdim);  color:var(--red);   border-color:rgba(248,113,113,.22);}
+
+/* ── PIPELINE ───────────────────────────────── */
+.pipeline-wrap{margin-bottom:52px;scroll-margin-top:24px;}
+.sec-eyebrow{
+  font-size:9.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:20px;
+}
+.pipeline{display:flex;overflow-x:auto;padding-bottom:6px;gap:0;}
+.ps{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;min-width:86px;position:relative;
+}
+.ps:not(:last-child)::after{
+  content:'›';position:absolute;right:-7px;top:16px;
+  font-size:18px;color:var(--border2);z-index:1;
+}
+.ps-num{
+  width:34px;height:34px;border-radius:50%;
+  border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--ff-mono);font-size:10.5px;font-weight:700;
+  color:var(--text-3);background:var(--surface);margin-bottom:8px;
+  position:relative;z-index:2;
+}
+.ps.cat .ps-num  {border-color:var(--accent); color:var(--accent); background:var(--adim);}
+.ps.admin .ps-num{border-color:var(--blue);   color:var(--blue);   background:var(--bdim);}
+.ps.both .ps-num {border-color:var(--amber);  color:var(--amber);  background:var(--amdim);}
+.ps.final .ps-num{border-color:var(--green);  color:var(--green);  background:var(--gdim);}
+.ps-name{
+  font-size:10px;font-weight:600;color:var(--text-3);
+  text-align:center;line-height:1.3;padding:0 3px;
+}
+.ps.cat .ps-name  {color:var(--accent);}
+.ps.admin .ps-name{color:var(--blue);}
+.ps.both .ps-name {color:var(--amber);}
+.ps.final .ps-name{color:var(--green);}
+.ps-owner{font-size:9px;color:var(--text-3);text-align:center;margin-top:3px;font-style:italic;}
+.pipeline-legend{
+  display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;
+}
+.leg{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3);}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── SECTION ────────────────────────────────── */
+.sec{margin-bottom:60px;scroll-margin-top:24px;}
+.sec-hd{
+  display:flex;align-items:baseline;gap:14px;
+  margin-bottom:22px;padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.sec-num{
+  font-family:var(--ff-mono);font-size:11px;font-weight:700;
+  color:var(--text-3);letter-spacing:.08em;flex-shrink:0;
+}
+.sec-title{
+  font-family:var(--ff-serif);font-size:26px;font-weight:normal;
+  color:var(--text-1);letter-spacing:-.01em;
+}
+.sec-title .a{color:var(--accent);}
+.purpose{
+  font-size:13.5px;color:var(--text-2);line-height:1.75;
+  padding:13px 16px;
+  border-left:3px solid var(--accent);
+  background:rgba(187,247,10,.035);
+  border-radius:0 8px 8px 0;
+  margin-bottom:20px;
+}
+
+/* ── CARDS ──────────────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+}
+.c-lbl{
+  font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-3);margin-bottom:10px;
+}
+.c-ul{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.c-ul li{
+  font-size:12.5px;color:var(--text-2);
+  display:flex;align-items:flex-start;gap:7px;
+}
+.c-ul li::before{content:'·';color:var(--text-3);flex-shrink:0;}
+.c-ul li strong{color:var(--text-1);font-weight:600;}
+.c-ul li em{color:var(--red);font-style:normal;font-weight:600;}
+
+/* ── ALERT ──────────────────────────────────── */
+.alert{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:11px 14px;border-radius:8px;
+  margin:14px 0;font-size:12.5px;line-height:1.6;
+}
+.alert-r{background:var(--rdim); border:1px solid rgba(248,113,113,.2);color:var(--red);}
+.alert-a{background:var(--amdim);border:1px solid rgba(251,191,36,.2); color:var(--amber);}
+.alert-b{background:var(--bdim); border:1px solid rgba(96,165,250,.2); color:var(--blue);}
+.alert-g{background:var(--gdim); border:1px solid rgba(74,222,128,.2); color:var(--green);}
+.alert-n{background:var(--adim); border:1px solid rgba(187,247,10,.15);color:var(--text-2);}
+.alert-i{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+/* ── BADGE ──────────────────────────────────── */
+.b{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:999px;border:1px solid;white-space:nowrap;
+}
+.b-g{background:var(--gdim);color:var(--green); border-color:rgba(74,222,128,.28);}
+.b-a{background:var(--amdim);color:var(--amber);border-color:rgba(251,191,36,.28);}
+.b-r{background:var(--rdim); color:var(--red);  border-color:rgba(248,113,113,.28);}
+.b-l{background:var(--adim); color:var(--accent);border-color:rgba(187,247,10,.28);}
+.b-b{background:var(--bdim); color:var(--blue); border-color:rgba(96,165,250,.28);}
+.b-p{background:var(--pdim); color:var(--purple);border-color:rgba(167,139,250,.28);}
+.b-m{background:rgba(255,255,255,.05);color:var(--text-3);border-color:var(--border2);}
+
+/* ── STEP LIST ──────────────────────────────── */
+.steps{counter-reset:step;display:flex;flex-direction:column;gap:6px;margin:14px 0;}
+.step{
+  counter-increment:step;
+  display:flex;align-items:flex-start;gap:11px;
+  padding:9px 13px;background:var(--surface);
+  border:1px solid var(--border);border-radius:7px;
+}
+.step::before{
+  content:counter(step,decimal-leading-zero);
+  font-family:var(--ff-mono);font-size:10px;font-weight:700;
+  color:var(--text-3);flex-shrink:0;margin-top:1px;
+}
+.step p{font-size:12.5px;color:var(--text-2);line-height:1.5;}
+.step p strong{color:var(--text-1);font-weight:600;}
+.t{
+  font-family:var(--ff-mono);font-size:10.5px;
+  background:rgba(255,255,255,.07);color:var(--text-2);
+  padding:1px 5px;border-radius:3px;border:1px solid var(--border2);
+  display:inline;
+}
+
+/* ── TABLE ──────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:14px 0;}
+.tbl th{
+  text-align:left;padding:7px 12px;
+  background:var(--surface2);color:var(--text-3);
+  font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:9px 12px;border-bottom:1px solid var(--border);
+  color:var(--text-2);vertical-align:top;
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl td:first-child{color:var(--text-1);font-weight:500;}
+
+/* ── MODULE TABLE ───────────────────────────── */
+.mod-row{
+  display:grid;
+  grid-template-columns:140px 1fr 160px 180px;
+  gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--border);
+  align-items:start;font-size:12.5px;
+}
+.mod-row.mhd{
+  font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-3);padding-bottom:8px;
+}
+.mod-row:last-child{border-bottom:none;}
+.mn{color:var(--text-1);font-weight:600;}
+.md{color:var(--text-2);}
+.mp{color:var(--green);font-size:12px;}
+.mc{color:var(--text-3);font-size:11.5px;}
+
+/* ── SCHEMA ─────────────────────────────────── */
+.schema-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+  gap:14px;margin:20px 0;
+}
+.stbl{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+}
+.stbl-hd{
+  background:var(--surface2);padding:9px 13px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+}
+.stbl-name{
+  font-family:var(--ff-mono);font-size:11.5px;font-weight:700;color:var(--accent);
+}
+.stbl-portals{display:flex;gap:4px;flex-wrap:wrap;}
+.portal-tag{
+  font-size:9px;font-weight:600;padding:1px 5px;
+  border-radius:3px;background:rgba(255,255,255,.05);
+  color:var(--text-3);border:1px solid var(--border2);
+}
+.portal-tag.future{color:var(--amber);border-color:rgba(251,191,36,.2);background:var(--amdim);}
+.sfields{padding:8px 0;}
+.sf{
+  display:flex;align-items:flex-start;gap:7px;
+  padding:3px 13px;font-size:11.5px;
+}
+.sf:hover{background:rgba(255,255,255,.025);}
+.fn{font-family:var(--ff-mono);color:var(--text-1);min-width:140px;flex-shrink:0;}
+.fn.pk{color:var(--amber);}
+.fn.fk{color:var(--blue);}
+.fn.uk{color:var(--purple);}
+.ft{font-family:var(--ff-mono);color:var(--text-3);font-size:10px;flex-shrink:0;min-width:52px;}
+.fnote{color:var(--text-3);font-size:10.5px;font-style:italic;flex:1;}
+.sdivider{height:1px;background:var(--border);margin:3px 0;}
+
+/* ── INTEGRATION ────────────────────────────── */
+.int-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 0;border-bottom:1px solid var(--border);
+  font-size:12.5px;flex-wrap:wrap;
+}
+.int-row:last-child{border-bottom:none;}
+.int-box{
+  padding:3px 10px;border-radius:6px;
+  font-size:11.5px;font-weight:600;border:1px solid;flex-shrink:0;
+}
+.int-arr{color:var(--text-3);font-size:13px;}
+.int-note{color:var(--text-3);font-size:11.5px;font-style:italic;}
+
+/* ── UTIL ───────────────────────────────────── */
+h3{font-family:var(--ff-sans);font-size:13px;font-weight:700;
+   color:var(--text-2);margin:18px 0 8px;letter-spacing:.01em;}
+h3.accent{color:var(--accent);}
+.mb8{margin-bottom:8px;}
+.mb16{margin-bottom:16px;}
+.mt16{margin-top:16px;}
+.row{display:flex;gap:12px;align-items:flex-start;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+@media(max-width:860px){
+  nav{display:none;}
+  main{margin-left:0;padding:0 18px 60px;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .mod-row{grid-template-columns:1fr 1fr;}
+  .schema-grid{grid-template-columns:1fr;}
+}
+
+/* ── PIPELINE ANIMATE ───────────────────────── */
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(187,247,10,0);}50%{box-shadow:0 0 18px rgba(187,247,10,.3);}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ NAV ══════════════════ -->
+<nav>
+  <div class="nav-head">
+    <span class="nav-eyebrow">EcoLunch / PRS</span>
+    <span class="nav-title">Admin Onboarding<br>Portal</span>
+  </div>
+
+  <span class="nav-grp">Portal Modules</span>
+  <a class="nl active" href="#s01"><span class="nl-num">01</span>Dashboard Onboarding</a>
+  <a class="nl" href="#s02"><span class="nl-num">02</span>Caterers in Onboarding</a>
+  <a class="nl" href="#s03"><span class="nl-num">03</span>Validation Center</a>
+  <a class="nl" href="#s04"><span class="nl-num">04</span>Document Vault</a>
+  <a class="nl" href="#s05"><span class="nl-num">05</span>Contract Management</a>
+  <a class="nl" href="#s06"><span class="nl-num">06</span>Modules, Pricing & Config</a>
+  <a class="nl" href="#s07"><span class="nl-num">07</span>Go-live Monitor</a>
+  <a class="nl" href="#s08"><span class="nl-num">08</span>EcoLoop Onboarding</a>
+
+  <div class="nav-sep"></div>
+  <span class="nav-grp">Cross-Cutting</span>
+  <a class="nl" href="#smart"><span class="nl-num">→</span>Smart Import Engine</a>
+  <a class="nl" href="#db"><span class="nl-num">→</span>Database Schema</a>
+  <a class="nl" href="#integ"><span class="nl-num">→</span>Integrations</a>
+</nav>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<main>
+
+<!-- ── HERO ─────────────────────────────────── -->
+<div class="hero">
+  <div class="hero-ew">EcoLunch / PRS — Internal Tool</div>
+  <h1>Admin <em>Onboarding</em> Portal<br>Developer Reference</h1>
+  <p class="hero-lead">
+    One onboarding structure applies to every caterer. The process is hardcoded — same document categories, same contract templates, same go-live checklist. Only merge field values change per caterer: rates, modules, dates, pricing, signatory details.
+  </p>
+  <div class="chips">
+    <span class="chip chip-lime">Hardcoded structure</span>
+    <span class="chip chip-blue">Dropbox Storage + Sign</span>
+    <span class="chip chip-amber">No auto-apply — human review always</span>
+    <span class="chip chip-red">Go-live requires 100% of checklist</span>
+  </div>
+</div>
+
+<!-- ── ONBOARDING PIPELINE ───────────────────── -->
+<div class="pipeline-wrap" id="pipeline">
+  <div class="sec-eyebrow">End-to-End Onboarding Flow</div>
+  <div class="pipeline">
+    <div class="ps admin">
+      <div class="ps-num" style="animation:glow 2s ease infinite">1</div>
+      <div class="ps-name">Register Caterer</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+    <div class="ps admin">
+      <div class="ps-num">2</div>
+      <div class="ps-name">Config Modules &amp; Pricing</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+    <div class="ps admin">
+      <div class="ps-num">3</div>
+      <div class="ps-name">Send Contracts</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+    <div class="ps cat">
+      <div class="ps-num">4</div>
+      <div class="ps-name">Caterer Fills Portal</div>
+      <div class="ps-owner">Caterer</div>
+    </div>
+    <div class="ps both">
+      <div class="ps-num">5</div>
+      <div class="ps-name">Admin Validates</div>
+      <div class="ps-owner">Both</div>
+    </div>
+    <div class="ps admin">
+      <div class="ps-num">6</div>
+      <div class="ps-name">Review Documents</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+    <div class="ps admin">
+      <div class="ps-num">7</div>
+      <div class="ps-name">Go-live Check</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+    <div class="ps final">
+      <div class="ps-num">8</div>
+      <div class="ps-name">Approve &amp; Activate</div>
+      <div class="ps-owner">Admin</div>
+    </div>
+  </div>
+  <div class="pipeline-legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--blue)"></div>Admin action</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Caterer action</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--amber)"></div>Both involved</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Activation</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 01 ─ DASHBOARD                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s01">
+  <div class="sec-hd">
+    <span class="sec-num">01</span>
+    <h2 class="sec-title">Dashboard <span class="a">Onboarding</span></h2>
+  </div>
+  <p class="purpose">Global view of the entire onboarding engine — not a caterer-specific screen. Shows live state across all active caterers, highlights blockers requiring action, and gives quick access to all 7 other modules.</p>
+
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="c-lbl">Must-Show KPIs</div>
+      <ul class="c-ul">
+        <li>Caterers in onboarding (total active)</li>
+        <li>Open validations (requires review)</li>
+        <li>Open EcoLoop tickets</li>
+        <li>Blocked go-live files (count)</li>
+        <li>Recent activity feed (last 5 events)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Quick Access Cards</div>
+      <ul class="c-ul">
+        <li>Caterers in Onboarding</li>
+        <li>Validation Center</li>
+        <li>Document Vault by Caterer</li>
+        <li>Contract Management</li>
+        <li>Modules, Pricing &amp; Configurations</li>
+        <li>Go-live Monitor</li>
+        <li>EcoLoop Onboarding</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-n">
+    <span class="alert-i">⚠</span>
+    <span>Smart Import / Smart Upload is <strong>not a standalone sidebar item</strong> and must not appear as a dashboard quick-access card. It is a contextual engine used inside individual sections.</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 02 ─ CATERERS IN ONBOARDING               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s02">
+  <div class="sec-hd">
+    <span class="sec-num">02</span>
+    <h2 class="sec-title">Caterers in <span class="a">Onboarding</span></h2>
+  </div>
+  <p class="purpose">The master list of signed caterers currently being activated. Each row is the entry point into that caterer's full onboarding file. This is the gateway for all caterer-specific work.</p>
+
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="c-lbl">Table Columns</div>
+      <ul class="c-ul">
+        <li>Caterer name + location</li>
+        <li>Verticals: <strong>schools / daycares / CSS / camps</strong></li>
+        <li>Overall progress %</li>
+        <li>Status <span class="b b-a">Onboarding</span> <span class="b b-g">Active</span> <span class="b b-r">Blocked</span></li>
+        <li>Open validation count</li>
+        <li>Open ticket count</li>
+        <li>Assigned admin</li>
+        <li>Last updated timestamp</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Row Actions (RowMenu)</div>
+      <ul class="c-ul">
+        <li><strong>Open Onboarding File</strong></li>
+        <li>Open Validation Items</li>
+        <li>Open Document Vault</li>
+        <li>Open Contract Management</li>
+        <li>Open EcoLoop Thread</li>
+        <li>Open Go-live Blockers</li>
+        <li><em>Open Support Access Session</em> (NOT "Switch to Caterer Portal")</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-a">
+    <span class="alert-i">⚠</span>
+    <span><strong>"Open Support Access Session"</strong> — this is an audited support access session, not a normal user switch. Do not label it "Switch to Caterer Portal." Log the session start/end, actor, and reason in audit_logs.</span>
+  </div>
+
+  <h3>Caterer Onboarding File — Internal Sections</h3>
+  <p style="font-size:13px;color:var(--text-2);margin-bottom:10px;">When admin clicks <em>Open Onboarding File</em>, they enter the caterer-specific workspace. These sections live <strong>inside the file</strong> — they are not global sidebar items.</p>
+  <div class="g3">
+    <div class="card">
+      <ul class="c-ul">
+        <li>Overview (summary + progress)</li>
+        <li>Profile</li>
+        <li>Banks &amp; Banking Information</li>
+        <li>My Clients / Establishments</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li>Menus &amp; Packages</li>
+        <li>Document Vault</li>
+        <li>Contract Management</li>
+        <li>Modules, Pricing &amp; Configurations</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li>Validation &amp; Corrections</li>
+        <li>Go-live</li>
+        <li>EcoLoop</li>
+        <li>Audit (full log)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 03 ─ VALIDATION CENTER                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s03">
+  <div class="sec-hd">
+    <span class="sec-num">03</span>
+    <h2 class="sec-title">Validation <span class="a">Center</span></h2>
+  </div>
+  <p class="purpose">Global admin review queue across all caterers. Every caterer submission — field change, document upload, Smart Import extraction, contract, banking info — creates a validation item here for admin review.</p>
+
+  <h3>Item Types &amp; Priority</h3>
+  <table class="tbl">
+    <thead><tr><th>Type</th><th>Triggered by</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>Profile</td><td>Caterer edits profile fields</td><td><span class="b b-b">Medium</span></td></tr>
+      <tr><td>Banking</td><td>Caterer submits bank details</td><td><span class="b b-r">Critical</span></td></tr>
+      <tr><td>Document</td><td>Document uploaded to vault</td><td><span class="b b-a">High</span></td></tr>
+      <tr><td>Smart Import</td><td>Smart Import field extraction</td><td><span class="b b-a">High</span></td></tr>
+      <tr><td>Contract</td><td>Contract signed via Dropbox Sign</td><td><span class="b b-r">Critical</span></td></tr>
+      <tr><td>Menu</td><td>Menu submitted by caterer</td><td><span class="b b-b">Medium</span></td></tr>
+      <tr><td>Establishment</td><td>School/Daycare/Camp added</td><td><span class="b b-b">Medium</span></td></tr>
+      <tr><td>Module/Pricing</td><td>Admin configures module</td><td><span class="b b-a">High</span></td></tr>
+      <tr><td>Go-live Blocker</td><td>Checklist item fails</td><td><span class="b b-r">Critical</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Status Flow</h3>
+  <div class="chips mb16" style="gap:6px;">
+    <span class="chip chip-blue">Pending Review</span>
+    <span style="color:var(--text-3);align-self:center;">→</span>
+    <span class="chip chip-amber">In Review</span>
+    <span style="color:var(--text-3);align-self:center;">→</span>
+    <span class="chip chip-lime">Approved</span>
+    <span style="color:var(--text-3);align-self:center;">or</span>
+    <span class="chip chip-red">Rejected</span>
+    <span style="color:var(--text-3);align-self:center;">or</span>
+    <span class="chip chip-amber">Correction Requested</span>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="c-lbl">Admin Actions per Item</div>
+      <ul class="c-ul">
+        <li>View full detail</li>
+        <li>Approve</li>
+        <li>Request correction (creates correction record + EcoLoop ticket)</li>
+        <li>Reject</li>
+        <li>Add internal comment</li>
+        <li>Send via EcoLoop</li>
+        <li>View history / audit trail</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Smart Import Fields — Extra Detail</div>
+      <ul class="c-ul">
+        <li>Source document (link to vault)</li>
+        <li>Target EcoLunch section</li>
+        <li>Detected field name</li>
+        <li>Current value in system</li>
+        <li>Proposed value from extraction</li>
+        <li>Confidence score (0.0–1.0)</li>
+        <li>Status: Confirmed / Edited / Rejected</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 04 ─ DOCUMENT VAULT                       -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s04">
+  <div class="sec-hd">
+    <span class="sec-num">04</span>
+    <h2 class="sec-title">Document Vault <span class="a">by Caterer</span></h2>
+  </div>
+  <p class="purpose">All onboarding documents organized by caterer, then by fixed category. Files are stored in Dropbox — the application database stores only Dropbox references and metadata. Never binary PDFs.</p>
+
+  <div class="alert alert-r" style="margin-bottom:16px;">
+    <span class="alert-i">⚡</span>
+    <strong>Storage rule:</strong> All documents → Dropbox Storage. DB stores: dropbox_file_id, dropbox_file_path, metadata, status, linked entity IDs, audit refs only.
+  </div>
+
+  <h3>Global Vault View</h3>
+  <p style="font-size:13px;color:var(--text-2);margin-bottom:10px;">Lists all caterers with document stats — not a mixed flat list.</p>
+  <div class="card mb16">
+    <ul class="c-ul">
+      <li>Caterer name · document count · docs in review · docs approved · docs rejected · docs needing correction · latest activity</li>
+      <li>Action: <strong>Open Vault</strong> → navigates to caterer-specific vault</li>
+    </ul>
+  </div>
+
+  <h3>Caterer-Specific Vault — 12 Fixed Categories</h3>
+  <div class="g3 mb16">
+    <div class="card">
+      <ul class="c-ul">
+        <li>Profile / General Information</li>
+        <li>Legal Information</li>
+        <li>Banks &amp; Banking Information</li>
+        <li>Compliance &amp; Permits</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li>Insurance</li>
+        <li>My Clients / Establishments</li>
+        <li>Menus &amp; Packages</li>
+        <li>Modules</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li>Contracts &amp; Signatures</li>
+        <li>Go-live</li>
+        <li>Internal Documents</li>
+        <li><span style="color:var(--text-3);font-size:11.5px;font-style:italic;">Recommended Dropbox path: <code>/Onboarding/Caterers/{id}_{name}/01_Profile/</code></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Document Actions</h3>
+  <div class="g2">
+    <div class="card">
+      <ul class="c-ul">
+        <li>Direct upload into category</li>
+        <li>Smart Import (triggers engine)</li>
+        <li>Classify / Reclassify document</li>
+        <li>View file (via Dropbox link)</li>
+        <li>View extracted Smart Import fields</li>
+        <li>View linked onboarding section</li>
+        <li>View validation status</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li>Approve / Reject</li>
+        <li>Request correction (→ EcoLoop ticket)</li>
+        <li>Send document via EcoLoop</li>
+        <li>View version history</li>
+        <li>View audit trail</li>
+        <li>Open in Dropbox</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 05 ─ CONTRACT MANAGEMENT                  -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s05">
+  <div class="sec-hd">
+    <span class="sec-num">05</span>
+    <h2 class="sec-title">Contract <span class="a">Management</span></h2>
+  </div>
+  <p class="purpose">Dedicated section for contract templates, Dropbox Sign signature requests, signature tracking, signed agreements, module annexes, fee schedules, versions, and contract audit. Separated from Document Vault — Vault = storage, Contracts = workflow.</p>
+
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="c-lbl">Section Structure</div>
+      <ul class="c-ul">
+        <li>Contracts by Caterer</li>
+        <li>Contract Templates (Dropbox Sign)</li>
+        <li>Dropbox Sign Requests</li>
+        <li>Sent Contracts</li>
+        <li>Signed Contracts</li>
+        <li>Declined / Expired / Cancelled</li>
+        <li>Module Annexes</li>
+        <li>Fee Schedule Annexes</li>
+        <li>Versions</li>
+        <li>Contract Audit</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Standard Contract Types</div>
+      <ul class="c-ul">
+        <li>Master Service Agreement (MSA)</li>
+        <li>Non-Disclosure Agreement (NDA)</li>
+        <li>Data Processing Agreement (DPA)</li>
+        <li>EcoLunch Platform Terms</li>
+        <li>Food Safety Compliance Annex</li>
+        <li>Module Annexes (per activated module)</li>
+        <li>Fee Schedule Annexes</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Signing Workflow — Dropbox Sign API</h3>
+  <div class="steps">
+    <div class="step"><p>Admin selects caterer → picks standard contract template (template_id stored in config)</p></div>
+    <div class="step"><p>Admin confirms <strong>merge field values</strong>: <span class="t">client_name</span> <span class="t">legal_name</span> <span class="t">monthly_rate</span> <span class="t">start_date</span> <span class="t">module_name</span> <span class="t">fee_percentage</span> <span class="t">signatory_email</span></p></div>
+    <div class="step"><p>Backend calls Dropbox Sign API: <span class="t">signature_request/send_with_template</span> with template_id + signers + custom_fields</p></div>
+    <div class="step"><p>Dropbox Sign handles: merge, PDF generation, email to signer, signing workflow, audit trail</p></div>
+    <div class="step"><p>Signer receives email → views → signs inside Dropbox Sign</p></div>
+    <div class="step"><p>Dropbox Sign fires webhook → backend receives <span class="t">signature_request_all_signed</span></p></div>
+    <div class="step"><p>Backend downloads signed PDF + audit trail from Dropbox Sign</p></div>
+    <div class="step"><p>Backend uploads signed files to <strong>Dropbox Storage</strong> at <span class="t">/09_Contracts_Signatures/</span></p></div>
+    <div class="step"><p>DB stores only: <span class="t">dropbox_file_id</span> <span class="t">dropbox_file_path</span> <span class="t">signature_request_id</span> — never binary PDF</p></div>
+    <div class="step"><p>Contract status updated → Document Vault updated → Go-live checklist re-evaluated → audit created</p></div>
+  </div>
+
+  <div class="alert alert-r mt16">
+    <span class="alert-i">⚡</span>
+    <strong>Activation rule:</strong> A signed contract alone does <strong>not</strong> activate the caterer. Signed → contract requirement marked complete → Go-live checklist re-evaluated → caterer becomes Active only when ALL checklist items pass.
+  </div>
+
+  <h3>Dropbox Sign Webhook Events to Handle</h3>
+  <div class="chips" style="gap:6px;">
+    <span class="chip chip-blue">signature_request_sent</span>
+    <span class="chip chip-blue">signature_request_viewed</span>
+    <span class="chip chip-lime">signature_request_signed</span>
+    <span class="chip chip-lime">signature_request_all_signed</span>
+    <span class="chip chip-red">signature_request_declined</span>
+    <span class="chip chip-amber">signature_request_expired</span>
+    <span class="chip chip-red">signature_request_canceled</span>
+    <span class="chip chip-red">signature_request_error</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 06 ─ MODULES, PRICING & CONFIGURATIONS    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s06">
+  <div class="sec-hd">
+    <span class="sec-num">06</span>
+    <h2 class="sec-title">Modules, Pricing &amp; <span class="a">Configurations</span></h2>
+  </div>
+  <p class="purpose">Where EcoLunch Admin selects which modules are activated for a caterer and sets the pricing + operational rules before go-live. These values are consumed by Contract Management to populate Dropbox Sign merge fields, module annexes, and fee schedules.</p>
+
+  <div class="alert alert-a mb16">
+    <span class="alert-i">⚠</span>
+    <span>This section is named <strong>"Modules, Pricing &amp; Configurations"</strong> — not "Modules &amp; Configurations." Pricing is configured here, not in Contract Management.</span>
+  </div>
+
+  <h3>Activable Commercial Modules</h3>
+  <div class="mod-row mhd">
+    <div>Module</div><div>Admin Selects</div><div>Pricing Fields</div><div>Related Config</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">School Meals</div>
+    <div class="md">Active / Inactive · effective date</div>
+    <div class="mp">monthly SaaS price · setup fee · founding partner</div>
+    <div class="mc">cutoff rules · labels · notifications · reports · calendars</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">Daycare / CPE Meals</div>
+    <div class="md">Active / Inactive · effective date</div>
+    <div class="mp">monthly SaaS price · setup fee · founding partner</div>
+    <div class="mc">menus · packages · credit rules · reports · labels</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">Camp Meals</div>
+    <div class="md">Active / Inactive · effective date</div>
+    <div class="mp">monthly SaaS price · setup fee if applicable</div>
+    <div class="mc">menus/packages · calendar · reports</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">ReportIQ</div>
+    <div class="md">Active / Inactive · included / billable</div>
+    <div class="mp">monthly module price · discount · effective date</div>
+    <div class="mc">report templates · delivery cadence · export permissions</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">Accounting</div>
+    <div class="md">Active / Inactive · accounting stack</div>
+    <div class="mp">monthly price · implementation fee</div>
+    <div class="mc">Acomba / QuickBooks / Sage mapping · GL codes · export rules</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">Parent Subscriptions</div>
+    <div class="md">Active / Inactive</div>
+    <div class="mp">monthly price or included status</div>
+    <div class="mc">subscription settings · recurrence · parent-facing options</div>
+  </div>
+  <div class="mod-row">
+    <div class="mn">CSS Reporting</div>
+    <div class="md">Active / Inactive</div>
+    <div class="mp">monthly price or included status</div>
+    <div class="mc">CSS report formats · access rules · data scope</div>
+  </div>
+
+  <div class="alert alert-b mt16">
+    <span class="alert-i">ℹ</span>
+    <strong>Infrastructure (not commercial modules):</strong> EcoLoop, Ledger, EcoWallet, Payment Rails (Credit Card, Apple Pay, Google Pay, Interac Direct, Sezzle) are infrastructure with their own settings — do not include them in the activable module list.
+  </div>
+
+  <h3>How Pricing Flows into Contracts</h3>
+  <div class="int-row">
+    <div class="int-box" style="background:var(--adim);color:var(--accent);border-color:rgba(187,247,10,.25);">Modules, Pricing & Config</div>
+    <span class="int-arr">→ saves values →</span>
+    <div class="int-box" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.25);">caterer_modules table</div>
+    <span class="int-arr">→ contract merge fields →</span>
+    <div class="int-box" style="background:var(--pdim);color:var(--purple);border-color:rgba(167,139,250,.25);">Contract Management</div>
+    <span class="int-arr">→ injects into →</span>
+    <div class="int-box" style="background:var(--gdim);color:var(--green);border-color:rgba(74,222,128,.25);">Dropbox Sign Template</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 07 ─ GO-LIVE MONITOR                      -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s07">
+  <div class="sec-hd">
+    <span class="sec-num">07</span>
+    <h2 class="sec-title">Go-live <span class="a">Monitor</span></h2>
+  </div>
+  <p class="purpose">Verifies whether each caterer has completed every required onboarding step and is eligible for activation. Activation cannot occur unless all 11 checklist items are complete. The system evaluates this automatically after each relevant change.</p>
+
+  <h3>11 Required Checklist Items</h3>
+  <div class="g2 mb16">
+    <div class="card">
+      <ul class="c-ul">
+        <li><strong>account_created</strong> — caterer user account exists</li>
+        <li><strong>profile_validated</strong> — all required profile fields approved</li>
+        <li><strong>banking_validated</strong> — banking info approved</li>
+        <li><strong>establishments_confirmed</strong> — at least one entity confirmed</li>
+        <li><strong>menus_validated</strong> — at least one menu validated</li>
+        <li><strong>documents_approved</strong> — required docs received + approved</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul class="c-ul">
+        <li><strong>contracts_signed</strong> — all required contracts signed</li>
+        <li><strong>modules_configured</strong> — modules selected + configured</li>
+        <li><strong>pricing_configured</strong> — pricing set for all active modules</li>
+        <li><strong>corrections_closed</strong> — no open corrections</li>
+        <li><strong>ecoloop_blockers_closed</strong> — no blocking EcoLoop tickets</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="c-lbl">Monitor Shows per Caterer</div>
+      <ul class="c-ul">
+        <li>Overall readiness %</li>
+        <li>Completed vs. blocking steps</li>
+        <li>Missing required documents</li>
+        <li>Unsigned contracts</li>
+        <li>Open validations / corrections</li>
+        <li>Modules / pricing not configured</li>
+        <li>Menus not validated</li>
+        <li>Establishments not confirmed</li>
+        <li>Ready / Not Ready status</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Admin Actions</div>
+      <ul class="c-ul">
+        <li>View blockers detail</li>
+        <li>Open blocking section directly</li>
+        <li>Send client reminder</li>
+        <li>Send via EcoLoop</li>
+        <li><strong>Validate Go-live</strong> (triggers activation)</li>
+        <li>Block Go-live (manual override)</li>
+        <li>View audit trail</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-g mt16">
+    <span class="alert-i">✓</span>
+    <strong>After Go-live approval:</strong> approved data activates in caterer operational portal · caterer status → Active · modules become effective · configured pricing/rates become effective · full audit log created.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SECTION 08 ─ ECOLOOP ONBOARDING                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="s08">
+  <div class="sec-hd">
+    <span class="sec-num">08</span>
+    <h2 class="sec-title">EcoLoop <span class="a">Onboarding</span></h2>
+  </div>
+  <p class="purpose">The communication and follow-up layer for onboarding. Functions as a support ticket system + threaded messaging between EcoLunch admin and caterer. Every correction request, validation follow-up, and go-live blocker can be linked to a ticket.</p>
+
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="c-lbl">Ticket Contains</div>
+      <ul class="c-ul">
+        <li>Caterer identifier</li>
+        <li>Subject + status + priority</li>
+        <li>Assigned admin</li>
+        <li>Threaded conversation (admin ↔ caterer)</li>
+        <li>Internal notes (admin-only)</li>
+        <li>System action log</li>
+        <li>Linked validation item(s)</li>
+        <li>Linked document(s)</li>
+        <li>Linked contract</li>
+        <li>Linked Smart Import item</li>
+        <li>Linked go-live blocker</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Actions</div>
+      <ul class="c-ul">
+        <li>Create ticket (manual or auto from correction)</li>
+        <li>Send message (to caterer)</li>
+        <li>Add internal note (admin-only)</li>
+        <li>Link to validation item</li>
+        <li>Link to document</li>
+        <li>Link to contract</li>
+        <li>Link to Smart Import item</li>
+        <li>Link to go-live blocker</li>
+        <li>Close / Reassign / Change priority</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Message Types</h3>
+  <div class="chips" style="gap:8px;">
+    <span class="chip chip-lime">admin_to_client</span>
+    <span class="chip chip-blue">client_to_admin</span>
+    <span class="chip chip-amber">internal_note</span>
+    <span class="chip chip-red">system_action</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SMART IMPORT ENGINE                               -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="smart">
+  <div class="sec-hd">
+    <span class="sec-num">→</span>
+    <h2 class="sec-title">Smart Import <span class="a">Engine</span></h2>
+  </div>
+  <p class="purpose">Smart Import and Smart Upload are the same engine. It is a contextual intelligent import used in any onboarding section where a document or structured file can be uploaded to auto-fill fields. It is never a standalone sidebar item.</p>
+
+  <div class="alert alert-r mb16">
+    <span class="alert-i">⚡</span>
+    <strong>Critical rule:</strong> No extracted data may be applied automatically without human review. Every field must be confirmed, edited, or rejected by a user.
+  </div>
+
+  <h3>Where It Appears</h3>
+  <div class="chips mb16" style="gap:8px;">
+    <span class="chip chip-blue">Profile</span>
+    <span class="chip chip-blue">Banks &amp; Banking Information</span>
+    <span class="chip chip-blue">My Clients / Establishments</span>
+    <span class="chip chip-blue">Menus &amp; Packages</span>
+    <span class="chip chip-blue">Document Vault</span>
+    <span class="chip chip-amber">Contract Management (where applicable)</span>
+  </div>
+
+  <h3>14-Step Workflow</h3>
+  <div class="steps">
+    <div class="step"><p>User is inside a specific onboarding section → clicks <strong>Smart Import</strong></p></div>
+    <div class="step"><p>User uploads document or structured file (PDF, Excel, CSV, Acomba, QuickBooks export)</p></div>
+    <div class="step"><p>File stored in <strong>Dropbox Storage</strong> under caterer's vault</p></div>
+    <div class="step"><p>System detects document type (legal doc, void cheque, menu file, school list, etc.)</p></div>
+    <div class="step"><p>System reads and parses file content</p></div>
+    <div class="step"><p>System extracts candidate field values</p></div>
+    <div class="step"><p>Fuzzy matching against EcoLunch target fields</p></div>
+    <div class="step"><p><strong>Human review screen</strong> displayed — all extracted fields shown with confidence scores</p></div>
+    <div class="step"><p>User reviews each field: <span class="b b-g">Confirm</span> <span class="b b-b">Edit</span> <span class="b b-r">Reject</span></p></div>
+    <div class="step"><p><strong>Only confirmed values applied</strong> to EcoLunch fields</p></div>
+    <div class="step"><p>Document classified in caterer's Document Vault (correct category)</p></div>
+    <div class="step"><p>Validation items created where required (→ Validation Center)</p></div>
+    <div class="step"><p>Full audit trail created for every field action</p></div>
+    <div class="step"><p>smart_import_job marked as <span class="t">applied</span></p></div>
+  </div>
+
+  <h3>Import Statuses</h3>
+  <div class="g2 mt16">
+    <div class="card">
+      <div class="c-lbl">Job Statuses</div>
+      <div class="chips" style="flex-direction:column;align-items:flex-start;gap:5px;">
+        <span class="chip chip-blue">Uploaded · Processing · Extraction Complete</span>
+        <span class="chip chip-amber">Needs Review · Partially Mapped · Mapped</span>
+        <span class="chip chip-lime">Confirmed · Applied</span>
+        <span class="chip chip-red">Rejected · Correction Requested · Archived</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="c-lbl">Field Statuses</div>
+      <div class="chips" style="flex-direction:column;align-items:flex-start;gap:5px;">
+        <span class="chip chip-blue">Detected · Mapped · Low Confidence</span>
+        <span class="chip chip-amber">Needs Review</span>
+        <span class="chip chip-lime">Confirmed · Edited · Applied</span>
+        <span class="chip chip-red">Rejected</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- DATABASE SCHEMA                                    -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="db">
+  <div class="sec-hd">
+    <span class="sec-num">→</span>
+    <h2 class="sec-title">Database <span class="a">Schema</span></h2>
+  </div>
+  <p class="purpose">Designed to be the shared foundation for all future portals. Portal tags indicate which products use each table. Tables marked "future" are designed now to avoid breaking migrations later.</p>
+
+  <div class="chips mb16" style="gap:6px;">
+    <span class="chip chip-lime">Admin Portal</span>
+    <span class="chip chip-blue">Caterer Portal</span>
+    <span class="chip chip-amber">School Portal (future)</span>
+    <span class="chip chip-red">Parent Portal (future)</span>
+    <span class="chip chip-red">Daycare Portal (future)</span>
+  </div>
+
+  <div class="schema-grid">
+
+    <!-- USERS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">users</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">All portals</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn uk">email</span><span class="ft">varchar</span><span class="fnote">unique</span></div>
+        <div class="sf"><span class="fn">role</span><span class="ft">enum</span><span class="fnote">admin|caterer_admin|caterer_staff|school|daycare|parent|support</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers, null for admins</span></div>
+        <div class="sf"><span class="fn">first_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">last_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">phone</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">active|inactive|suspended</span></div>
+        <div class="sf"><span class="fn">last_login_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">created_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- CATERERS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">caterers</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span><span class="portal-tag future">Schools+</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK — central tenant ID</span></div>
+        <div class="sf"><span class="fn">company_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">legal_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">trading_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">onboarding|active|paused|archived</span></div>
+        <div class="sf"><span class="fn">phase</span><span class="ft">int</span><span class="fnote">1 or 2</span></div>
+        <div class="sf"><span class="fn">verticals</span><span class="ft">jsonb</span><span class="fnote">["school","daycare","css","camp"]</span></div>
+        <div class="sf"><span class="fn fk">assigned_admin_id</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn">onboarding_progress_pct</span><span class="ft">int</span><span class="fnote">computed</span></div>
+        <div class="sf"><span class="fn">address</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">neq_number</span><span class="ft">varchar</span><span class="fnote">or SIRET</span></div>
+        <div class="sf"><span class="fn">go_live_at</span><span class="ft">timestamptz</span><span class="fnote">null until approved</span></div>
+      </div>
+    </div>
+
+    <!-- CATERER_ONBOARDING_FILES -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">caterer_onboarding_files</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">profile_status</span><span class="ft">enum</span><span class="fnote">not_started|in_progress|validated</span></div>
+        <div class="sf"><span class="fn">banking_status</span><span class="ft">enum</span><span class="fnote">not_started|in_progress|validated</span></div>
+        <div class="sf"><span class="fn">establishments_status</span><span class="ft">enum</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">menus_status</span><span class="ft">enum</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">documents_status</span><span class="ft">enum</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">contracts_status</span><span class="ft">enum</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">modules_status</span><span class="ft">enum</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">golive_status</span><span class="ft">enum</span><span class="fnote">not_ready|ready|approved|blocked</span></div>
+        <div class="sf"><span class="fn">admin_notes</span><span class="ft">text</span><span class="fnote">internal only</span></div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">documents</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn uk">dropbox_file_id</span><span class="ft">varchar</span><span class="fnote">unique — Dropbox file ref</span></div>
+        <div class="sf"><span class="fn">dropbox_file_path</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">category</span><span class="ft">enum</span><span class="fnote">profile|legal|banking|compliance|insurance|establishments|menus|modules|contracts|golive|internal</span></div>
+        <div class="sf"><span class="fn">source</span><span class="ft">enum</span><span class="fnote">admin_upload|caterer_upload|smart_import|contract_signed</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">uploaded|under_review|approved|rejected|correction_requested|archived</span></div>
+        <div class="sf"><span class="fn">version</span><span class="ft">int</span><span class="fnote">default 1</span></div>
+        <div class="sf"><span class="fn fk">version_of</span><span class="ft">uuid</span><span class="fnote">FK documents, self-ref</span></div>
+        <div class="sf"><span class="fn fk">uploaded_by</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn fk">linked_validation_item_id</span><span class="ft">uuid</span><span class="fnote">FK validation_items</span></div>
+        <div class="sf"><span class="fn fk">smart_import_job_id</span><span class="ft">uuid</span><span class="fnote">FK smart_import_jobs</span></div>
+        <div class="sf"><span class="fn">visibility</span><span class="ft">enum</span><span class="fnote">internal|client_visible</span></div>
+      </div>
+    </div>
+
+    <!-- CONTRACTS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">contracts</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">msa|nda|dpa|platform_terms|food_safety|module_annex|fee_schedule</span></div>
+        <div class="sf"><span class="fn">template_id</span><span class="ft">varchar</span><span class="fnote">Dropbox Sign template_id</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">draft|ready_to_send|sent|viewed|partially_signed|signed|declined|expired|cancelled|error</span></div>
+        <div class="sf"><span class="fn">version</span><span class="ft">int</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">sent_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">signed_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn uk">dropbox_sign_request_id</span><span class="ft">varchar</span><span class="fnote">unique</span></div>
+        <div class="sf"><span class="fn fk">signed_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents</span></div>
+        <div class="sf"><span class="fn fk">audit_trail_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents</span></div>
+        <div class="sf"><span class="fn">linked_modules</span><span class="ft">jsonb</span><span class="fnote">array of caterer_module ids</span></div>
+      </div>
+    </div>
+
+    <!-- SIGNATURE_REQUESTS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">signature_requests</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">contract_id</span><span class="ft">uuid</span><span class="fnote">FK contracts</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn uk">dropbox_sign_request_id</span><span class="ft">varchar</span><span class="fnote">unique, from API</span></div>
+        <div class="sf"><span class="fn">signer_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">signer_email</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">sent|viewed|signed|declined|expired|cancelled|error</span></div>
+        <div class="sf"><span class="fn">merge_fields</span><span class="ft">jsonb</span><span class="fnote">client_name, monthly_rate, start_date…</span></div>
+        <div class="sf"><span class="fn">sent_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">signed_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- MODULES -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">modules</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">All portals</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn uk">key</span><span class="ft">varchar</span><span class="fnote">school_meals|daycare_cpe|camp_meals|reportiq|accounting|parent_subscriptions|css_reporting</span></div>
+        <div class="sf"><span class="fn">name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">commercial|infrastructure</span></div>
+        <div class="sf"><span class="fn">is_active</span><span class="ft">bool</span><span class="fnote">globally available</span></div>
+      </div>
+    </div>
+
+    <!-- CATERER_MODULES -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">caterer_modules</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span><span class="portal-tag future">Schools (future)</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn fk">module_id</span><span class="ft">uuid</span><span class="fnote">FK modules</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">active|inactive|pending</span></div>
+        <div class="sf"><span class="fn">effective_date</span><span class="ft">date</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">monthly_price_cents</span><span class="ft">int</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">setup_fee_cents</span><span class="ft">int</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">founding_partner_free</span><span class="ft">bool</span><span class="fnote">free-for-life</span></div>
+        <div class="sf"><span class="fn">discount_pct</span><span class="ft">decimal</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">cutoff_rules</span><span class="ft">jsonb</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">payout_rules</span><span class="ft">jsonb</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">credit_rules</span><span class="ft">jsonb</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">notification_settings</span><span class="ft">jsonb</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">report_settings</span><span class="ft">jsonb</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn fk">configured_by</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+      </div>
+    </div>
+
+    <!-- VALIDATION_ITEMS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">validation_items</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">profile|banking|document|contract|menu|module|pricing|establishment|golive</span></div>
+        <div class="sf"><span class="fn">priority</span><span class="ft">enum</span><span class="fnote">critical|high|medium|low</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">pending_review|in_review|approved|rejected|correction_requested|closed</span></div>
+        <div class="sf"><span class="fn">section</span><span class="ft">varchar</span><span class="fnote">which onboarding section</span></div>
+        <div class="sf"><span class="fn">data_snapshot</span><span class="ft">jsonb</span><span class="fnote">submitted values at review time</span></div>
+        <div class="sf"><span class="fn fk">linked_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents</span></div>
+        <div class="sf"><span class="fn fk">smart_import_job_id</span><span class="ft">uuid</span><span class="fnote">FK smart_import_jobs</span></div>
+        <div class="sf"><span class="fn fk">reviewed_by</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn">internal_notes</span><span class="ft">text</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- CORRECTIONS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">corrections</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn fk">validation_item_id</span><span class="ft">uuid</span><span class="fnote">FK validation_items</span></div>
+        <div class="sf"><span class="fn">description</span><span class="ft">text</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">section</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">priority</span><span class="ft">enum</span><span class="fnote">high|medium|low</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">open|in_progress|resolved|closed</span></div>
+        <div class="sf"><span class="fn fk">assigned_to</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn fk">ecoloop_ticket_id</span><span class="ft">uuid</span><span class="fnote">FK ecoloop_tickets</span></div>
+        <div class="sf"><span class="fn">resolved_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- GOLIVE_CHECKLIST_ITEMS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">golive_checklist_items</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">requirement</span><span class="ft">enum</span><span class="fnote">account_created|profile_validated|banking_validated|establishments_confirmed|menus_validated|documents_approved|contracts_signed|modules_configured|pricing_configured|corrections_closed|ecoloop_blockers_closed</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">complete|incomplete|blocked|waived</span></div>
+        <div class="sf"><span class="fn">blocking_reason</span><span class="ft">text</span><span class="fnote">null if complete</span></div>
+        <div class="sf"><span class="fn">linked_entity_type</span><span class="ft">varchar</span><span class="fnote">polymorphic</span></div>
+        <div class="sf"><span class="fn">linked_entity_id</span><span class="ft">uuid</span><span class="fnote">polymorphic</span></div>
+        <div class="sf"><span class="fn fk">checked_by</span><span class="ft">uuid</span><span class="fnote">FK users, null if system</span></div>
+        <div class="sf"><span class="fn">checked_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- ECOLOOP_TICKETS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">ecoloop_tickets</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">subject</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">open|pending|resolved|closed</span></div>
+        <div class="sf"><span class="fn">priority</span><span class="ft">enum</span><span class="fnote">high|medium|low</span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">correction_request|validation_followup|general|contract|document</span></div>
+        <div class="sf"><span class="fn fk">assigned_to</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn fk">linked_validation_item_id</span><span class="ft">uuid</span><span class="fnote">FK validation_items</span></div>
+        <div class="sf"><span class="fn fk">linked_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents</span></div>
+        <div class="sf"><span class="fn fk">linked_contract_id</span><span class="ft">uuid</span><span class="fnote">FK contracts</span></div>
+        <div class="sf"><span class="fn">unread_count_admin</span><span class="ft">int</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">unread_count_client</span><span class="ft">int</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- ECOLOOP_MESSAGES -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">ecoloop_messages</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">ticket_id</span><span class="ft">uuid</span><span class="fnote">FK ecoloop_tickets</span></div>
+        <div class="sf"><span class="fn fk">sender_id</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn">body</span><span class="ft">text</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">admin_to_client|client_to_admin|internal_note|system_action</span></div>
+        <div class="sf"><span class="fn fk">linked_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents, optional attachment</span></div>
+        <div class="sf"><span class="fn">read_at</span><span class="ft">timestamptz</span><span class="fnote">null = unread</span></div>
+        <div class="sf"><span class="fn">created_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- SMART_IMPORT_JOBS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">smart_import_jobs</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">section</span><span class="ft">enum</span><span class="fnote">profile|banking|establishments|menus|documents</span></div>
+        <div class="sf"><span class="fn fk">source_document_id</span><span class="ft">uuid</span><span class="fnote">FK documents</span></div>
+        <div class="sf"><span class="fn">detected_doc_type</span><span class="ft">varchar</span><span class="fnote">e.g. void_cheque, menu_pdf</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">uploaded|processing|extraction_complete|needs_review|partially_mapped|mapped|confirmed|applied|rejected|archived</span></div>
+        <div class="sf"><span class="fn fk">confirmed_by</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+        <div class="sf"><span class="fn">confirmed_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">applied_at</span><span class="ft">timestamptz</span><span class="fnote"></span></div>
+      </div>
+    </div>
+
+    <!-- SMART_IMPORT_FIELDS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">smart_import_fields</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">job_id</span><span class="ft">uuid</span><span class="fnote">FK smart_import_jobs</span></div>
+        <div class="sf"><span class="fn">field_name</span><span class="ft">varchar</span><span class="fnote">target EcoLunch field</span></div>
+        <div class="sf"><span class="fn">detected_value</span><span class="ft">text</span><span class="fnote">raw extracted</span></div>
+        <div class="sf"><span class="fn">mapped_value</span><span class="ft">text</span><span class="fnote">after fuzzy match</span></div>
+        <div class="sf"><span class="fn">confidence_score</span><span class="ft">decimal</span><span class="fnote">0.00–1.00</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">detected|mapped|low_confidence|needs_review|confirmed|edited|rejected|applied</span></div>
+        <div class="sf"><span class="fn">applied_value</span><span class="ft">text</span><span class="fnote">final after human confirm</span></div>
+        <div class="sf"><span class="fn fk">edited_by</span><span class="ft">uuid</span><span class="fnote">FK users</span></div>
+      </div>
+    </div>
+
+    <!-- ESTABLISHMENTS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">establishments</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span><span class="portal-tag future">School (future)</span><span class="portal-tag future">Daycare (future)</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">school|daycare|camp|css</span></div>
+        <div class="sf"><span class="fn">name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">address</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">city</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">contact_name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">contact_email</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">student_count</span><span class="ft">int</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn fk">css_id</span><span class="ft">uuid</span><span class="fnote">FK establishments, self-ref for CSS link</span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">pending|confirmed|inactive</span></div>
+      </div>
+    </div>
+
+    <!-- MENUS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">menus</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">Admin</span><span class="portal-tag">Caterer</span><span class="portal-tag future">School (future)</span><span class="portal-tag future">Parent (future)</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn fk">caterer_id</span><span class="ft">uuid</span><span class="fnote">FK caterers</span></div>
+        <div class="sf"><span class="fn fk">establishment_id</span><span class="ft">uuid</span><span class="fnote">FK establishments, nullable</span></div>
+        <div class="sf"><span class="fn">type</span><span class="ft">enum</span><span class="fnote">school|daycare|camp|rotating_cycle|common_meals</span></div>
+        <div class="sf"><span class="fn">name</span><span class="ft">varchar</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">status</span><span class="ft">enum</span><span class="fnote">draft|submitted|under_review|validated|rejected</span></div>
+        <div class="sf"><span class="fn fk">smart_import_job_id</span><span class="ft">uuid</span><span class="fnote">FK smart_import_jobs</span></div>
+      </div>
+    </div>
+
+    <!-- AUDIT_LOGS -->
+    <div class="stbl">
+      <div class="stbl-hd">
+        <span class="stbl-name">audit_logs</span>
+        <div class="stbl-portals">
+          <span class="portal-tag">All portals</span>
+        </div>
+      </div>
+      <div class="sfields">
+        <div class="sf"><span class="fn pk">id</span><span class="ft">uuid</span><span class="fnote">PK</span></div>
+        <div class="sf"><span class="fn">entity_type</span><span class="ft">varchar</span><span class="fnote">caterer|document|contract|validation_item|correction|caterer_module|golive_checklist|ecoloop_ticket|smart_import_job|user</span></div>
+        <div class="sf"><span class="fn">entity_id</span><span class="ft">uuid</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn fk">actor_id</span><span class="ft">uuid</span><span class="fnote">FK users, null if system</span></div>
+        <div class="sf"><span class="fn">actor_type</span><span class="ft">enum</span><span class="fnote">admin|caterer_staff|system|support_session</span></div>
+        <div class="sf"><span class="fn">action</span><span class="ft">varchar</span><span class="fnote">created|updated|approved|rejected|sent|signed|applied|activated|support_access_start|support_access_end</span></div>
+        <div class="sf"><span class="fn">old_value</span><span class="ft">jsonb</span><span class="fnote">before state</span></div>
+        <div class="sf"><span class="fn">new_value</span><span class="ft">jsonb</span><span class="fnote">after state</span></div>
+        <div class="sf"><span class="fn">ip_address</span><span class="ft">inet</span><span class="fnote"></span></div>
+        <div class="sf"><span class="fn">created_at</span><span class="ft">timestamptz</span><span class="fnote">never update audit rows</span></div>
+      </div>
+    </div>
+
+  </div><!-- /schema-grid -->
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- INTEGRATIONS                                       -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="sec" id="integ">
+  <div class="sec-hd">
+    <span class="sec-num">→</span>
+    <h2 class="sec-title">External <span class="a">Integrations</span></h2>
+  </div>
+
+  <h3>Dropbox Storage — Document Archive</h3>
+  <div class="int-row">
+    <div class="int-box" style="background:var(--adim);color:var(--accent);border-color:rgba(187,247,10,.25);">Any upload action</div>
+    <span class="int-arr">→</span>
+    <div class="int-box" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.25);">File → Dropbox Storage</div>
+    <span class="int-arr">→</span>
+    <div class="int-box" style="background:var(--gdim);color:var(--green);border-color:rgba(74,222,128,.25);">DB stores dropbox_file_id + path only</div>
+    <span class="int-note">Never binary PDF in app DB</span>
+  </div>
+  <div class="int-row">
+    <div class="int-box" style="background:var(--pdim);color:var(--purple);border-color:rgba(167,139,250,.25);">Signed PDF webhook</div>
+    <span class="int-arr">→ backend downloads from Dropbox Sign →</span>
+    <div class="int-box" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.25);">Re-upload to Dropbox Storage</div>
+    <span class="int-arr">→</span>
+    <div class="int-box" style="background:var(--gdim);color:var(--green);border-color:rgba(74,222,128,.25);">Store reference in contracts table</div>
+  </div>
+
+  <h3 style="margin-top:20px;">Dropbox Sign — Signature Workflow</h3>
+  <div class="int-row">
+    <div class="int-box" style="background:var(--adim);color:var(--accent);border-color:rgba(187,247,10,.25);">Admin triggers send</div>
+    <span class="int-arr">→</span>
+    <div class="int-box" style="background:var(--pdim);color:var(--purple);border-color:rgba(167,139,250,.25);">POST /signature_request/send_with_template</div>
+    <span class="int-arr">→</span>
+    <div class="int-box" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.25);">Dropbox Sign handles merge + email + signing</div>
+  </div>
+  <div class="int-row">
+    <div class="int-box" style="background:var(--bdim);color:var(--blue);border-color:rgba(96,165,250,.25);">Webhook event received</div>
+    <span class="int-arr">→ backend endpoint (POST /webhooks/dropbox-sign) →</span>
+    <div class="int-box" style="background:var(--gdim);color:var(--green);border-color:rgba(74,222,128,.25);">Update: contracts, signature_requests, validation_items, golive_checklist_items, audit_logs</div>
+  </div>
+
+  <div class="alert alert-a" style="margin-top:16px;">
+    <span class="alert-i">⚠</span>
+    <span>The <span class="t">template_id</span> for each contract type must be configured as an environment variable or application config constant — <strong>not hardcoded in migration files</strong>. Templates are created and managed inside Dropbox Sign dashboard by EcoLunch.</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+const links = document.querySelectorAll('a.nl');
+const sections = document.querySelectorAll('[id]');
+
+function setActive(id) {
+  links.forEach(l => {
+    l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+  });
+}
+
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.target.id) setActive(e.target.id);
+  });
+}, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+sections.forEach(s => obs.observe(s));
+
+links.forEach(l => {
+  l.addEventListener('click', e => {
+    const href = l.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+</script>
+</body>
+</html>
