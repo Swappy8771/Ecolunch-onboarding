@@ -1,7 +1,9 @@
-# EcoLunch Backend — Database Models (Caterer Onboarding)
+# EcoLunch Backend — Database Models (shared by both portals)
 
 This folder explains the database **one model at a time**, in plain language.
 Each model has its own file under [`models/`](./models/) that tells you everything about it in one place: what it is, what it stores, what each status means, what it connects to, and the rules.
+
+> **These tables are shared by both portals** — the Admin Onboarding Portal and the Caterer Onboarding Portal use the **same** schema (there is no separate admin database). The caterer *fills* the data; the admin *decides* on it. See [`../README.md`](../README.md) for the system overview, [`../admin-portal/`](../admin-portal/) for the admin behavior, and [`../admin-portal/03-write-ownership.md`](../admin-portal/03-write-ownership.md) for who writes what.
 
 ---
 

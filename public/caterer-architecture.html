@@ -241,6 +241,46 @@
   .req.auto { color: var(--muted); background: #1b2430; }
   .req.cond { color: var(--hub); background: var(--hub-soft); }
   .req.no   { color: var(--faint); border: 1px solid var(--line); }
+
+  /* ---------- end-to-end flow ---------- */
+  .jstrip-wrap { overflow-x: auto; padding-bottom: 8px; }
+  .jstrip { display: flex; align-items: stretch; min-width: max-content; }
+  .jphase { display: flex; align-items: center; }
+  .jphase .box { border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; background: var(--ink-card); width: 176px; }
+  .jphase .box .t { font-family: var(--mono); font-size: .86rem; color: var(--text); display: block; margin-top: 7px; }
+  .jphase .box .c { font-size: .7rem; color: var(--faint); display: block; margin-top: 5px; line-height: 1.45; }
+  .jphase .box.admin { border-color: #33415c; }
+  .jphase .box.live { border-color: #4d3f17; background: linear-gradient(180deg, #1d1808, #15110a); }
+  .jphase .box.live .t { color: var(--hub); }
+  .jarrow { color: var(--faint); padding: 0 9px; font-family: var(--mono); }
+  .jphase:last-child .jarrow { display: none; }
+  .actor { font-family: var(--mono); font-size: .56rem; letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; display: inline-block; }
+  .actor.admin { color: #9db9e0; background: #1b2c45; }
+  .actor.caterer { color: var(--mongo); background: var(--mongo-soft); }
+
+  .loopwrap { margin-top: 26px; border: 1px solid var(--line); border-radius: 14px; background: var(--ink-raised); padding: 20px 22px; }
+  .loop-title { margin: 0 0 14px; font-size: 1rem; font-family: var(--mono); color: var(--text); font-weight: 600; }
+  .loopline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  .lpill { font-family: var(--mono); font-size: .78rem; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--ink-card); color: var(--text); }
+  .lpill.review { border-color: #33415c; color: #9db9e0; }
+  .lpill.ok { border-color: #235640; color: var(--mongo); background: var(--mongo-soft); }
+  .larrow { color: var(--faint); padding: 0 5px; font-family: var(--mono); }
+  .loopnote { margin: 14px 0 0; font-size: .86rem; color: var(--muted); line-height: 1.6; }
+
+  .endcard { margin-top: 24px; border: 1px solid #235640; border-radius: 14px; background: linear-gradient(180deg, #16352a, #0f1b16); padding: 18px 22px; }
+  .endcard .t { font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mongo); }
+  .endcard p { margin: 8px 0 0; color: var(--muted); font-size: .92rem; line-height: 1.6; }
+
+  /* ---------- admin portal (separated section) ---------- */
+  .portal-divider { border-top: 2px solid var(--bridge); padding-top: 28px; margin-top: 8px; }
+  .portal-divider .eb { font-family: var(--mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bridge); }
+  .portal-divider h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); letter-spacing: -.02em; margin: 10px 0 8px; font-weight: 680; }
+  .portal-divider p { color: var(--muted); margin: 0; max-width: 64ch; }
+  td.own-admin { color: var(--bridge); font-family: var(--mono); font-size: .78rem; }
+  td.own-caterer { color: var(--mongo); font-family: var(--mono); font-size: .78rem; }
+  td.own-system { color: var(--muted); font-family: var(--mono); font-size: .78rem; }
+  td.tname-cell { font-family: var(--mono); color: var(--text); font-size: .8rem; white-space: nowrap; }
+  td.dash { color: var(--faint); }
 </style>
 
 <div class="wrap">
@@ -257,6 +297,50 @@
       <span class="stat">tenant key&nbsp;<b>caterer_id</b></span>
     </div>
   </header>
+
+  <!-- ===================== END-TO-END FLOW ===================== -->
+  <section class="reveal">
+    <p class="sec-label">How onboarding works — end to end</p>
+
+    <div class="jstrip-wrap">
+      <div class="jstrip">
+        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">Sets up</span><span class="c">Creates the caterer, turns on modules, sets pricing, emails a login link</span></div><span class="jarrow">→</span></div>
+        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Logs in</span><span class="c">First login sets a password</span></div><span class="jarrow">→</span></div>
+        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Dashboard</span><span class="c">Sees progress, active modules, what is left to do</span></div><span class="jarrow">→</span></div>
+        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Fills 7 sections</span><span class="c">Each form is submitted and reviewed</span></div><span class="jarrow">→</span></div>
+        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">Approves Go-live</span><span class="c">Only when every check has passed</span></div><span class="jarrow">→</span></div>
+        <div class="jphase"><div class="box live"><span class="actor caterer">Caterer</span><span class="t">ACTIVE 🎉</span><span class="c">Onboarding done — live on the platform</span></div></div>
+      </div>
+    </div>
+
+    <div class="loopwrap">
+      <h3 class="loop-title">Every section follows the same loop</h3>
+      <div class="loopline">
+        <span class="lpill">Open form</span><span class="larrow">→</span>
+        <span class="lpill">Fill it in</span><span class="larrow">→</span>
+        <span class="lpill">Submit</span><span class="larrow">→</span>
+        <span class="lpill review">Under review</span><span class="larrow">→</span>
+        <span class="lpill ok">✅ Validated</span>
+      </div>
+      <p class="loopnote">If the admin finds an issue, a <b style="color:var(--hub)">✏️ Correction</b> appears → the caterer fixes it and submits again → back to “Under review”. The caterer chats with the admin in <b style="color:var(--mongo)">EcoLoop</b> the whole time.</p>
+    </div>
+
+    <p class="group-tag" style="margin-top: 24px">The 7 forms the caterer fills (in order)</p>
+    <div class="grid">
+      <div class="card"><span class="cname">1 · Profile</span><p class="desc">Company, contact, address, tax numbers.</p></div>
+      <div class="card star"><span class="chip pg">SQL</span><span class="cname">2 · Banking</span><p class="desc">Bank details + 3 documents. Stored encrypted.</p></div>
+      <div class="card"><span class="cname">3 · My Clients</span><p class="desc">Schools / daycares / camps.</p></div>
+      <div class="card"><span class="cname">4 · Menus</span><p class="desc">Menus &amp; dishes — Smart Import helps fill them.</p></div>
+      <div class="card"><span class="cname">5 · Documents</span><p class="desc">Required files per active module.</p></div>
+      <div class="card"><span class="cname">6 · Contracts</span><p class="desc">Sign the contracts the admin sent.</p></div>
+      <div class="card"><span class="cname">7 · Module setup</span><p class="desc">Finish each active module checklist.</p></div>
+    </div>
+
+    <div class="endcard">
+      <span class="t">How it ends</span>
+      <p>As each section is approved, the Go-live checklist fills up. When <b>every item is complete</b>, the caterer shows <b style="color:var(--mongo)">Ready</b> → the <b>admin approves Go-live</b> (the caterer cannot do this themselves) → status becomes <b style="color:var(--hub)">ACTIVE</b> and onboarding is finished.</p>
+    </div>
+  </section>
 
   <!-- ===================== ER DIAGRAM ===================== -->
   <section class="reveal">
@@ -363,24 +447,6 @@
     </div>
   </section>
 
-  <!-- ===================== ONBOARDING FLOW ===================== -->
-  <section class="reveal">
-    <p class="sec-label">The onboarding journey</p>
-    <div class="flowstrip-wrap">
-      <div class="flowstrip">
-        <div class="fstep"><span class="pill">Profile</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill bank">Banking</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Establishments</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Menus</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Documents</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Contracts</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Module setup</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill">Corrections</span><span class="arrow">→</span></div>
-        <div class="fstep"><span class="pill live">Go-live ✓</span><span class="arrow">→</span></div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== LEGEND + RULES ===================== -->
   <section class="reveal">
     <div class="two">
@@ -409,7 +475,7 @@
   </section>
 
   <footer>
-    Source of truth: backend/db-architecture/ &nbsp;·&nbsp; models/ (19 files) + relationships.md + erd.md &nbsp;·&nbsp; design preview
+    Caterer Portal preview &nbsp;·&nbsp; shared schema: backend/db-architecture/ (19 models) &nbsp;·&nbsp; the admin side has its own preview: <b style="color:var(--bridge)">admin-architecture.html</b>
   </footer>
 
 </div>
