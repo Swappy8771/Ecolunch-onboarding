@@ -1,892 +1,355 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
-    --ink:        #0B0E14;
-    --ink-raised: #131A24;
-    --ink-card:   #161E2A;
-    --line:       #243040;
-    --line-soft:  #1B2430;
-    --text:       #E6EDF3;
-    --muted:      #8B99AC;
-    --faint:      #5C6878;
+    --ink:        #080D0B;
+    --ink-raised: #0F1714;
+    --ink-card:   #121C18;
+    --line:       #213029;
+    --line-soft:  #18241F;
+    --text:       #E8F1EC;
+    --muted:      #8AA89B;
+    --faint:      #566D62;
+    --green:      #34D399;
+    --green-soft: #0f2a20;
+    --teal:       #2DD4BF;
+    --hub:        #FBBF24;
+    --hub-soft:   #2e2410;
     --pg:         #5B9DF9;
-    --pg-soft:    #1b2c45;
-    --mongo:      #3DD68C;
-    --mongo-soft: #16352a;
-    --hub:        #F0B72F;
-    --hub-soft:   #3a2f10;
-    --bridge:     #C77DFF;
+    --pg-soft:    #142340;
     --sans: "SF Pro Display", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
-    --step: clamp(12px, 1.6vw, 18px);
   }
   body {
     margin: 0;
     background:
-      radial-gradient(1200px 600px at 78% -8%, #14233b 0%, transparent 55%),
-      radial-gradient(900px 500px at 8% 4%, #102a22 0%, transparent 50%),
+      radial-gradient(1100px 560px at 82% -10%, #103128 0%, transparent 55%),
+      radial-gradient(820px 460px at 4% 2%, #0c241d 0%, transparent 52%),
       var(--ink);
-    color: var(--text);
-    font-family: var(--sans);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1140px; margin: 0 auto; padding: clamp(28px, 5vw, 72px) clamp(18px, 4vw, 40px) 64px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: clamp(26px, 5vw, 64px) clamp(18px, 4vw, 40px) 64px; }
 
-  /* ---------- header ---------- */
-  .eyebrow {
-    font-family: var(--mono); font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
-    color: var(--mongo); margin: 0 0 18px;
-  }
-  .eyebrow span { color: var(--faint); }
-  h1 {
-    font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1.04; letter-spacing: -.02em;
-    font-weight: 680; margin: 0 0 16px; text-wrap: balance; max-width: 18ch;
-  }
-  .thesis { font-size: clamp(1rem, 1.7vw, 1.18rem); color: var(--muted); max-width: 62ch; margin: 0; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green-soft); background: #0c1f18; border-radius: 999px; padding: 6px 12px; }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+  h1 { font-size: clamp(2rem, 4.6vw, 3rem); line-height: 1.05; letter-spacing: -.02em; font-weight: 680; margin: 18px 0 14px; text-wrap: balance; max-width: 17ch; }
+  .thesis { font-size: clamp(1rem, 1.6vw, 1.15rem); color: var(--muted); max-width: 60ch; margin: 0; }
   .thesis b { color: var(--text); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+  .chip2 { font-family: var(--mono); font-size: .76rem; color: var(--muted); border: 1px solid var(--line); background: var(--ink-raised); border-radius: 999px; padding: 7px 13px; }
+  .chip2 b { color: var(--green); }
 
-  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-  .stat {
-    font-family: var(--mono); font-size: .8rem; color: var(--muted);
-    border: 1px solid var(--line); background: var(--ink-raised); border-radius: 999px;
-    padding: 7px 14px; display: inline-flex; align-items: baseline; gap: 8px;
-  }
-  .stat b { color: var(--text); font-variant-numeric: tabular-nums; font-size: .92rem; }
-  .stat.pg b    { color: var(--pg); }
-  .stat.mongo b { color: var(--mongo); }
-
-  /* ---------- section scaffolding ---------- */
-  section { margin-top: clamp(40px, 6vw, 72px); }
-  .sec-label {
-    font-family: var(--mono); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase;
-    color: var(--faint); margin: 0 0 18px; display: flex; align-items: center; gap: 12px;
-  }
+  section { margin-top: clamp(40px, 6vw, 66px); }
+  .sec-label { font-family: var(--mono); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }
   .sec-label::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+  .sec-label b { color: var(--green); }
 
-  /* ---------- the board ---------- */
-  .board { display: grid; grid-template-columns: minmax(200px, .82fr) 56px minmax(0, 2.1fr); gap: 0; align-items: stretch; }
-  .territory {
-    border: 1px solid var(--line); border-radius: 16px; padding: 18px 18px 20px;
-    background: linear-gradient(180deg, var(--ink-raised), #0f151d);
-  }
-  .territory.pg    { border-color: #294467; box-shadow: inset 0 0 0 1px #1a2c44, 0 0 40px -28px var(--pg); }
-  .territory.mongo { border-color: #235640; box-shadow: inset 0 0 0 1px #163826, 0 0 40px -28px var(--mongo); }
-  .terr-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-  .terr-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .pg .terr-dot    { background: var(--pg);   box-shadow: 0 0 12px var(--pg); }
-  .mongo .terr-dot { background: var(--mongo); box-shadow: 0 0 12px var(--mongo); }
-  .terr-name { font-family: var(--mono); font-size: .82rem; letter-spacing: .04em; font-weight: 600; }
-  .pg .terr-name    { color: var(--pg); }
-  .mongo .terr-name { color: var(--mongo); }
-  .terr-sub { font-size: .8rem; color: var(--faint); margin: 0 0 16px; }
+  /* ---------- system architecture (layered) ---------- */
+  .arch { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+  .layer { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, var(--ink-raised), #0c130f); padding: 14px 16px; }
+  .layer-h { font-family: var(--mono); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-bottom: 11px; }
+  .layer-row { display: flex; flex-wrap: wrap; gap: 9px; }
+  .node { font-family: var(--mono); font-size: .78rem; color: var(--text); border: 1px solid var(--line); background: var(--ink-card); border-radius: 9px; padding: 9px 12px; }
+  .node.scope { border-color: #2c6b54; color: var(--green); background: var(--green-soft); }
+  .node.pg { border-color: #2d4a6e; color: var(--pg); background: var(--pg-soft); }
+  .node.green { border-color: #2c6b54; color: var(--green); }
+  .node small { color: var(--faint); font-size: .68rem; }
+  .conn { height: 22px; width: 2px; background: linear-gradient(var(--green), transparent); margin: 0 auto; opacity: .55; }
+  .conn-lbl { text-align: center; font-family: var(--mono); font-size: .6rem; color: var(--faint); letter-spacing: .1em; padding: 3px 0; }
 
-  /* bridge column */
-  .bridge { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px 0; }
-  .bridge-line { flex: 1; width: 0; border-left: 2px dashed #3a3050; min-height: 26px; }
-  .bridge-badge {
-    font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--bridge); border: 1px solid #4a3a66; background: #1b1426; border-radius: 999px;
-    padding: 8px 6px; writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap;
-  }
-
-  /* cards */
-  .hub-card {
-    border: 1px solid #4d3f17; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px;
-    background: linear-gradient(180deg, #1d1808, #15110a);
-    box-shadow: 0 0 50px -30px var(--hub);
-  }
-  .hub-card .role { color: var(--hub); }
-  .hub-name { font-family: var(--mono); font-size: 1.02rem; font-weight: 600; color: var(--hub); margin: 0; }
-  .hub-card p { margin: 6px 0 0; font-size: .86rem; color: var(--muted); }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-  .group-tag {
-    font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--faint); margin: 18px 0 9px;
-  }
-  .card {
-    border: 1px solid var(--line); border-radius: 11px; padding: 12px 13px; background: var(--ink-card);
-    transition: transform .16s ease, border-color .16s ease, background .16s ease;
-  }
-  .card:hover { transform: translateY(-2px); border-color: #38506e; background: #18222f; }
-  .card .cname { font-family: var(--mono); font-size: .82rem; font-weight: 600; color: var(--text); display: block; }
-  .card .desc { font-size: .73rem; color: var(--muted); margin: 5px 0 0; line-height: 1.4; }
-  .card .rel { font-family: var(--mono); font-size: .64rem; color: var(--faint); margin-top: 7px; display: block; }
-  .chip {
-    float: right; font-family: var(--mono); font-size: .58rem; letter-spacing: .06em; font-weight: 600;
-    padding: 2px 6px; border-radius: 5px; margin-left: 6px;
-  }
-  .chip.mongo { color: var(--mongo); background: var(--mongo-soft); }
-  .chip.pg    { color: var(--pg);    background: var(--pg-soft); }
-  .card.star { border-color: #3a5a86; background: linear-gradient(180deg, #16243a, #111824); }
-  .card.star .cname { color: var(--pg); }
-
-  /* ---------- bridge explainer ---------- */
-  .explainer { border: 1px solid #382a4f; border-radius: 16px; background: linear-gradient(180deg, #160f20, #0f0b16); padding: clamp(20px, 3vw, 30px); }
-  .explainer h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--bridge); font-family: var(--mono); font-weight: 600; }
-  .explainer > p { margin: 0 0 20px; color: var(--muted); max-width: 70ch; font-size: .92rem; }
-  .flow3 { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .reach { display: flex; flex-wrap: wrap; gap: 10px; }
-  .reach .link {
-    font-family: var(--mono); font-size: .74rem; color: var(--muted);
-    border: 1px solid var(--line); border-radius: 8px; padding: 9px 12px; background: var(--ink-raised);
-  }
-  .reach .link b { color: var(--text); font-weight: 600; }
-  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 18px; }
-  .stepbox { border: 1px solid var(--line); border-left: 3px solid var(--bridge); border-radius: 10px; padding: 12px 14px; background: var(--ink-raised); }
-  .stepbox .n { font-family: var(--mono); font-size: .64rem; color: var(--bridge); letter-spacing: .12em; }
-  .stepbox p { margin: 4px 0 0; font-size: .82rem; color: var(--muted); }
-  .stepbox code { font-family: var(--mono); color: var(--text); font-size: .82rem; }
-
-  /* ---------- onboarding flow strip ---------- */
-  .flowstrip-wrap { overflow-x: auto; padding-bottom: 6px; }
-  .flowstrip { display: flex; align-items: stretch; gap: 0; min-width: max-content; }
-  .fstep { display: flex; align-items: center; }
-  .fstep .pill {
-    font-family: var(--mono); font-size: .76rem; white-space: nowrap;
-    border: 1px solid var(--line); border-radius: 9px; padding: 10px 13px; background: var(--ink-card); color: var(--text);
-  }
-  .fstep .pill.bank { border-color: #3a5a86; color: var(--pg); background: #14213400; box-shadow: inset 0 0 0 1px #25405f; }
-  .fstep .pill.live { border-color: #4d3f17; color: var(--hub); }
-  .fstep .arrow { color: var(--faint); padding: 0 9px; font-family: var(--mono); }
-  .fstep:last-child .arrow { display: none; }
-
-  /* ---------- legend + rules ---------- */
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-  .panel { border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; background: var(--ink-raised); }
-  .panel h4 { margin: 0 0 14px; font-size: .76rem; font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
-  .legend-row { display: flex; align-items: center; gap: 11px; padding: 7px 0; font-size: .85rem; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
-  .legend-row:last-child { border-bottom: 0; }
-  .legend-row .k { font-family: var(--mono); color: var(--text); min-width: 84px; font-size: .78rem; }
-  .sw { width: 22px; height: 12px; border-radius: 3px; flex: none; }
-  .rule { display: flex; gap: 11px; padding: 9px 0; font-size: .88rem; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
-  .rule:last-child { border-bottom: 0; }
-  .rule .mk { color: var(--mongo); font-family: var(--mono); flex: none; }
-  .rule b { color: var(--text); font-weight: 600; }
-
-  .pending { margin-top: 22px; border: 1px dashed #4a4326; border-radius: 12px; background: #15130a; padding: 16px 20px; }
-  .pending h4 { color: var(--hub); margin: 0 0 8px; font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; }
-  .pending p { margin: 0; font-size: .86rem; color: var(--muted); }
-  .pending code { font-family: var(--mono); color: var(--text); }
-
-  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line-soft); color: var(--faint); font-size: .8rem; font-family: var(--mono); }
-
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--mongo); outline-offset: 3px; border-radius: 4px; }
-
-  @media (max-width: 860px) {
-    .board { grid-template-columns: 1fr; }
-    .bridge { flex-direction: row; padding: 4px 0; }
-    .bridge-line { height: 0; width: auto; flex: 1; border-left: 0; border-top: 2px dashed #3a3050; min-height: 0; }
-    .bridge-badge { writing-mode: horizontal-tb; }
-    .two { grid-template-columns: 1fr; }
-  }
-
-  .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
-  .reveal:nth-child(2) { animation-delay: .05s; }
-  @keyframes rise { to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) {
-    .reveal { animation: none; opacity: 1; transform: none; }
-    .card { transition: none; }
-  }
+  /* ---------- journey stepper (vertical) ---------- */
+  .journey { position: relative; margin-left: 6px; padding-left: 28px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 16px; }
+  .jstep { position: relative; }
+  .jstep::before { content: ""; position: absolute; left: -36px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); border: 2px solid var(--green); }
+  .jstep.admin::before { border-color: var(--hub); }
+  .jstep.live::before { background: var(--hub); border-color: var(--hub); box-shadow: 0 0 12px var(--hub); }
+  .jstep .who { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; }
+  .who.cat { color: var(--green); background: var(--green-soft); }
+  .who.adm { color: var(--hub); background: var(--hub-soft); }
+  .jstep .jt { font-family: var(--mono); font-size: .92rem; color: var(--text); margin: 6px 0 2px; display: block; }
+  .jstep .jd { font-size: .82rem; color: var(--muted); }
+  .loopnote { margin-top: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--ink-raised); padding: 14px 16px; font-size: .85rem; color: var(--muted); line-height: 1.6; }
+  .loopnote b { color: var(--text); }
+  .loopnote .step { font-family: var(--mono); color: var(--green); }
 
   /* ---------- ER diagram ---------- */
-  .erd-panel { border: 1px solid var(--line); border-radius: 16px; background: radial-gradient(720px 420px at 50% 20%, #16212f 0%, #0e141d 72%); padding: clamp(8px, 2vw, 20px); overflow-x: auto; }
-  #erd { width: 100%; min-width: 540px; }
-  #erd svg { display: block; width: 100%; height: auto; }
+  .erd-panel { border: 1px solid var(--line); border-radius: 16px; background: radial-gradient(700px 420px at 50% 18%, #102a22 0%, #0a120f 72%); padding: clamp(8px, 2vw, 20px); overflow-x: auto; }
+  #erd { width: 100%; min-width: 540px; } #erd svg { display: block; width: 100%; height: auto; }
   .erd-cap { text-align: center; color: var(--faint); font-family: var(--mono); font-size: .72rem; margin-top: 12px; line-height: 1.7; }
-  .erd-cap b.v { color: var(--bridge); } .erd-cap b.g { color: var(--mongo); } .erd-cap b.y { color: var(--faint); }
+  .erd-cap b.g { color: var(--green); } .erd-cap b.p { color: var(--pg); } .erd-cap b.h { color: var(--hub); }
 
   /* ---------- field reference (tabs) ---------- */
   .tabbar { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 20px; }
-  .tab {
-    font-family: var(--mono); font-size: .74rem; padding: 7px 11px; border-radius: 8px;
-    border: 1px solid var(--line); background: var(--ink-card); color: var(--muted);
-    cursor: pointer; transition: border-color .14s ease, color .14s ease, background .14s ease;
-    display: inline-flex; align-items: center; gap: 7px;
-  }
-  .tab::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mongo); flex: none; }
+  .tab { font-family: var(--mono); font-size: .74rem; padding: 7px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--ink-card); color: var(--muted); cursor: pointer; transition: border-color .14s, color .14s, background .14s; display: inline-flex; align-items: center; gap: 7px; }
+  .tab::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex: none; }
   .tab.pg::before { background: var(--pg); }
-  .tab:hover { color: var(--text); border-color: #38506e; }
-  .tab.active { color: var(--text); border-color: var(--mongo); background: var(--mongo-soft); }
+  .tab:hover { color: var(--text); border-color: #2c6b54; }
+  .tab.active { color: var(--text); border-color: var(--green); background: var(--green-soft); }
   .tab.active.pg { border-color: var(--pg); background: var(--pg-soft); }
-  .tab:focus-visible { outline: 2px solid var(--mongo); outline-offset: 2px; }
-
+  .tab:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
   .fieldhead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-bottom: 4px; }
-  .fieldhead .tname { font-family: var(--mono); font-size: 1.12rem; font-weight: 600; color: var(--text); }
+  .fieldhead .tname { font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--text); }
   .fieldhead .tname.pg { color: var(--pg); }
-  .fieldhead .tbadge { font-family: var(--mono); font-size: .6rem; letter-spacing: .08em; padding: 3px 7px; border-radius: 5px; color: var(--mongo); background: var(--mongo-soft); }
+  .fieldhead .tbadge { font-family: var(--mono); font-size: .6rem; letter-spacing: .08em; padding: 3px 7px; border-radius: 5px; color: var(--green); background: var(--green-soft); }
   .fieldhead .tbadge.pg { color: var(--pg); background: var(--pg-soft); }
   .fieldhead .tcount { font-family: var(--mono); font-size: .74rem; color: var(--faint); margin-left: auto; }
   .fielddesc { color: var(--muted); font-size: .9rem; margin: 8px 0 16px; max-width: 70ch; }
-
   .ftwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
   table.fieldtable { width: 100%; min-width: 640px; border-collapse: collapse; font-size: .85rem; }
-  table.fieldtable th {
-    text-align: left; font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--faint); padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--ink-raised); white-space: nowrap;
-  }
+  table.fieldtable th { text-align: left; font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--ink-raised); white-space: nowrap; }
   table.fieldtable td { padding: 9px 16px; border-bottom: 1px solid var(--line-soft); color: var(--muted); vertical-align: top; }
   table.fieldtable tr:last-child td { border-bottom: 0; }
-  table.fieldtable tr:hover td { background: #131b26; }
+  table.fieldtable tr:hover td { background: #0f1814; }
   td.fname { font-family: var(--mono); color: var(--text); white-space: nowrap; font-size: .82rem; }
-  td.fname.sub { color: var(--muted); padding-left: 28px; }
-  td.fname .lock { color: var(--hub); }
+  td.fname.sub { color: var(--muted); padding-left: 28px; } td.fname .lock { color: var(--hub); }
   td.ftype { font-family: var(--mono); color: var(--muted); white-space: nowrap; font-size: .78rem; }
-  td.ftype .lk { color: var(--mongo); }
   td.fex { font-family: var(--mono); color: var(--faint); font-size: .78rem; }
   .req { font-family: var(--mono); font-size: .62rem; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
-  .req.yes  { color: var(--mongo); background: var(--mongo-soft); }
-  .req.auto { color: var(--muted); background: #1b2430; }
-  .req.cond { color: var(--hub); background: var(--hub-soft); }
-  .req.no   { color: var(--faint); border: 1px solid var(--line); }
+  .req.yes { color: var(--green); background: var(--green-soft); } .req.auto { color: var(--muted); background: #18241f; }
+  .req.cond { color: var(--hub); background: var(--hub-soft); } .req.no { color: var(--faint); border: 1px solid var(--line); }
 
-  /* ---------- end-to-end flow ---------- */
-  .jstrip-wrap { overflow-x: auto; padding-bottom: 8px; }
-  .jstrip { display: flex; align-items: stretch; min-width: max-content; }
-  .jphase { display: flex; align-items: center; }
-  .jphase .box { border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; background: var(--ink-card); width: 176px; }
-  .jphase .box .t { font-family: var(--mono); font-size: .86rem; color: var(--text); display: block; margin-top: 7px; }
-  .jphase .box .c { font-size: .7rem; color: var(--faint); display: block; margin-top: 5px; line-height: 1.45; }
-  .jphase .box.admin { border-color: #33415c; }
-  .jphase .box.live { border-color: #4d3f17; background: linear-gradient(180deg, #1d1808, #15110a); }
-  .jphase .box.live .t { color: var(--hub); }
-  .jarrow { color: var(--faint); padding: 0 9px; font-family: var(--mono); }
-  .jphase:last-child .jarrow { display: none; }
-  .actor { font-family: var(--mono); font-size: .56rem; letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; display: inline-block; }
-  .actor.admin { color: #9db9e0; background: #1b2c45; }
-  .actor.caterer { color: var(--mongo); background: var(--mongo-soft); }
+  /* rules */
+  .panel { border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; background: var(--ink-raised); }
+  .panel h4 { margin: 0 0 12px; font-size: .76rem; font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+  .rule { display: flex; gap: 11px; padding: 9px 0; font-size: .88rem; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
+  .rule:last-child { border-bottom: 0; } .rule .mk { color: var(--green); font-family: var(--mono); flex: none; } .rule b { color: var(--text); }
 
-  .loopwrap { margin-top: 26px; border: 1px solid var(--line); border-radius: 14px; background: var(--ink-raised); padding: 20px 22px; }
-  .loop-title { margin: 0 0 14px; font-size: 1rem; font-family: var(--mono); color: var(--text); font-weight: 600; }
-  .loopline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-  .lpill { font-family: var(--mono); font-size: .78rem; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: var(--ink-card); color: var(--text); }
-  .lpill.review { border-color: #33415c; color: #9db9e0; }
-  .lpill.ok { border-color: #235640; color: var(--mongo); background: var(--mongo-soft); }
-  .larrow { color: var(--faint); padding: 0 5px; font-family: var(--mono); }
-  .loopnote { margin: 14px 0 0; font-size: .86rem; color: var(--muted); line-height: 1.6; }
-
-  .endcard { margin-top: 24px; border: 1px solid #235640; border-radius: 14px; background: linear-gradient(180deg, #16352a, #0f1b16); padding: 18px 22px; }
-  .endcard .t { font-family: var(--mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mongo); }
-  .endcard p { margin: 8px 0 0; color: var(--muted); font-size: .92rem; line-height: 1.6; }
-
-  /* ---------- admin portal (separated section) ---------- */
-  .portal-divider { border-top: 2px solid var(--bridge); padding-top: 28px; margin-top: 8px; }
-  .portal-divider .eb { font-family: var(--mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bridge); }
-  .portal-divider h2 { font-size: clamp(1.7rem, 3.6vw, 2.5rem); letter-spacing: -.02em; margin: 10px 0 8px; font-weight: 680; }
-  .portal-divider p { color: var(--muted); margin: 0; max-width: 64ch; }
-  td.own-admin { color: var(--bridge); font-family: var(--mono); font-size: .78rem; }
-  td.own-caterer { color: var(--mongo); font-family: var(--mono); font-size: .78rem; }
-  td.own-system { color: var(--muted); font-family: var(--mono); font-size: .78rem; }
-  td.tname-cell { font-family: var(--mono); color: var(--text); font-size: .8rem; white-space: nowrap; }
-  td.dash { color: var(--faint); }
+  footer { margin-top: 54px; padding-top: 22px; border-top: 1px solid var(--line-soft); color: var(--faint); font-size: .8rem; font-family: var(--mono); }
+  a { color: inherit; } :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+  .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } .tab, .card { transition: none; } }
 </style>
 
 <div class="wrap">
 
   <header class="reveal">
-    <p class="eyebrow">EcoLunch <span>·</span> Caterer Onboarding <span>·</span> Backend Data Architecture</p>
-    <h1>One caterer at the center. Two databases behind it.</h1>
-    <p class="thesis"><b>Banking</b> lives in <b>PostgreSQL</b> because it is financial and encrypted. <b>Everything else</b> lives in <b>MongoDB</b>. A single transactional outbox keeps the two in sync — the only place they touch.</p>
-    <div class="stats">
-      <span class="stat"><b>19</b> models</span>
-      <span class="stat pg"><b>1</b> in PostgreSQL</span>
-      <span class="stat mongo"><b>18</b> in MongoDB</span>
-      <span class="stat"><b>1</b> cross-DB bridge</span>
-      <span class="stat">tenant key&nbsp;<b>caterer_id</b></span>
+    <span class="badge">Caterer Portal · /client</span>
+    <h1>Onboarding, guided from first login to go-live.</h1>
+    <p class="thesis">A <b>single-tenant, self-service</b> journey. The caterer fills its own sections and sees <b>only its own data</b> — every request is scoped to one <code style="font-family:var(--mono);color:var(--green)">caterer_id</code>. EcoLunch admins review and approve from a <b>separate</b> console.</p>
+    <div class="chips">
+      <span class="chip2"><b>7</b> sections to complete</span>
+      <span class="chip2">scoped to <b>your</b> data</span>
+      <span class="chip2"><b>2</b> databases behind it</span>
+      <span class="chip2">go-live is <b>admin</b>-approved</span>
     </div>
   </header>
 
-  <!-- ===================== END-TO-END FLOW ===================== -->
+  <!-- ===================== SYSTEM ARCHITECTURE ===================== -->
   <section class="reveal">
-    <p class="sec-label">How onboarding works — end to end</p>
-
-    <div class="jstrip-wrap">
-      <div class="jstrip">
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">Sets up</span><span class="c">Creates the caterer, turns on modules, sets pricing, emails a login link</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Logs in</span><span class="c">First login sets a password</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Dashboard</span><span class="c">Sees progress, active modules, what is left to do</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">Fills 7 sections</span><span class="c">Each form is submitted and reviewed</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">Approves Go-live</span><span class="c">Only when every check has passed</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box live"><span class="actor caterer">Caterer</span><span class="t">ACTIVE 🎉</span><span class="c">Onboarding done — live on the platform</span></div></div>
+    <p class="sec-label"><b>System architecture</b> — the caterer's slice</p>
+    <div class="arch">
+      <div class="layer">
+        <div class="layer-h">Frontend</div>
+        <div class="layer-row"><span class="node green">Caterer React app <small>(/client, Vite)</small></span></div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">HTTPS · JWT</div>
+      <div class="layer">
+        <div class="layer-h">API</div>
+        <div class="layer-row"><span class="node scope">Express API — every query scoped to ONE caterer_id</span></div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">services</div>
+      <div class="layer">
+        <div class="layer-h">Services</div>
+        <div class="layer-row">
+          <span class="node">Profile</span><span class="node">Banking</span><span class="node">Establishments</span>
+          <span class="node">Menus</span><span class="node">Documents</span><span class="node">Contracts</span><span class="node">Smart Import</span>
+        </div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">persistence</div>
+      <div class="layer">
+        <div class="layer-h">Data &amp; storage</div>
+        <div class="layer-row">
+          <span class="node pg">PostgreSQL <small>· caterer_banking 🔒</small></span>
+          <span class="node green">MongoDB <small>· your records</small></span>
+          <span class="node">Dropbox <small>· your files</small></span>
+          <span class="node">Dropbox Sign <small>· your contracts</small></span>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="loopwrap">
-      <h3 class="loop-title">Every section follows the same loop</h3>
-      <div class="loopline">
-        <span class="lpill">Open form</span><span class="larrow">→</span>
-        <span class="lpill">Fill it in</span><span class="larrow">→</span>
-        <span class="lpill">Submit</span><span class="larrow">→</span>
-        <span class="lpill review">Under review</span><span class="larrow">→</span>
-        <span class="lpill ok">✅ Validated</span>
-      </div>
-      <p class="loopnote">If the admin finds an issue, a <b style="color:var(--hub)">✏️ Correction</b> appears → the caterer fixes it and submits again → back to “Under review”. The caterer chats with the admin in <b style="color:var(--mongo)">EcoLoop</b> the whole time.</p>
+  <!-- ===================== JOURNEY ===================== -->
+  <section class="reveal">
+    <p class="sec-label"><b>Your onboarding journey</b></p>
+    <div class="journey">
+      <div class="jstep admin"><span class="who adm">Admin</span><span class="jt">Account created</span><span class="jd">Admin registers you, turns on your modules, emails a login.</span></div>
+      <div class="jstep"><span class="who cat">You</span><span class="jt">Log in &amp; see your dashboard</span><span class="jd">Progress, active modules, and what's left to do.</span></div>
+      <div class="jstep"><span class="who cat">You</span><span class="jt">1 · Profile → 2 · Banking → 3 · My Clients</span><span class="jd">Company &amp; tax, encrypted bank details, your schools/daycares/camps.</span></div>
+      <div class="jstep"><span class="who cat">You</span><span class="jt">4 · Menus → 5 · Documents → 6 · Contracts</span><span class="jd">Menus (Smart Import helps), required files, e-signatures.</span></div>
+      <div class="jstep"><span class="who cat">You</span><span class="jt">7 · Module setup</span><span class="jd">Finish each active module's checklist.</span></div>
+      <div class="jstep admin"><span class="who adm">Admin</span><span class="jt">Reviews &amp; approves Go-live</span><span class="jd">Only when all 11 checks pass — you can't approve yourself.</span></div>
+      <div class="jstep live"><span class="who adm">→</span><span class="jt" style="color:var(--hub)">ACTIVE 🎉</span><span class="jd">You're live on the platform. Onboarding done.</span></div>
     </div>
-
-    <p class="group-tag" style="margin-top: 24px">The 7 forms the caterer fills (in order)</p>
-    <div class="grid">
-      <div class="card"><span class="cname">1 · Profile</span><p class="desc">Company, contact, address, tax numbers.</p></div>
-      <div class="card star"><span class="chip pg">SQL</span><span class="cname">2 · Banking</span><p class="desc">Bank details + 3 documents. Stored encrypted.</p></div>
-      <div class="card"><span class="cname">3 · My Clients</span><p class="desc">Schools / daycares / camps.</p></div>
-      <div class="card"><span class="cname">4 · Menus</span><p class="desc">Menus &amp; dishes — Smart Import helps fill them.</p></div>
-      <div class="card"><span class="cname">5 · Documents</span><p class="desc">Required files per active module.</p></div>
-      <div class="card"><span class="cname">6 · Contracts</span><p class="desc">Sign the contracts the admin sent.</p></div>
-      <div class="card"><span class="cname">7 · Module setup</span><p class="desc">Finish each active module checklist.</p></div>
-    </div>
-
-    <div class="endcard">
-      <span class="t">How it ends</span>
-      <p>As each section is approved, the Go-live checklist fills up. When <b>every item is complete</b>, the caterer shows <b style="color:var(--mongo)">Ready</b> → the <b>admin approves Go-live</b> (the caterer cannot do this themselves) → status becomes <b style="color:var(--hub)">ACTIVE</b> and onboarding is finished.</p>
-    </div>
+    <p class="loopnote">Each section repeats the same loop: <span class="step">fill → submit → under review → ✅ validated</span>. If the admin finds an issue, a <b>correction</b> appears; you fix it and resubmit. You chat with the admin in <b>EcoLoop</b> throughout.</p>
   </section>
 
   <!-- ===================== ER DIAGRAM ===================== -->
   <section class="reveal">
-    <p class="sec-label">Entity-relationship diagram</p>
+    <p class="sec-label"><b>Your data</b> — entity-relationship diagram</p>
     <div class="erd-panel"><div id="erd"></div></div>
-    <p class="erd-cap">Solid spokes = <b class="g">1:N</b> from the caterer hub &nbsp;·&nbsp; <b class="v">violet dashed</b> = cross-database links synced by the outbox &nbsp;·&nbsp; <b class="y">grey dotted</b> = secondary reference</p>
+    <p class="erd-cap">Everything you create hangs off <b class="h">your caterer record</b> &nbsp;·&nbsp; <b class="g">green</b> = MongoDB &nbsp;·&nbsp; <b class="p">blue</b> = PostgreSQL (banking) &nbsp;·&nbsp; dashed = link across the two databases.</p>
   </section>
 
-  <!-- ===================== THE BOARD ===================== -->
+  <!-- ===================== FIELD REFERENCE ===================== -->
   <section class="reveal">
-    <p class="sec-label">The map</p>
-    <div class="board">
-
-      <!-- PostgreSQL territory -->
-      <div class="territory pg">
-        <div class="terr-head"><span class="terr-dot"></span><span class="terr-name">PostgreSQL</span></div>
-        <p class="terr-sub">Financial · encrypted · ACID</p>
-        <div class="card star">
-          <span class="chip pg">SQL</span>
-          <span class="cname">caterer_banking ⭐</span>
-          <p class="desc">Bank details. IBAN &amp; account number encrypted (AES-256); only a masked last-4 ever leaves the API.</p>
-          <span class="rel">1:1 → caterer</span>
-        </div>
-        <div class="card" style="margin-top:10px">
-          <span class="chip pg">SQL</span>
-          <span class="cname">banking_outbox</span>
-          <p class="desc">The to-do list that carries banking changes over to MongoDB safely.</p>
-        </div>
-      </div>
-
-      <!-- bridge -->
-      <div class="bridge" aria-hidden="true">
-        <span class="bridge-line"></span>
-        <span class="bridge-badge">⇄ outbox · saga</span>
-        <span class="bridge-line"></span>
-      </div>
-
-      <!-- MongoDB territory -->
-      <div class="territory mongo">
-        <div class="terr-head"><span class="terr-dot"></span><span class="terr-name">MongoDB</span></div>
-        <p class="terr-sub">Flexible · document-shaped · the rest of the system</p>
-
-        <div class="hub-card">
-          <p class="hub-name">caterer <span class="role">— the hub</span></p>
-          <p>The food company being onboarded. Every model below carries its <code style="font-family:var(--mono);color:var(--hub)">caterer_id</code>; a caterer only ever sees its own data.</p>
-        </div>
-
-        <p class="group-tag">Core data — what the caterer fills in</p>
-        <div class="grid">
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">onboarding_file</span><p class="desc">Status board for every section.</p><span class="rel">1:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">user</span><p class="desc">Login accounts (staff + admin).</p><span class="rel">N:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">establishment</span><p class="desc">Schools, daycares, camps (+ closures).</p><span class="rel">N:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">menu</span><p class="desc">Menus, dishes &amp; packages.</p><span class="rel">N:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">document</span><p class="desc">File records (files in Dropbox).</p><span class="rel">N:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">contract</span><p class="desc">Contracts sent for e-signature.</p><span class="rel">N:1 → caterer</span></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">caterer_module</span><p class="desc">Active features + pricing (admin-set).</p><span class="rel">N:1 → module</span></div>
-        </div>
-
-        <p class="group-tag">Workflow — review, fixes &amp; go-live</p>
-        <div class="grid">
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">validation_item</span><p class="desc">Submissions awaiting admin review.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">correction</span><p class="desc">“Please fix this” requests.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">golive_checklist</span><p class="desc">Must be 100% to go live.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">ecoloop_ticket</span><p class="desc">Support chat + messages.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">smart_import_job</span><p class="desc">Reads uploads, suggests values.</p></div>
-        </div>
-
-        <p class="group-tag">System</p>
-        <div class="grid">
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">module</span><p class="desc">Catalogue of all features.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">report_schedule</span><p class="desc">Scheduled report setup.</p></div>
-          <div class="card"><span class="chip mongo">Mongo</span><span class="cname">audit_log</span><p class="desc">Permanent record of every action.</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== FIELD REFERENCE (TABS) ===================== -->
-  <section class="reveal">
-    <p class="sec-label">Field reference — click a table</p>
+    <p class="sec-label"><b>Field reference</b> — click a table you fill</p>
     <div class="tabbar" id="tabbar" role="tablist"></div>
     <div id="fieldview" role="tabpanel"></div>
   </section>
 
-  <!-- ===================== BRIDGE EXPLAINER ===================== -->
+  <!-- ===================== RULES ===================== -->
   <section class="reveal">
-    <p class="sec-label">The bridge — where the two databases meet</p>
-    <div class="explainer">
-      <h3>Transactional outbox / saga</h3>
-      <p>Banking is in PostgreSQL, but its review status and approval queue live in MongoDB. So submitting banking touches both databases. We never split a write across two databases directly — we use an outbox the system drains reliably.</p>
-
-      <div class="reach">
-        <span class="link"><b>caterer_banking</b> → caterer <span style="color:var(--bridge)">·cross-DB</span></span>
-        <span class="link"><b>caterer_banking</b> → documents ×3 <span style="color:var(--bridge)">·cross-DB</span></span>
-        <span class="link"><b>validation_item</b> → caterer_banking <span style="color:var(--bridge)">·cross-DB</span></span>
-      </div>
-
-      <div class="steps">
-        <div class="stepbox"><span class="n">STEP 1</span><p>Save the banking row <b>and</b> an outbox note in <code>one PostgreSQL transaction</code> — both land, or neither.</p></div>
-        <div class="stepbox"><span class="n">STEP 2</span><p>A background <code>relay worker</code> reads unprocessed outbox notes.</p></div>
-        <div class="stepbox"><span class="n">STEP 3</span><p>It creates the <code>validation_item</code> + sets <code>banking_status</code> in MongoDB, idempotently.</p></div>
-        <div class="stepbox"><span class="n">STEP 4</span><p>The note is marked done. A crash simply retries — nothing lost or duplicated.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== LEGEND + RULES ===================== -->
-  <section class="reveal">
-    <div class="two">
-      <div class="panel">
-        <h4>Legend</h4>
-        <div class="legend-row"><span class="sw" style="background:var(--pg)"></span><span class="k">PostgreSQL</span> the one financial model (Banking)</div>
-        <div class="legend-row"><span class="sw" style="background:var(--mongo)"></span><span class="k">MongoDB</span> all other models</div>
-        <div class="legend-row"><span class="sw" style="background:var(--hub)"></span><span class="k">Caterer</span> the hub every record points to</div>
-        <div class="legend-row"><span class="sw" style="background:var(--bridge)"></span><span class="k">Cross-DB</span> link spanning both, kept in sync by the outbox</div>
-        <div class="legend-row"><span class="k">1:1 · 1:N</span> one-to-one / one-to-many relationships</div>
-      </div>
-      <div class="panel">
-        <h4>Rules that never bend</h4>
-        <div class="rule"><span class="mk">›</span><span><b>Tenant isolation.</b> Every record carries <code style="font-family:var(--mono)">caterer_id</code>; a caterer sees only its own data.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Banking is never returned raw.</b> Only the masked last-4 leaves the API.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Smart Import never auto-applies.</b> A human confirms every field.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Internal notes stay internal.</b> The caterer never sees them in chat.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Go-live is all-or-nothing</b> and only an admin can approve it.</span></div>
-      </div>
-    </div>
-
-    <div class="pending">
-      <h4>Pending client confirmation</h4>
-      <p>Four relationships are still open: <code>menu ↔ establishment</code> cardinality, whether a <code>package</code> is its own model, whether <code>common meals</code> are just dishes, and how <code>closures</code> are stored. Recommended assumptions are recorded in <code>OPEN-DESIGN-DOUBTS.md</code>.</p>
+    <p class="sec-label"><b>What's true for you</b></p>
+    <div class="panel">
+      <div class="rule"><span class="mk">›</span><span><b>You see only your own data.</b> Every request is scoped to your caterer id.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Your bank details are encrypted.</b> After you submit, you only see a masked last-4.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Smart Import never auto-fills.</b> You confirm or edit every suggested value.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>You propose; the admin decides.</b> You can't price modules or approve your own go-live.</span></div>
     </div>
   </section>
 
   <footer>
-    Caterer Portal preview &nbsp;·&nbsp; shared schema: backend/db-architecture/ (19 models) &nbsp;·&nbsp; the admin side has its own preview: <b style="color:var(--bridge)">admin-architecture.html</b>
+    🍱 Caterer Portal preview &nbsp;·&nbsp; shared schema: backend/db-architecture/ (19 models) &nbsp;·&nbsp; admin side: <b style="color:#818CF8">admin-architecture.html</b>
   </footer>
 
 </div>
 
 <script>
 (function () {
-  var C = { pg:'#5B9DF9', mongo:'#3DD68C', hub:'#F0B72F', bridge:'#C77DFF',
-            line:'#2c3a4d', text:'#E6EDF3', muted:'#8B99AC', pgFill:'#16243a', card:'#161E2A' };
+  var C = { pg:'#5B9DF9', mongo:'#34D399', hub:'#FBBF24', bridge:'#FBBF24',
+            line:'#22332b', text:'#E8F1EC', muted:'#8AA89B', pgFill:'#142340', card:'#121C18' };
   var W = 1040, H = 880, cx = 520, cy = 440, RX = 440, RY = 360;
-
-  // order chosen so the cross-DB cluster (banking/document/validation) sits together at the top
   var NODES = [
-    { id:'banking',          label:'caterer_banking', db:'pg',    rel:'1:1', cross:true },
-    { id:'document',         label:'document',        db:'mongo' },
-    { id:'validation_item',  label:'validation_item', db:'mongo' },
-    { id:'onboarding_file',  label:'onboarding_file', db:'mongo', rel:'1:1' },
-    { id:'user',             label:'user',            db:'mongo' },
-    { id:'establishment',    label:'establishment',   db:'mongo' },
-    { id:'closure',          label:'closure',         db:'mongo' },
-    { id:'menu',             label:'menu',            db:'mongo' },
-    { id:'dish',             label:'dish',            db:'mongo' },
-    { id:'contract',         label:'contract',        db:'mongo' },
-    { id:'caterer_module',   label:'caterer_module',  db:'mongo' },
-    { id:'module',           label:'module',          db:'mongo', noHub:true },
-    { id:'correction',       label:'correction',      db:'mongo' },
-    { id:'ecoloop_ticket',   label:'ecoloop_ticket',  db:'mongo' },
-    { id:'ecoloop_message',  label:'ecoloop_message', db:'mongo' },
-    { id:'smart_import_job', label:'smart_import_job',db:'mongo' },
-    { id:'golive',           label:'golive_checklist',db:'mongo' },
-    { id:'report_schedule',  label:'report_schedule', db:'mongo' },
-    { id:'audit_log',        label:'audit_log',       db:'mongo' }
+    { id:'banking', label:'caterer_banking', db:'pg', rel:'1:1', cross:true },
+    { id:'document', label:'document', db:'mongo' },
+    { id:'validation_item', label:'validation_item', db:'mongo' },
+    { id:'onboarding_file', label:'onboarding_file', db:'mongo', rel:'1:1' },
+    { id:'user', label:'user', db:'mongo' },
+    { id:'establishment', label:'establishment', db:'mongo' },
+    { id:'closure', label:'closure', db:'mongo' },
+    { id:'menu', label:'menu', db:'mongo' },
+    { id:'dish', label:'dish', db:'mongo' },
+    { id:'contract', label:'contract', db:'mongo' },
+    { id:'caterer_module', label:'caterer_module', db:'mongo' },
+    { id:'module', label:'module', db:'mongo', noHub:true },
+    { id:'correction', label:'correction', db:'mongo' },
+    { id:'ecoloop_ticket', label:'ecoloop_ticket', db:'mongo' },
+    { id:'ecoloop_message', label:'ecoloop_message', db:'mongo' },
+    { id:'smart_import_job', label:'smart_import_job', db:'mongo' },
+    { id:'golive', label:'golive_checklist', db:'mongo' },
+    { id:'report_schedule', label:'report_schedule', db:'mongo' },
+    { id:'audit_log', label:'audit_log', db:'mongo' }
   ];
   var N = NODES.length, pos = {};
   NODES.forEach(function (n, i) {
-    var a = (-90 + i * (360 / N)) * Math.PI / 180;
-    var f = (i % 2 === 0) ? 1 : 0.73;          // stagger inner/outer so neighbours don't collide
-    n.x = cx + RX * f * Math.cos(a);
-    n.y = cy + RY * f * Math.sin(a);
-    pos[n.id] = n;
+    var a = (-90 + i * (360 / N)) * Math.PI / 180, f = (i % 2 === 0) ? 1 : 0.73;
+    n.x = cx + RX * f * Math.cos(a); n.y = cy + RY * f * Math.sin(a); pos[n.id] = n;
   });
-
-  var NW = 130, NH = 30, s = '';
-  s += '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Entity relationship diagram: the caterer hub links to every model; banking is cross-database">';
-
-  // primary spokes (hub -> node)
+  var NW = 130, NH = 30, s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Your data: the caterer record at the center linked to every table you fill">';
+  NODES.forEach(function (n) { if (n.noHub) return;
+    s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + n.x + '" y2="' + n.y + '" stroke="' + (n.cross ? C.bridge : C.line) + '" stroke-width="' + (n.cross ? 2 : 1.2) + '"' + (n.cross ? ' stroke-dasharray="6 5"' : '') + ' />'; });
+  [['banking','document',true],['validation_item','banking',true],['caterer_module','module',false]].forEach(function (p) {
+    var a = pos[p[0]], b = pos[p[1]], cr = p[2];
+    s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (cr ? C.bridge : '#3a4a40') + '" stroke-width="' + (cr ? 1.8 : 1.3) + '" stroke-dasharray="' + (cr ? '6 5' : '2 4') + '" />'; });
+  s += '<circle cx="' + cx + '" cy="' + cy + '" r="62" fill="#2e2410" stroke="' + C.hub + '" stroke-width="2"/>';
+  s += '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700" fill="' + C.hub + '">you</text>';
+  s += '<text x="' + cx + '" y="' + (cy + 14) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="8.5" letter-spacing="1" fill="' + C.muted + '">caterer record</text>';
   NODES.forEach(function (n) {
-    if (n.noHub) return;
-    s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + n.x + '" y2="' + n.y + '" stroke="' + (n.cross ? C.bridge : C.line) + '" stroke-width="' + (n.cross ? 2 : 1.2) + '"' + (n.cross ? ' stroke-dasharray="6 5"' : '') + ' />';
-  });
-
-  // secondary links (node -> node)
-  [['banking','document',true], ['validation_item','banking',true], ['caterer_module','module',false]]
-    .forEach(function (p) {
-      var a = pos[p[0]], b = pos[p[1]], cross = p[2];
-      s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (cross ? C.bridge : '#3a4a5e') + '" stroke-width="' + (cross ? 1.8 : 1.3) + '" stroke-dasharray="' + (cross ? '6 5' : '2 4') + '" />';
-    });
-
-  // hub
-  s += '<circle cx="' + cx + '" cy="' + cy + '" r="60" fill="#1d1808" stroke="' + C.hub + '" stroke-width="2"/>';
-  s += '<text x="' + cx + '" y="' + (cy - 3) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="17" font-weight="700" fill="' + C.hub + '">caterer</text>';
-  s += '<text x="' + cx + '" y="' + (cy + 15) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1.5" fill="' + C.muted + '">THE HUB</text>';
-
-  // nodes + cardinality labels
-  NODES.forEach(function (n) {
-    var col = (n.db === 'pg') ? C.pg : C.mongo;
-    var fill = (n.db === 'pg') ? C.pgFill : C.card;
+    var col = (n.db === 'pg') ? C.pg : C.mongo, fill = (n.db === 'pg') ? C.pgFill : C.card;
     s += '<rect x="' + (n.x - NW / 2) + '" y="' + (n.y - NH / 2) + '" width="' + NW + '" height="' + NH + '" rx="7" fill="' + fill + '" stroke="' + col + '" stroke-width="1.3"/>';
-    s += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" fill="' + C.text + '">' + n.label + (n.db === 'pg' ? ' ★' : '') + '</text>';
-    if (n.rel) {
-      var mx = n.x + (cx - n.x) * 0.32, my = n.y + (cy - n.y) * 0.32;
-      s += '<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="10" fill="' + (n.cross ? C.bridge : C.muted) + '">' + n.rel + (n.cross ? ' ⇄' : '') + '</text>';
-    }
+    s += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" fill="' + C.text + '">' + n.label + (n.db === 'pg' ? ' 🔒' : '') + '</text>';
+    if (n.rel) { var mx = n.x + (cx - n.x) * 0.32, my = n.y + (cy - n.y) * 0.32;
+      s += '<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="10" fill="' + (n.cross ? C.bridge : C.muted) + '">' + n.rel + '</text>'; }
   });
-
   s += '</svg>';
-  var el = document.getElementById('erd');
-  if (el) el.innerHTML = s;
+  var el = document.getElementById('erd'); if (el) el.innerHTML = s;
 })();
 </script>
 
 <script>
 (function () {
-  // [ name, db, description, fields ]   field = [ name, type, required, meaning, example, isSubField ]
   var T = [
-    ['caterer','mongo','The food company being onboarded — the hub every other table points to.', [
-      ['id','id','auto','Unique id; used as caterer_id everywhere','7f3a9b…'],
+    ['caterer','mongo','Your company — the record everything else hangs off.', [
+      ['id','id','auto','Your unique id (used as caterer_id everywhere)','7f3a9b…'],
       ['company_name','text','yes','Operating name','Les Cuisines Vertes'],
       ['legal_name','text','yes','Official registered name','Cuisines Vertes Inc.'],
-      ['trading_name','text','yes','Brand name','GreenKitchen'],
       ['organization_type','text','yes','Company type','Inc.'],
-      ['logo_url','link','yes','Logo file (in Dropbox)','/logos/cv.png'],
-      ['website','text','no','Website','greenkitchen.ca'],
-      ['founded_year','number','no','Year founded','2015'],
-      ['industry_sector','text','yes','Sector','Institutional Catering'],
-      ['employee_count','number','yes','Staff count','48'],
-      ['annual_capacity_meals','number','yes','Meals per year','250000'],
-      ['service_types','list','yes','Services offered','school, daycare'],
-      ['kitchen_locations','number','yes','Number of kitchens','3'],
-      ['primary_contact.name','text','yes','Main contact name','Marie Tremblay',true],
-      ['primary_contact.title','text','yes','Job title','Operations Director',true],
-      ['primary_contact.email','text','yes','Email','marie@greenkitchen.ca',true],
-      ['primary_contact.phone','text','yes','Phone','+1 514 555 0142',true],
-      ['secondary_contact.email','text','no','Backup email','luc@greenkitchen.ca',true],
-      ['address.registered','text','yes','Registered address','25 Rue Laval',true],
+      ['primary_contact.email','text','yes','Main contact email','marie@greenkitchen.ca',true],
       ['address.city','text','yes','City','Montreal',true],
-      ['address.postal_code','text','yes','Postal code','H2X 1Y4',true],
-      ['address.country','text (2)','yes','Country code','CA',true],
-      ['address.region','text','no','Region / province','QC',true],
       ['tax.neq_number','text (10)','QC','Quebec business number','1234567890',true],
-      ['tax.siren_number','text (9)','FR','France SIREN','732829320',true],
       ['tax.vat_number','text','yes','VAT number','FR40303265045',true],
-      ['tax.ape_naf_code','text','FR','France activity code','5621Z',true],
-      ['status','enum','yes','onboarding / active / paused / archived','onboarding'],
-      ['phase','enum','yes','Onboarding phase 1 or 2','1'],
-      ['assigned_admin_id','link → user','no','EcoLunch admin in charge','a91…'],
-      ['go_live_at','date','no','When it went live (empty until then)','—'],
-      ['created_at','date','auto','Created timestamp','2026-06-01']
+      ['status','enum','auto','onboarding / active / paused / archived','onboarding']
     ]],
-    ['caterer_banking','pg','PostgreSQL — bank details. The only SQL table. IBAN and account number are encrypted.', [
+    ['caterer_banking','pg','Your bank details — PostgreSQL, encrypted, never shown raw.', [
       ['id','id','auto','Unique id','b12…'],
-      ['caterer_id','link → caterer','yes','Owner caterer (cross-DB)','7f3a…'],
+      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
       ['bank_name','text','yes','Bank name','Banque Nationale'],
-      ['branch_name','text','no','Branch name','Centre-ville'],
-      ['branch_code','text','no','Branch code','00012'],
       ['bic_swift','text (8/11)','yes','International bank code','BNDCCAMMXXX'],
-      ['bank_country','text (2)','yes','Bank country','CA'],
-      ['account_holder','text','yes','Name on the account','Cuisines Vertes Inc.'],
-      ['account_type','enum','yes','checking / savings / business','business'],
-      ['currency','text (3)','yes','Account currency','CAD'],
-      ['iban 🔒','encrypted','yes','IBAN — stored encrypted, never shown raw','•••• 1234'],
-      ['iban_last4','text','auto','Last 4 for the masked display','1234'],
+      ['iban 🔒','encrypted','yes','IBAN — encrypted, never shown raw','•••• 1234'],
       ['account_number 🔒','encrypted','yes','Account number — encrypted','•••• 6789'],
-      ['account_number_last4','text','auto','Last 4 for masking','6789'],
       ['transit_number','text (5)','QC','Transit number','12345'],
-      ['institution_number','text (3)','QC','Institution number','006'],
-      ['code_etablissement','text (5)','FR','France bank code','30002'],
-      ['code_guichet','text (5)','FR','France branch code','00550'],
-      ['cle_rib','text (2)','FR','RIB key','58'],
-      ['sepa_compliant','yes/no','no','Supports SEPA','yes'],
-      ['rib_document_id','link → document','yes','RIB file (cross-DB)','d01…'],
-      ['bank_statement_doc_id','link → document','yes','Bank statement file','d02…'],
-      ['authorization_letter_id','link → document','yes','Authorization letter','d03…'],
-      ['submitted_at','date','no','When submitted for review','2026-06-05']
+      ['rib_document_id','link → document','yes','RIB file','d01…']
     ]],
-    ['user','mongo','Login accounts for caterer staff and EcoLunch admins.', [
-      ['id','id','auto','Unique id','u01…'],
-      ['caterer_id','link → caterer','no','Owner caterer (empty for admins)','7f3a…'],
-      ['email','text','yes','Login email (unique)','marie@greenkitchen.ca'],
-      ['password_hash','text','yes','Scrambled password (never plain text)','(hashed)'],
-      ['role','enum','yes','admin / caterer_admin / caterer_staff / support','caterer_admin'],
-      ['first_name','text','no','First name','Marie'],
-      ['last_name','text','no','Last name','Tremblay'],
-      ['last_login_at','date','no','Last login','2026-06-20']
-    ]],
-    ['establishment','mongo','Schools, daycares, camps and CSS districts the caterer serves.', [
+    ['establishment','mongo','Your schools, daycares and camps.', [
       ['id','id','auto','Unique id','e01…'],
       ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
       ['type','enum','yes','school / daycare / camp / css','school'],
-      ['name','text','yes','Name of the place','Ecole Sainte-Marie'],
-      ['address','text','yes','Address','25 Rue Laval'],
-      ['city','text','yes','City','Laval'],
-      ['contact_name','text','yes','Contact person','Sophie Roy'],
-      ['contact_email','text','yes','Contact email','sophie@ecole.qc.ca'],
+      ['name','text','yes','Name','Ecole Sainte-Marie'],
       ['student_count','number','school','Number of students','320'],
-      ['css_district_id','link → establishment','school','CSS district it belongs to','c01…'],
-      ['manager_name','text','daycare','Daycare manager','Anne Cote'],
-      ['child_capacity','number','daycare','Children capacity','60'],
-      ['session_dates','list','camp','Camp sessions (start / end)','Jul 1 – Aug 15'],
-      ['status','enum','yes','pending / confirmed / active','confirmed']
+      ['status','enum','auto','pending / confirmed / active','confirmed']
     ]],
-    ['closure','mongo','Days an establishment is closed (holiday calendars).', [
-      ['id','id','auto','Unique id','cl01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['establishment_id','link → establishment','yes','Which place is closed','e01…'],
-      ['date','date','yes','Closed day','2026-12-25'],
-      ['reason','text','no','Why','Christmas'],
-      ['type','text','no','Kind of closure','holiday'],
-      ['source','text','no','Where it came from','manual']
-    ]],
-    ['menu','mongo','Menus, dishes and packages — shaped by the active modules.', [
+    ['menu','mongo','Your menus, dishes and packages.', [
       ['id','id','auto','Unique id','m01…'],
       ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['establishment_id','link → establishment','no','Which place (empty = all)','e01…'],
       ['name','text','yes','Menu name','Autumn Cycle'],
       ['type','enum','yes','school / daycare / camp','school'],
-      ['age_group','text','daycare','Infant / Toddler / Pre-school','Toddler'],
-      ['rotation_weeks','number','cycle','Cycle length in weeks','3'],
-      ['choices_per_day','number','cycle','Dish choices per day','2'],
-      ['package_name','text','pkg','Package name','Full Day'],
-      ['package_price_cents','number','pkg','Package price in cents','1250'],
-      ['status','enum','yes','draft / submitted / under_review / validated / published','draft'],
-      ['schedule[].week_number','number','yes','Cycle week','1',true],
-      ['schedule[].day_of_week','text','yes','Day','mon',true],
-      ['schedule[].dish_id','link → dish','yes','Dish for that slot','di01…',true],
-      ['schedule[].price_cents','number','no','Slot price','550',true]
+      ['status','enum','auto','draft / under_review / validated','draft']
     ]],
-    ['dish','mongo','A dish the caterer offers; reused across menus.', [
-      ['id','id','auto','Unique id','di01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['name','text','yes','Dish name','Shepherds Pie'],
-      ['description','text','no','Description','Beef and potato'],
-      ['price_cents','number','yes','Price in cents','550'],
-      ['category','text','no','Category','Main'],
-      ['available_days','list','no','Days offered','mon, wed, fri'],
-      ['allergens[].allergen_code','text','no','Allergen code','gluten',true],
-      ['allergens[].is_trace','yes/no','no','Trace amount only','no',true]
-    ]],
-    ['document','mongo','Record of an uploaded file; the file itself lives in Dropbox.', [
+    ['document','mongo','Your uploaded files (stored in Dropbox).', [
       ['id','id','auto','Unique id','d01…'],
       ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['category','text','yes','Document category','banking'],
-      ['source','enum','yes','caterer_upload / admin_upload / smart_import / contract_signed','caterer_upload'],
-      ['status','enum','yes','uploaded / under_review / approved / rejected / correction_requested / archived','approved'],
-      ['visibility','enum','yes','client_visible / internal','client_visible'],
-      ['version','number','yes','Version (starts at 1)','1'],
-      ['version_of','link → document','no','Original it replaces','—'],
-      ['dropbox_file_id','text','yes','File id in Dropbox','id:abc'],
-      ['dropbox_file_path','text','yes','File path in Dropbox','/Banking/rib.pdf'],
-      ['file_name','text','yes','Original name','rib.pdf'],
-      ['mime_type','text','yes','File type','application/pdf'],
-      ['uploaded_by','link → user','yes','Who uploaded','u01…'],
-      ['reviewed_by','link → user','no','Admin reviewer','a01…']
+      ['category','text','yes','banking / legal / menus …','banking'],
+      ['status','enum','auto','uploaded / approved / rejected','approved'],
+      ['file_name','text','yes','File name','rib.pdf']
     ]],
-    ['contract','mongo','Contracts sent to the caterer for e-signature.', [
+    ['contract','mongo','Contracts you sign via Dropbox Sign.', [
       ['id','id','auto','Unique id','co01…'],
       ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['type','enum','yes','msa / nda / dpa / platform_terms / food_safety / module_annex / fee_schedule','msa'],
-      ['status','enum','yes','draft / sent / viewed / signed / declined / expired','sent'],
-      ['version','number','yes','Version','1'],
-      ['sent_at','date','no','When sent','2026-06-10'],
-      ['signed_at','date','no','When fully signed','—'],
-      ['dropbox_sign_request_id','text','no','Id in Dropbox Sign','req_abc'],
-      ['signed_document_id','link → document','no','Signed PDF','d09…'],
-      ['merge_fields','object','no','Template values (admin only)','{…}'],
-      ['signature_requests[].signer_name','text','yes','Signer name','Marie Tremblay',true],
-      ['signature_requests[].signer_email','text','yes','Signer email','marie@…',true],
-      ['signature_requests[].status','enum','yes','pending / viewed / signed / declined','pending',true]
+      ['type','enum','yes','msa / nda / dpa …','msa'],
+      ['status','enum','auto','sent / viewed / signed','sent']
     ]],
-    ['module','mongo','The catalogue of all features EcoLunch offers (same for everyone).', [
-      ['id','id','auto','Unique id','mo01…'],
-      ['key','text','yes','Short code','school_meals'],
-      ['name','text','yes','Display name','School Meals'],
-      ['type','enum','yes','commercial / infrastructure','commercial'],
-      ['is_active','yes/no','yes','In the catalogue','yes']
-    ]],
-    ['caterer_module','mongo','One caterer copy of a module — status, pricing, rules. Admin-set, read-only here.', [
-      ['id','id','auto','Unique id','cm01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['module_id','link → module','yes','Which module','mo01…'],
-      ['status','enum','yes','active / inactive','active'],
-      ['effective_date','date','yes','When it turns on','2026-07-01'],
-      ['monthly_price_cents','number','yes','Monthly price in cents','49900'],
-      ['setup_fee_cents','number','no','One-time setup fee','25000'],
-      ['founding_partner_free','yes/no','no','Free for founding partner','no'],
-      ['discount_pct','number','no','Discount percent','10'],
-      ['cutoff_rules','object','no','Order cut-off rules','{…}'],
-      ['payout_rules','object','no','Payout / fee rules','{…}'],
-      ['credit_rules','object','no','Absence / credit rules','{…}']
-    ]],
-    ['validation_item','mongo','A submission waiting for an admin to approve or reject.', [
-      ['id','id','auto','Unique id','v01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['type','enum','yes','profile / banking / document / contract / menu / establishment / module / pricing / golive','banking'],
-      ['priority','enum','yes','critical / high / medium / low','high'],
-      ['status','enum','yes','pending_review / in_review / approved / rejected / correction_requested / closed','pending_review'],
-      ['section','text','no','Portal section','banking'],
-      ['data_snapshot','object','no','Copy of what was submitted','{…}'],
-      ['linked_document_id','link → document','no','Related document','d01…'],
-      ['source_db','enum','yes','mongo / postgres','postgres'],
-      ['source_record_id','id','no','Record id (banking row when postgres)','b12…'],
-      ['reviewed_by','link → user','no','Admin reviewer','a01…'],
-      ['internal_notes','text','no','Admin-only notes','—']
-    ]],
-    ['correction','mongo','A please-fix request created by admin during review.', [
-      ['id','id','auto','Unique id','cr01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['validation_item_id','link → validation_item','no','Review that caused it','v01…'],
-      ['description','text','yes','What to fix','IBAN format looks wrong'],
-      ['section','text','yes','Section to fix','banking'],
-      ['priority','enum','yes','high / medium / low','high'],
-      ['status','enum','yes','open / in_progress / resolved / closed','open'],
-      ['ecoloop_ticket_id','link → ecoloop_ticket','no','Chat thread','t01…'],
-      ['created_by','link → user','yes','Admin who created it','a01…'],
-      ['resolved_at','date','no','When fixed','—']
-    ]],
-    ['golive_checklist_item','mongo','One Go-live requirement per caterer; all must be complete to go live.', [
-      ['id','id','auto','Unique id','g01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['requirement','text','yes','Requirement key','banking_validated'],
-      ['status','enum','yes','complete / incomplete / blocked / waived','incomplete'],
-      ['blocking_reason','text','no','Why blocked (shown to caterer)','Banking not approved'],
-      ['linked_entity_type','text','no','What blocks it','correction'],
-      ['linked_entity_id','id','no','Id of the blocker','cr01…'],
-      ['checked_at','date','no','Last evaluated','2026-06-20']
-    ]],
-    ['ecoloop_ticket','mongo','A support conversation thread between caterer and admin.', [
-      ['id','id','auto','Unique id','t01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['subject','text','yes','Thread subject','Banking correction'],
-      ['status','enum','yes','open / pending / resolved / closed','open'],
-      ['priority','enum','yes','high / medium / low','high'],
-      ['type','enum','yes','correction_request / validation_followup / contract / document / general','correction_request'],
-      ['assigned_to','link → user','no','Admin owner','a01…'],
-      ['blocks_golive','yes/no','no','Must resolve before Go-live','yes'],
-      ['unread_count_client','number','auto','Unread for caterer','1'],
-      ['last_message_at','date','auto','Last message','2026-06-20']
-    ]],
-    ['ecoloop_message','mongo','One message inside a ticket thread.', [
-      ['id','id','auto','Unique id','msg01…'],
-      ['ticket_id','link → ecoloop_ticket','yes','Which thread','t01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['sender_id','link → user','yes','Who sent it','u01…'],
-      ['body','text','yes','Message text','Please re-upload the RIB'],
-      ['type','enum','yes','admin_to_client / client_to_admin / internal_note / system_action','admin_to_client'],
-      ['read_at','date','no','When read','—'],
-      ['created_at','date','auto','Sent at','2026-06-20']
-    ]],
-    ['smart_import_job','mongo','Reads an uploaded file and suggests field values for review. Never auto-applies.', [
-      ['id','id','auto','Unique id','si01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['section','text','yes','Section it fills','banking'],
-      ['source_document_id','link → document','yes','File it read','d01…'],
-      ['detected_doc_type','text','no','Detected type','rib'],
-      ['status','enum','yes','processing / needs_review / applied / rejected','needs_review'],
-      ['fields[].field_name','text','yes','Field name','iban',true],
-      ['fields[].detected_value','text','yes','Raw value read','FR76…',true],
-      ['fields[].confidence_score','number 0–1','yes','How sure (0 to 1)','0.92',true],
-      ['fields[].status','enum','yes','pending / confirmed / manually_edited / rejected','confirmed',true],
-      ['fields[].applied_value','text','no','Final value used','FR76…',true]
-    ]],
-    ['caterer_onboarding_file','mongo','The status board: how far along each section is. One row per caterer.', [
+    ['onboarding_file','mongo','Your progress board — one row, all section statuses.', [
       ['id','id','auto','Unique id','of01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer (one row each)','7f3a…'],
-      ['profile_status','enum','auto','Section status','validated'],
-      ['banking_status','enum','auto','Section status','under_review'],
-      ['establishments_status','enum','auto','Section status','in_progress'],
-      ['menus_status','enum','auto','Section status','not_started'],
-      ['documents_status','enum','auto','Section status','in_progress'],
-      ['contracts_status','enum','auto','Section status','not_started'],
-      ['modules_status','enum','auto','Section status','in_progress'],
-      ['golive_status','enum','auto','not_ready / ready / approved','not_ready'],
-      ['updated_at','date','auto','Last change','2026-06-20']
+      ['caterer_id','link → caterer','yes','You (one row)','7f3a…'],
+      ['banking_status','enum','auto','not_started … validated','under_review'],
+      ['golive_status','enum','auto','not_ready / ready / approved','not_ready']
     ]],
-    ['report_schedule','mongo','Setup for automatic reports (Accounting / ReportIQ modules).', [
-      ['id','id','auto','Unique id','rs01…'],
-      ['caterer_id','link → caterer','yes','Owner caterer','7f3a…'],
-      ['report_type','text','yes','Which report','orders_summary'],
-      ['frequency','text','yes','How often','weekly'],
-      ['recipient_emails','list','yes','Who receives it','admin@greenkitchen.ca'],
-      ['format','text','yes','File format','PDF'],
-      ['distribution_method','text','no','Delivery method','email'],
-      ['accounting_software','text','no','Export target','QuickBooks'],
-      ['enabled','yes/no','no','On (used in live portal)','no']
+    ['correction','mongo','"Please fix this" requests from the admin.', [
+      ['id','id','auto','Unique id','cr01…'],
+      ['caterer_id','link → caterer','yes','You','7f3a…'],
+      ['description','text','yes','What to fix','IBAN format looks wrong'],
+      ['status','enum','auto','open / in_progress / resolved / closed','open']
     ]],
-    ['audit_log','mongo','A permanent record of every important action (append-only).', [
-      ['id','id','auto','Unique id','al01…'],
-      ['entity_type','text','yes','What was acted on','caterer_banking'],
-      ['entity_id','id','yes','Id of that thing','b12…'],
-      ['caterer_id','link → caterer','yes','Related caterer','7f3a…'],
-      ['actor_id','link → user','yes','Who did it','u01…'],
-      ['actor_type','enum','yes','admin / caterer / system / support_session','caterer'],
-      ['action','text','yes','What happened','banking.submitted'],
-      ['old_value','object','no','Before','{…}'],
-      ['new_value','object','no','After','{…}'],
-      ['created_at','date','auto','When','2026-06-05']
+    ['ecoloop_ticket','mongo','Your support chat with the admin.', [
+      ['id','id','auto','Unique id','t01…'],
+      ['caterer_id','link → caterer','yes','You','7f3a…'],
+      ['subject','text','yes','Thread subject','Banking correction'],
+      ['status','enum','auto','open / pending / resolved / closed','open']
     ]]
   ];
-
   function rc(r){ return r === 'yes' ? 'yes' : r === 'auto' ? 'auto' : r === 'no' ? 'no' : 'cond'; }
   function esc(x){ return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-  var bar = document.getElementById('tabbar');
-  var view = document.getElementById('fieldview');
+  var bar = document.getElementById('tabbar'), view = document.getElementById('fieldview');
   if (!bar || !view) return;
-
   function show(i) {
     var t = T[i], pg = t[1] === 'pg';
-    [].forEach.call(bar.children, function (b, j) {
-      b.className = 'tab' + (T[j][1] === 'pg' ? ' pg' : '') + (j === i ? ' active' : '');
-      b.setAttribute('aria-selected', j === i ? 'true' : 'false');
-    });
+    [].forEach.call(bar.children, function (b, j) { b.className = 'tab' + (T[j][1] === 'pg' ? ' pg' : '') + (j === i ? ' active' : ''); });
     var rows = t[3].map(function (f) {
-      return '<tr>' +
-        '<td class="fname' + (f[5] ? ' sub' : '') + '">' + esc(f[0]).replace('🔒','<span class="lock">🔒</span>') + '</td>' +
-        '<td class="ftype">' + esc(f[1]) + '</td>' +
-        '<td><span class="req ' + rc(f[2]) + '">' + esc(f[2]) + '</span></td>' +
-        '<td>' + esc(f[3]) + '</td>' +
-        '<td class="fex">' + esc(f[4]) + '</td>' +
-      '</tr>';
+      return '<tr><td class="fname' + (f[5] ? ' sub' : '') + '">' + esc(f[0]).replace('🔒','<span class="lock">🔒</span>') + '</td><td class="ftype">' + esc(f[1]) + '</td><td><span class="req ' + rc(f[2]) + '">' + esc(f[2]) + '</span></td><td>' + esc(f[3]) + '</td><td class="fex">' + esc(f[4]) + '</td></tr>';
     }).join('');
-    view.innerHTML =
-      '<div class="fieldhead">' +
-        '<span class="tname' + (pg ? ' pg' : '') + '">' + esc(t[0]) + '</span>' +
-        '<span class="tbadge' + (pg ? ' pg' : '') + '">' + (pg ? 'PostgreSQL' : 'MongoDB') + '</span>' +
-        '<span class="tcount">' + t[3].length + ' fields</span>' +
-      '</div>' +
-      '<p class="fielddesc">' + esc(t[2]) + '</p>' +
-      '<div class="ftwrap"><table class="fieldtable"><thead><tr>' +
-        '<th>Field</th><th>Type</th><th>Required</th><th>What it means</th><th>Example</th>' +
-      '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
-      '<p class="erd-cap" style="text-align:left;margin-top:12px">Required: <b class="g">yes</b> · <b class="y">auto</b> (system-set) · <b class="y">no</b> · or a condition such as <b style="color:var(--hub)">QC / FR / school / daycare / camp / cycle / pkg</b> (required only in that case). &nbsp; <b style="color:var(--hub)">🔒</b> = encrypted, never returned raw.</p>';
+    view.innerHTML = '<div class="fieldhead"><span class="tname' + (pg ? ' pg' : '') + '">' + esc(t[0]) + '</span><span class="tbadge' + (pg ? ' pg' : '') + '">' + (pg ? 'PostgreSQL' : 'MongoDB') + '</span><span class="tcount">' + t[3].length + ' key fields</span></div><p class="fielddesc">' + esc(t[2]) + '</p><div class="ftwrap"><table class="fieldtable"><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>What it means</th><th>Example</th></tr></thead><tbody>' + rows + '</tbody></table></div><p class="erd-cap" style="text-align:left;margin-top:12px">Key fields shown. Required: <b class="g">yes</b> · auto · or a condition like <b class="h">QC / FR / school</b>. <b class="h">🔒</b> = encrypted.</p>';
   }
-
-  T.forEach(function (t, i) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.setAttribute('role', 'tab');
-    b.textContent = t[0];
-    b.addEventListener('click', function () { show(i); });
-    bar.appendChild(b);
-  });
+  T.forEach(function (t, i) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role','tab'); b.textContent = t[0]; b.addEventListener('click', function () { show(i); }); bar.appendChild(b); });
   show(0);
 })();
 </script>

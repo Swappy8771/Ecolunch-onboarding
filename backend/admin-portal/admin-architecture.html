@@ -1,333 +1,288 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   :root {
-    --ink:        #0B0E14;
-    --ink-raised: #131A24;
-    --ink-card:   #161E2A;
-    --line:       #243040;
-    --line-soft:  #1B2430;
-    --text:       #E6EDF3;
-    --muted:      #8B99AC;
-    --faint:      #5C6878;
+    --ink:        #080B16;
+    --ink-raised: #101626;
+    --ink-card:   #121A2C;
+    --line:       #212B4A;
+    --line-soft:  #18203a;
+    --text:       #E7EBF7;
+    --muted:      #8C95B6;
+    --faint:      #545E80;
+    --cyan:       #38BDF8;
+    --cyan-soft:  #0c2740;
+    --indigo:     #818CF8;
+    --indigo-soft:#1c2150;
+    --amber:      #FBBF24;
+    --amber-soft: #2c2410;
+    --good:       #34D399;
+    --good-soft:  #0f2a20;
     --pg:         #5B9DF9;
-    --pg-soft:    #1b2c45;
-    --mongo:      #3DD68C;
-    --mongo-soft: #16352a;
-    --hub:        #F0B72F;
-    --hub-soft:   #3a2f10;
-    --bridge:     #C77DFF;
-    --bridge-soft:#241733;
+    --pg-soft:    #142340;
     --sans: "SF Pro Display", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
   }
   body {
     margin: 0;
     background:
-      radial-gradient(1200px 600px at 80% -8%, #221634 0%, transparent 55%),
-      radial-gradient(900px 500px at 6% 4%, #122033 0%, transparent 50%),
+      radial-gradient(1100px 560px at 84% -10%, #15224a 0%, transparent 55%),
+      radial-gradient(820px 460px at 2% 2%, #0c2238 0%, transparent 52%),
       var(--ink);
-    color: var(--text);
-    font-family: var(--sans);
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    color: var(--text); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1140px; margin: 0 auto; padding: clamp(28px, 5vw, 72px) clamp(18px, 4vw, 40px) 64px; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: clamp(26px, 5vw, 64px) clamp(18px, 4vw, 40px) 64px; }
 
-  .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--bridge); margin: 0 0 18px; }
-  .eyebrow span { color: var(--faint); }
-  h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); line-height: 1.04; letter-spacing: -.02em; font-weight: 680; margin: 0 0 16px; text-wrap: balance; max-width: 20ch; }
-  .thesis { font-size: clamp(1rem, 1.7vw, 1.18rem); color: var(--muted); max-width: 64ch; margin: 0; }
+  .badge { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--cyan-soft); background: #0b1b2c; border-radius: 999px; padding: 6px 12px; }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  h1 { font-size: clamp(2rem, 4.6vw, 3rem); line-height: 1.05; letter-spacing: -.02em; font-weight: 680; margin: 18px 0 14px; text-wrap: balance; max-width: 18ch; }
+  .thesis { font-size: clamp(1rem, 1.6vw, 1.15rem); color: var(--muted); max-width: 62ch; margin: 0; }
   .thesis b { color: var(--text); font-weight: 600; }
 
-  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-  .stat { font-family: var(--mono); font-size: .8rem; color: var(--muted); border: 1px solid var(--line); background: var(--ink-raised); border-radius: 999px; padding: 7px 14px; display: inline-flex; align-items: baseline; gap: 8px; }
-  .stat b { color: var(--text); font-variant-numeric: tabular-nums; font-size: .92rem; }
-  .stat.v b { color: var(--bridge); }
-
-  section { margin-top: clamp(40px, 6vw, 72px); }
+  section { margin-top: clamp(38px, 6vw, 64px); }
   .sec-label { font-family: var(--mono); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--faint); margin: 0 0 18px; display: flex; align-items: center; gap: 12px; }
   .sec-label::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+  .sec-label b { color: var(--cyan); }
 
-  /* flow strip */
-  .jstrip-wrap { overflow-x: auto; padding-bottom: 8px; }
-  .jstrip { display: flex; align-items: stretch; min-width: max-content; }
-  .jphase { display: flex; align-items: center; }
-  .jphase .box { border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; background: var(--ink-card); width: 168px; }
-  .jphase .box .t { font-family: var(--mono); font-size: .84rem; color: var(--text); display: block; margin-top: 7px; }
-  .jphase .box .c { font-size: .69rem; color: var(--faint); display: block; margin-top: 5px; line-height: 1.45; }
-  .jphase .box.admin { border-color: #4a3a66; }
-  .jphase .box.live { border-color: #4d3f17; background: linear-gradient(180deg, #1d1808, #15110a); }
-  .jphase .box.live .t { color: var(--hub); }
-  .jarrow { color: var(--faint); padding: 0 9px; font-family: var(--mono); }
-  .jphase:last-child .jarrow { display: none; }
-  .actor { font-family: var(--mono); font-size: .56rem; letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; display: inline-block; }
-  .actor.admin { color: var(--bridge); background: var(--bridge-soft); }
-  .actor.caterer { color: var(--mongo); background: var(--mongo-soft); }
+  /* ---------- KPI tiles ---------- */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-top: 28px; }
+  .kpi { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, var(--ink-raised), #0c1322); padding: 16px 18px; position: relative; overflow: hidden; }
+  .kpi::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cyan); }
+  .kpi.alert::after { background: var(--amber); } .kpi.good::after { background: var(--good); }
+  .kpi .num { font-family: var(--mono); font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; }
+  .kpi.alert .num { color: var(--amber); }
+  .kpi .lbl { font-size: .8rem; color: var(--muted); margin-top: 8px; }
+  .kpi .sub { font-family: var(--mono); font-size: .64rem; color: var(--faint); margin-top: 6px; letter-spacing: .05em; }
 
-  /* cards */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-  .card { border: 1px solid var(--line); border-radius: 11px; padding: 12px 13px; background: var(--ink-card); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-  .card:hover { transform: translateY(-2px); border-color: #4a3a66; background: #18222f; }
-  .card .cname { font-family: var(--mono); font-size: .82rem; font-weight: 600; color: var(--text); display: block; }
-  .card .desc { font-size: .73rem; color: var(--muted); margin: 5px 0 0; line-height: 1.4; }
-  .group-tag { font-family: var(--mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin: 18px 0 9px; }
+  /* ---------- system architecture ---------- */
+  .arch { display: flex; flex-direction: column; gap: 0; }
+  .layer { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, var(--ink-raised), #0c1322); padding: 14px 16px; }
+  .layer-h { font-family: var(--mono); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-bottom: 11px; }
+  .layer-row { display: flex; flex-wrap: wrap; gap: 9px; }
+  .node { font-family: var(--mono); font-size: .78rem; color: var(--text); border: 1px solid var(--line); background: var(--ink-card); border-radius: 9px; padding: 9px 12px; }
+  .node small { color: var(--faint); font-size: .68rem; }
+  .node.all { border-color: #2f5e86; color: var(--cyan); background: var(--cyan-soft); }
+  .node.pg { border-color: #2d4a6e; color: var(--pg); background: var(--pg-soft); }
+  .node.hook { border-color: #5a4a18; color: var(--amber); }
+  .node.idg { border-color: #3a3f7a; color: var(--indigo); }
+  .conn { height: 22px; width: 2px; background: linear-gradient(var(--cyan), transparent); margin: 0 auto; opacity: .55; }
+  .conn-lbl { text-align: center; font-family: var(--mono); font-size: .6rem; color: var(--faint); letter-spacing: .1em; padding: 3px 0; }
 
-  /* ER diagram */
-  .erd-panel { border: 1px solid var(--line); border-radius: 16px; background: radial-gradient(720px 420px at 50% 20%, #16212f 0%, #0e141d 72%); padding: clamp(8px, 2vw, 20px); overflow-x: auto; }
-  #erd { width: 100%; min-width: 540px; }
-  #erd svg { display: block; width: 100%; height: auto; }
-  .erd-cap { text-align: center; color: var(--faint); font-family: var(--mono); font-size: .72rem; margin-top: 12px; line-height: 1.7; }
-  .erd-cap b.v { color: var(--bridge); } .erd-cap b.g { color: var(--mongo); } .erd-cap b.y { color: var(--faint); }
+  /* ---------- pipeline conveyor ---------- */
+  .pipe-wrap { overflow-x: auto; padding-bottom: 8px; }
+  .pipe { display: flex; align-items: stretch; min-width: max-content; }
+  .pstep { display: flex; align-items: center; }
+  .pstep .box { border: 1px solid var(--line); border-radius: 11px; padding: 12px 14px; background: var(--ink-card); width: 150px; }
+  .pstep .box.adm { border-color: #3a3f7a; }
+  .pstep .box.live { border-color: #2c6b54; background: linear-gradient(180deg, #0f2a20, #0b1a14); }
+  .pstep .n { font-family: var(--mono); font-size: .6rem; color: var(--cyan); letter-spacing: .1em; }
+  .pstep .box.adm .n { color: var(--indigo); } .pstep .box.live .n { color: var(--good); }
+  .pstep .pt { font-family: var(--mono); font-size: .8rem; color: var(--text); display: block; margin-top: 5px; }
+  .pstep .arr { color: var(--faint); padding: 0 8px; font-family: var(--mono); }
+  .pstep:last-child .arr { display: none; }
 
-  /* tables */
+  /* ---------- queue table ---------- */
+  .qwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table.q { width: 100%; min-width: 680px; border-collapse: collapse; font-size: .85rem; }
+  table.q th { text-align: left; font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--ink-raised); white-space: nowrap; }
+  table.q td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); color: var(--muted); vertical-align: middle; }
+  table.q tr:last-child td { border-bottom: 0; }
+  table.q tr:hover td { background: #0f1626; }
+  td.cat { font-family: var(--mono); color: var(--text); white-space: nowrap; }
+  td.cat small { display: block; color: var(--faint); font-size: .68rem; }
+  .bar { width: 120px; height: 7px; border-radius: 4px; background: #1a2238; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--indigo)); }
+  .pctn { font-family: var(--mono); font-size: .72rem; color: var(--muted); margin-left: 8px; font-variant-numeric: tabular-nums; }
+  .pill { font-family: var(--mono); font-size: .64rem; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.onb { color: var(--cyan); background: var(--cyan-soft); } .pill.blk { color: var(--amber); background: var(--amber-soft); } .pill.rdy { color: var(--good); background: var(--good-soft); }
+  .qnum { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); }
+  .qnum.warn { color: var(--amber); }
+
+  /* ---------- schema by domain (clustered ER) ---------- */
+  .domains { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+  .dom { border: 1px solid var(--line); border-radius: 12px; background: var(--ink-card); padding: 14px 15px; }
+  .dom.pg { border-color: #2d4a6e; background: linear-gradient(180deg, #0f1c30, #0c1322); }
+  .dom-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+  .dom-h .dn { font-size: .82rem; color: var(--text); font-weight: 600; }
+  .dom-tag { font-family: var(--mono); font-size: .56rem; padding: 2px 7px; border-radius: 5px; color: var(--good); background: var(--good-soft); }
+  .dom-tag.pg { color: var(--pg); background: var(--pg-soft); }
+  .dom ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .dom li { font-family: var(--mono); font-size: .74rem; color: var(--muted); }
+  .rels { margin-top: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--ink-raised); padding: 14px 16px; font-size: .82rem; color: var(--muted); line-height: 1.7; }
+  .rels code { font-family: var(--mono); color: var(--text); } .rels b { color: var(--indigo); }
+
+  /* ---------- ownership table ---------- */
   .ftwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
-  table.fieldtable { width: 100%; min-width: 640px; border-collapse: collapse; font-size: .85rem; }
-  table.fieldtable th { text-align: left; font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--ink-raised); white-space: nowrap; }
-  table.fieldtable td { padding: 9px 16px; border-bottom: 1px solid var(--line-soft); color: var(--muted); vertical-align: top; }
-  table.fieldtable tr:last-child td { border-bottom: 0; }
-  table.fieldtable tr:hover td { background: #131b26; }
-  td.fname { font-family: var(--mono); color: var(--text); white-space: nowrap; font-size: .82rem; }
-  td.ftype { font-family: var(--mono); color: var(--muted); white-space: nowrap; font-size: .78rem; }
-  td.fex { font-family: var(--mono); color: var(--faint); font-size: .78rem; }
-  td.own-admin { color: var(--bridge); font-family: var(--mono); font-size: .78rem; }
-  td.own-caterer { color: var(--mongo); font-family: var(--mono); font-size: .78rem; }
-  td.own-system { color: var(--muted); font-family: var(--mono); font-size: .78rem; }
-  td.tname-cell { font-family: var(--mono); color: var(--text); font-size: .8rem; white-space: nowrap; }
+  table.own { width: 100%; min-width: 640px; border-collapse: collapse; font-size: .85rem; }
+  table.own th { text-align: left; font-family: var(--mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--ink-raised); white-space: nowrap; }
+  table.own td { padding: 9px 16px; border-bottom: 1px solid var(--line-soft); color: var(--muted); vertical-align: top; }
+  table.own tr:last-child td { border-bottom: 0; }
+  td.tn { font-family: var(--mono); color: var(--text); font-size: .8rem; white-space: nowrap; }
+  td.oa { color: var(--indigo); font-family: var(--mono); font-size: .77rem; }
+  td.oc { color: var(--good); font-family: var(--mono); font-size: .77rem; }
+  td.os { color: var(--muted); font-family: var(--mono); font-size: .77rem; }
   td.dash { color: var(--faint); }
 
-  /* bridge explainer */
-  .explainer { border: 1px solid #382a4f; border-radius: 16px; background: linear-gradient(180deg, #160f20, #0f0b16); padding: clamp(20px, 3vw, 28px); }
-  .explainer h3 { margin: 0 0 6px; font-size: 1.02rem; color: var(--bridge); font-family: var(--mono); font-weight: 600; }
-  .explainer > p { margin: 0; color: var(--muted); max-width: 72ch; font-size: .9rem; }
-
-  /* legend + rules */
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  /* ---------- rules ---------- */
   .panel { border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; background: var(--ink-raised); }
-  .panel h4 { margin: 0 0 14px; font-size: .76rem; font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
-  .legend-row { display: flex; align-items: center; gap: 11px; padding: 7px 0; font-size: .85rem; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
-  .legend-row:last-child { border-bottom: 0; }
-  .legend-row .k { font-family: var(--mono); color: var(--text); min-width: 96px; font-size: .78rem; }
-  .sw { width: 22px; height: 12px; border-radius: 3px; flex: none; }
+  .panel h4 { margin: 0 0 12px; font-size: .76rem; font-family: var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
   .rule { display: flex; gap: 11px; padding: 9px 0; font-size: .88rem; color: var(--muted); border-bottom: 1px solid var(--line-soft); }
-  .rule:last-child { border-bottom: 0; }
-  .rule .mk { color: var(--bridge); font-family: var(--mono); flex: none; }
-  .rule b { color: var(--text); font-weight: 600; }
+  .rule:last-child { border-bottom: 0; } .rule .mk { color: var(--cyan); font-family: var(--mono); flex: none; } .rule b { color: var(--text); }
 
-  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--line-soft); color: var(--faint); font-size: .8rem; font-family: var(--mono); }
-  a { color: inherit; }
-  :focus-visible { outline: 2px solid var(--bridge); outline-offset: 3px; border-radius: 4px; }
-
-  @media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
-
+  footer { margin-top: 54px; padding-top: 22px; border-top: 1px solid var(--line-soft); color: var(--faint); font-size: .8rem; font-family: var(--mono); }
+  a { color: inherit; } :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; border-radius: 4px; }
   .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
   @keyframes rise { to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } .card { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
 </style>
 
 <div class="wrap">
 
   <header class="reveal">
-    <p class="eyebrow">EcoLunch <span>·</span> Admin Onboarding Portal <span>·</span> Backend Data Architecture</p>
-    <h1>Every caterer. One control room.</h1>
-    <p class="thesis">The admin portal runs onboarding from <b>registration to Go-live</b>. It sees <b>every</b> caterer and makes every decision the caterer can't — on the <b>same database</b> the caterer fills. This is the admin's side of that shared system.</p>
-    <div class="stats">
-      <span class="stat v"><b>9</b> screens</span>
-      <span class="stat v"><b>8</b>-stage pipeline</span>
-      <span class="stat"><b>11</b> Go-live checks</span>
-      <span class="stat"><b>19</b> shared tables</span>
-      <span class="stat v"><b>3</b> admin-only decisions</span>
+    <span class="badge">Admin · Control Room · /admin</span>
+    <h1>One console. Every caterer. Every decision.</h1>
+    <p class="thesis">A <b>multi-tenant operations</b> view. Admins see <b>all</b> caterers (no tenant filter), run the 8-stage pipeline, and make the calls the caterer can't — approve, activate, price. Same database the caterer fills; a very different job.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="num">24</div><div class="lbl">Caterers in onboarding</div><div class="sub">across all admins</div></div>
+      <div class="kpi"><div class="num">18</div><div class="lbl">Open validations</div><div class="sub">awaiting review</div></div>
+      <div class="kpi alert"><div class="num">3</div><div class="lbl">Blocked go-lives</div><div class="sub">revenue-blocking</div></div>
+      <div class="kpi"><div class="num">11</div><div class="lbl">Open EcoLoop tickets</div><div class="sub">illustrative sample</div></div>
     </div>
   </header>
 
-  <!-- ===================== ADMIN PIPELINE ===================== -->
+  <!-- ===================== SYSTEM ARCHITECTURE ===================== -->
   <section class="reveal">
-    <p class="sec-label">The 8-stage admin pipeline</p>
-    <div class="jstrip-wrap">
-      <div class="jstrip">
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">1 · Register</span><span class="c">Create caterer, account, checklist</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">2 · Modules &amp; Pricing</span><span class="c">Activate modules, set prices</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">3 · Send Contracts</span><span class="c">Via Dropbox Sign</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box"><span class="actor caterer">Caterer</span><span class="t">4 · Caterer fills</span><span class="c">Profile, banking, menus, docs</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">5 · Validate</span><span class="c">Approve / correct each submission</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">6 · Review Documents</span><span class="c">Approve files in the vault</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box admin"><span class="actor admin">Admin</span><span class="t">7 · Go-live Check</span><span class="c">The 11-item checklist</span></div><span class="jarrow">→</span></div>
-        <div class="jphase"><div class="box live"><span class="actor admin">Admin</span><span class="t">8 · Activate 🎉</span><span class="c">Validate Go-live → caterer active</span></div></div>
+    <p class="sec-label"><b>System architecture</b> — the admin's slice</p>
+    <div class="arch">
+      <div class="layer">
+        <div class="layer-h">Frontend</div>
+        <div class="layer-row"><span class="node idg">Admin React app <small>(/admin, Vite)</small></span></div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">HTTPS · JWT (role: admin)</div>
+      <div class="layer">
+        <div class="layer-h">API</div>
+        <div class="layer-row"><span class="node all">Express API — role: admin · sees ALL caterers (no tenant filter)</span></div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">engines &amp; workers</div>
+      <div class="layer">
+        <div class="layer-h">Services &amp; background workers</div>
+        <div class="layer-row">
+          <span class="node">Validation queue</span><span class="node">Modules &amp; Pricing</span><span class="node">Contract sender</span>
+          <span class="node">Go-live engine</span><span class="node">Smart Import</span>
+          <span class="node hook">Outbox worker <small>· PG→Mongo</small></span><span class="node hook">Webhook ingest <small>· Dropbox Sign</small></span>
+        </div>
+      </div>
+      <div class="conn"></div><div class="conn-lbl">persistence</div>
+      <div class="layer">
+        <div class="layer-h">Data &amp; storage</div>
+        <div class="layer-row">
+          <span class="node pg">PostgreSQL <small>· banking</small></span>
+          <span class="node all">MongoDB <small>· 18 collections · ALL caterers</small></span>
+          <span class="node">Dropbox</span>
+          <span class="node hook">Dropbox Sign <small>· webhooks →</small></span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== ADMIN SCREENS ===================== -->
+  <!-- ===================== PIPELINE ===================== -->
   <section class="reveal">
-    <p class="sec-label">The 9 admin screens</p>
-    <div class="grid">
-      <div class="card"><span class="cname">Dashboard</span><p class="desc">KPIs across all caterers; jump to anything needing attention.</p></div>
-      <div class="card"><span class="cname">Caterers in Onboarding</span><p class="desc">Master list; open any caterer's file; start audited support sessions.</p></div>
-      <div class="card"><span class="cname">Validation Center</span><p class="desc">The review queue — approve / reject / request correction.</p></div>
-      <div class="card"><span class="cname">Document Vault</span><p class="desc">Review uploaded files; run Smart Import.</p></div>
-      <div class="card"><span class="cname">Contract Management</span><p class="desc">Send contracts via Dropbox Sign; track signing.</p></div>
-      <div class="card"><span class="cname">Modules &amp; Pricing</span><p class="desc">Turn modules on and set prices — the only place this is written.</p></div>
-      <div class="card"><span class="cname">Go-live Monitor</span><p class="desc">The 11-item checklist; click <b>Validate Go-live</b>.</p></div>
-      <div class="card"><span class="cname">EcoLoop</span><p class="desc">Chat with the caterer; add admin-only internal notes.</p></div>
-      <div class="card"><span class="cname">Smart Import</span><p class="desc">Contextual — review extracted field values before applying.</p></div>
+    <p class="sec-label"><b>The 8-stage onboarding pipeline</b> the admin drives</p>
+    <div class="pipe-wrap">
+      <div class="pipe">
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 1</span><span class="pt">Register</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 2</span><span class="pt">Modules &amp; Pricing</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 3</span><span class="pt">Send Contracts</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box"><span class="n">STAGE 4 · caterer</span><span class="pt">Caterer fills</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 5</span><span class="pt">Validate</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 6</span><span class="pt">Review docs</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box adm"><span class="n">STAGE 7</span><span class="pt">Go-live check</span></div><span class="arr">→</span></div>
+        <div class="pstep"><div class="box live"><span class="n">STAGE 8</span><span class="pt">Activate 🎉</span></div></div>
+      </div>
     </div>
   </section>
 
-  <!-- ===================== ER DIAGRAM (shared) ===================== -->
+  <!-- ===================== CATERER QUEUE ===================== -->
   <section class="reveal">
-    <p class="sec-label">The shared schema the admin manages</p>
-    <div class="erd-panel"><div id="erd"></div></div>
-    <p class="erd-cap">The admin reads and decides across <b class="g">all</b> of these tables (the caterer sees only its own). <b class="v">Violet dashed</b> = cross-database links · <b class="y">grey dotted</b> = secondary reference.</p>
+    <p class="sec-label"><b>The caterer queue</b> — what oversight looks like</p>
+    <div class="qwrap">
+      <table class="q">
+        <thead><tr><th>Caterer</th><th>Progress</th><th>Status</th><th>Open validations</th><th>Assigned</th></tr></thead>
+        <tbody>
+          <tr><td class="cat">Les Cuisines Vertes<small>Montréal, QC</small></td><td><div style="display:flex;align-items:center"><span class="bar"><i style="width:82%"></i></span><span class="pctn">82%</span></div></td><td><span class="pill onb">Onboarding</span></td><td class="qnum">4</td><td class="cat">A. Roy</td></tr>
+          <tr><td class="cat">Traiteur Boréal<small>Québec, QC</small></td><td><div style="display:flex;align-items:center"><span class="bar"><i style="width:45%"></i></span><span class="pctn">45%</span></div></td><td><span class="pill blk">Blocked</span></td><td class="qnum warn">7</td><td class="cat">M. Côté</td></tr>
+          <tr><td class="cat">Maison Délice<small>Laval, QC</small></td><td><div style="display:flex;align-items:center"><span class="bar"><i style="width:100%"></i></span><span class="pctn">100%</span></div></td><td><span class="pill rdy">Ready</span></td><td class="qnum">0</td><td class="cat">A. Roy</td></tr>
+          <tr><td class="cat">Cuisine Soleil<small>Gatineau, QC</small></td><td><div style="display:flex;align-items:center"><span class="bar"><i style="width:28%"></i></span><span class="pctn">28%</span></div></td><td><span class="pill onb">Onboarding</span></td><td class="qnum">2</td><td class="cat">L. Hébert</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="conn-lbl" style="text-align:left;margin-top:10px">Illustrative rows. The admin sorts, filters, and opens any caterer's full file from here — the entry point to every per-caterer task.</p>
   </section>
 
-  <!-- ===================== WRITE OWNERSHIP ===================== -->
+  <!-- ===================== SCHEMA BY DOMAIN (clustered ER) ===================== -->
   <section class="reveal">
-    <p class="sec-label">Who writes what — every table</p>
+    <p class="sec-label"><b>Schema by domain</b> — the data the admin governs</p>
+    <div class="domains">
+      <div class="dom"><div class="dom-h"><span class="dn">Identity &amp; Access</span><span class="dom-tag">Mongo</span></div><ul><li>users</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Tenancy &amp; Profile</span><span class="dom-tag">Mongo</span></div><ul><li>caterers</li></ul></div>
+      <div class="dom pg"><div class="dom-h"><span class="dn">Financial 🔒</span><span class="dom-tag pg">PostgreSQL</span></div><ul><li>caterer_banking</li><li>banking_outbox</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Onboarding tracking</span><span class="dom-tag">Mongo</span></div><ul><li>caterer_onboarding_files</li><li>golive_checklist_items</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Establishments &amp; Menus</span><span class="dom-tag">Mongo</span></div><ul><li>establishments</li><li>menus</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Documents</span><span class="dom-tag">Mongo</span></div><ul><li>documents</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Contracts &amp; Signing</span><span class="dom-tag">Mongo</span></div><ul><li>contracts</li><li>signature_requests</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Modules &amp; Pricing</span><span class="dom-tag">Mongo</span></div><ul><li>modules</li><li>caterer_modules</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Review &amp; Corrections</span><span class="dom-tag">Mongo</span></div><ul><li>validation_items</li><li>corrections</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Comms · EcoLoop</span><span class="dom-tag">Mongo</span></div><ul><li>ecoloop_tickets</li><li>ecoloop_messages</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Smart Import</span><span class="dom-tag">Mongo</span></div><ul><li>smart_import_jobs</li><li>smart_import_fields</li></ul></div>
+      <div class="dom"><div class="dom-h"><span class="dn">Audit</span><span class="dom-tag">Mongo</span></div><ul><li>audit_logs</li></ul></div>
+    </div>
+    <div class="rels">
+      <b>Key relationships:</b> &nbsp; every domain links back to <code>caterers</code> via <code>caterer_id</code> · &nbsp;
+      <code>caterer_banking</code> ⇄ <code>caterers</code> / <code>documents</code> <b>(cross-database)</b> · &nbsp;
+      <code>validation_item</code> → <code>correction</code> → <code>ecoloop_ticket</code> · &nbsp;
+      <code>caterer_module</code> → <code>module</code> · &nbsp;
+      <code>contract</code> → <code>documents</code> (signed PDF) · &nbsp;
+      <code>golive_checklist_items</code> read the state of all the above.
+    </div>
+  </section>
+
+  <!-- ===================== WHO WRITES WHAT ===================== -->
+  <section class="reveal">
+    <p class="sec-label"><b>Who writes what</b> — every table</p>
     <div class="ftwrap">
-      <table class="fieldtable">
+      <table class="own">
         <thead><tr><th>Table</th><th>Admin writes</th><th>Caterer writes</th><th>System writes</th></tr></thead>
         <tbody>
-          <tr><td class="tname-cell">caterers</td><td class="own-admin">creates · status · go-live</td><td class="own-caterer">profile fields</td><td class="own-system">progress %, active</td></tr>
-          <tr><td class="tname-cell">users</td><td class="own-admin">creates account</td><td class="own-caterer">password</td><td class="own-system">last_login</td></tr>
-          <tr><td class="tname-cell">caterer_banking ★</td><td class="dash">— (reviews)</td><td class="own-caterer">all bank fields + docs</td><td class="own-system">encrypt, submitted_at</td></tr>
-          <tr><td class="tname-cell">caterer_onboarding_files</td><td class="own-admin">admin_notes</td><td class="dash">—</td><td class="own-system">all statuses</td></tr>
-          <tr><td class="tname-cell">establishments</td><td class="own-admin">confirms</td><td class="own-caterer">adds schools/daycares</td><td class="dash">—</td></tr>
-          <tr><td class="tname-cell">menus / dishes</td><td class="own-admin">validates</td><td class="own-caterer">creates menus</td><td class="own-system">smart import</td></tr>
-          <tr><td class="tname-cell">documents</td><td class="own-admin">status · visibility</td><td class="own-caterer">uploads files</td><td class="own-system">signed PDFs</td></tr>
-          <tr><td class="tname-cell">contracts</td><td class="own-admin">creates &amp; sends</td><td class="dash">—</td><td class="own-system">webhook status</td></tr>
-          <tr><td class="tname-cell">modules</td><td class="own-admin">catalogue</td><td class="dash">—</td><td class="dash">—</td></tr>
-          <tr><td class="tname-cell">caterer_modules</td><td class="own-admin">only writer (activate + price)</td><td class="dash">— read-only</td><td class="own-system">active at go-live</td></tr>
-          <tr><td class="tname-cell">validation_items</td><td class="own-admin">decides</td><td class="dash">—</td><td class="own-system">created on submit</td></tr>
-          <tr><td class="tname-cell">corrections</td><td class="own-admin">creates</td><td class="own-caterer">in_progress / resolved</td><td class="own-system">closed</td></tr>
-          <tr><td class="tname-cell">golive_checklist_items</td><td class="own-admin">may waive</td><td class="dash">—</td><td class="own-system">recomputed</td></tr>
-          <tr><td class="tname-cell">ecoloop_tickets</td><td class="own-admin">creates · blocks_golive</td><td class="own-caterer">general tickets</td><td class="own-system">auto on correction</td></tr>
-          <tr><td class="tname-cell">ecoloop_messages</td><td class="own-admin">replies + internal_note</td><td class="own-caterer">replies</td><td class="own-system">system_action</td></tr>
-          <tr><td class="tname-cell">smart_import_jobs/fields</td><td class="own-admin">confirm / apply</td><td class="own-caterer">confirm / apply (own)</td><td class="own-system">extraction</td></tr>
-          <tr><td class="tname-cell">report_schedules</td><td class="dash">—</td><td class="own-caterer">setup</td><td class="dash">—</td></tr>
-          <tr><td class="tname-cell">audit_logs</td><td class="dash">— read only</td><td class="dash">— read only</td><td class="own-system">every action</td></tr>
+          <tr><td class="tn">caterers</td><td class="oa">creates · status · go-live</td><td class="oc">profile fields</td><td class="os">progress %, active</td></tr>
+          <tr><td class="tn">caterer_banking 🔒</td><td class="dash">— (reviews)</td><td class="oc">all bank fields + docs</td><td class="os">encrypt, submitted_at</td></tr>
+          <tr><td class="tn">caterer_modules</td><td class="oa">only writer (activate + price)</td><td class="dash">— read-only</td><td class="os">active at go-live</td></tr>
+          <tr><td class="tn">validation_items</td><td class="oa">decides</td><td class="dash">—</td><td class="os">created on submit</td></tr>
+          <tr><td class="tn">corrections</td><td class="oa">creates</td><td class="oc">in_progress / resolved</td><td class="os">closed</td></tr>
+          <tr><td class="tn">contracts</td><td class="oa">creates &amp; sends</td><td class="dash">—</td><td class="os">webhook status</td></tr>
+          <tr><td class="tn">documents</td><td class="oa">status · visibility</td><td class="oc">uploads files</td><td class="os">signed PDFs</td></tr>
+          <tr><td class="tn">menus / establishments</td><td class="oa">validates / confirms</td><td class="oc">creates</td><td class="os">smart import</td></tr>
+          <tr><td class="tn">golive_checklist_items</td><td class="oa">may waive</td><td class="dash">—</td><td class="os">recomputed</td></tr>
+          <tr><td class="tn">ecoloop_messages</td><td class="oa">replies + internal_note</td><td class="oc">replies</td><td class="os">system_action</td></tr>
+          <tr><td class="tn">audit_logs</td><td class="dash">— read only</td><td class="dash">— read only</td><td class="os">every action</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="erd-cap" style="text-align:left;margin-top:12px"><b class="v">Admin writes</b> · <b class="g">Caterer writes</b> · <b class="y">System writes</b>. The three decisions <b style="color:var(--bridge)">only the admin</b> can make: activate &amp; price modules · approve a submission · approve Go-live.</p>
+    <p class="conn-lbl" style="text-align:left;margin-top:10px"><span style="color:var(--indigo)">Admin writes</span> · <span style="color:var(--good)">Caterer writes</span> · <span style="color:var(--muted)">System writes</span>. The 3 admin-only decisions: <b style="color:var(--indigo)">activate &amp; price · approve a submission · approve go-live</b>.</p>
   </section>
 
-  <!-- ===================== ADMIN-ONLY FIELDS ===================== -->
+  <!-- ===================== RULES ===================== -->
   <section class="reveal">
-    <p class="sec-label">Fields that exist mainly for the admin</p>
-    <div class="ftwrap">
-      <table class="fieldtable">
-        <thead><tr><th>Field</th><th>Table</th><th>Purpose</th><th>Visible to</th></tr></thead>
-        <tbody>
-          <tr><td class="fname">admin_notes</td><td class="ftype">caterer_onboarding_files</td><td>Internal notes per caterer file</td><td class="fex">admin only</td></tr>
-          <tr><td class="fname">internal_notes</td><td class="ftype">validation_items</td><td>Admin review notes</td><td class="fex">admin only</td></tr>
-          <tr><td class="fname">type = internal_note</td><td class="ftype">ecoloop_messages</td><td>Admin-only chat messages</td><td class="fex">admin only</td></tr>
-          <tr><td class="fname">visibility = internal</td><td class="ftype">documents</td><td>Hide a document from the caterer</td><td class="fex">admin only</td></tr>
-          <tr><td class="fname">template_id</td><td class="ftype">contracts</td><td>The Dropbox Sign template used</td><td class="fex">admin only</td></tr>
-          <tr><td class="fname">configured_by</td><td class="ftype">caterer_modules</td><td>Which admin set the pricing</td><td class="fex">admin</td></tr>
-          <tr><td class="fname">linked_validation_item_id</td><td class="ftype">documents</td><td>Ties a document to its review</td><td class="fex">both</td></tr>
-          <tr><td class="fname">status · phone</td><td class="ftype">users</td><td>Suspend accounts / contact</td><td class="fex">admin</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ===================== BANKING BRIDGE ===================== -->
-  <section class="reveal">
-    <p class="sec-label">How the admin approves banking (across two databases)</p>
-    <div class="explainer">
-      <h3>The outbox keeps PostgreSQL and MongoDB in sync</h3>
-      <p>The caterer's banking lives in PostgreSQL, but the admin's <b style="color:var(--bridge)">review queue</b> and the <b style="color:var(--bridge)">status</b> live in MongoDB. When the caterer submits banking, a transactional outbox reliably creates the <code style="font-family:var(--mono);color:var(--text)">validation_item</code> the admin reviews and sets <code style="font-family:var(--mono);color:var(--text)">banking_status = under_review</code>. The admin then approves it in the Validation Center — and the Go-live checklist's <code style="font-family:var(--mono);color:var(--text)">banking_validated</code> recomputes automatically.</p>
-    </div>
-  </section>
-
-  <!-- ===================== LEGEND + RULES ===================== -->
-  <section class="reveal">
-    <div class="two">
-      <div class="panel">
-        <h4>Who writes</h4>
-        <div class="legend-row"><span class="sw" style="background:var(--bridge)"></span><span class="k">Admin</span> EcoLunch staff — makes the decisions</div>
-        <div class="legend-row"><span class="sw" style="background:var(--mongo)"></span><span class="k">Caterer</span> fills and submits data</div>
-        <div class="legend-row"><span class="sw" style="background:var(--muted)"></span><span class="k">System</span> statuses, checklist, audit, sync</div>
-        <div class="legend-row"><span class="sw" style="background:var(--pg)"></span><span class="k">PostgreSQL</span> the one financial table (Banking)</div>
-      </div>
-      <div class="panel">
-        <h4>Admin rules that never bend</h4>
-        <div class="rule"><span class="mk">›</span><span><b>Sees everything.</b> Admin queries are not scoped to one caterer.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Signing ≠ activation.</b> A signed contract only ticks one checklist item.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Go-live is 100% or nothing</b> — all 11 items, and only an admin approves.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Support sessions are audited</b> — viewing a caterer's portal logs start &amp; end.</span></div>
-        <div class="rule"><span class="mk">›</span><span><b>Internal notes stay internal</b> — never returned to the caterer.</span></div>
-      </div>
+    <p class="sec-label"><b>Admin rules that never bend</b></p>
+    <div class="panel">
+      <div class="rule"><span class="mk">›</span><span><b>Sees everything.</b> Admin queries are not scoped to one caterer.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Signing ≠ activation.</b> A signed contract only ticks one checklist item.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Go-live is 100% or nothing</b> — all 11 items, and only an admin approves.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Support sessions are audited</b> — viewing a caterer's portal logs start &amp; end.</span></div>
+      <div class="rule"><span class="mk">›</span><span><b>Internal notes stay internal</b> — never returned to the caterer.</span></div>
     </div>
   </section>
 
   <footer>
-    Admin Portal preview &nbsp;·&nbsp; shared schema: backend/db-architecture/ (19 models) &nbsp;·&nbsp; the caterer side has its own preview: <b style="color:var(--mongo)">caterer-architecture.html</b>
+    🛠️ Admin Portal preview &nbsp;·&nbsp; schema verified against docs/admin-portal/11 &nbsp;·&nbsp; per-table model files: <b style="color:#38BDF8">admin-portal/models/</b> &nbsp;·&nbsp; caterer side: <b style="color:#34D399">caterer-architecture.html</b>
   </footer>
 
 </div>
-
-<script>
-(function () {
-  var C = { pg:'#5B9DF9', mongo:'#3DD68C', hub:'#F0B72F', bridge:'#C77DFF',
-            line:'#2c3a4d', text:'#E6EDF3', muted:'#8B99AC', pgFill:'#16243a', card:'#161E2A' };
-  var W = 1040, H = 880, cx = 520, cy = 440, RX = 440, RY = 360;
-
-  var NODES = [
-    { id:'banking',          label:'caterer_banking', db:'pg',    rel:'1:1', cross:true },
-    { id:'document',         label:'document',        db:'mongo' },
-    { id:'validation_item',  label:'validation_item', db:'mongo' },
-    { id:'onboarding_file',  label:'onboarding_file', db:'mongo', rel:'1:1' },
-    { id:'user',             label:'user',            db:'mongo' },
-    { id:'establishment',    label:'establishment',   db:'mongo' },
-    { id:'closure',          label:'closure',         db:'mongo' },
-    { id:'menu',             label:'menu',            db:'mongo' },
-    { id:'dish',             label:'dish',            db:'mongo' },
-    { id:'contract',         label:'contract',        db:'mongo' },
-    { id:'caterer_module',   label:'caterer_module',  db:'mongo' },
-    { id:'module',           label:'module',          db:'mongo', noHub:true },
-    { id:'correction',       label:'correction',      db:'mongo' },
-    { id:'ecoloop_ticket',   label:'ecoloop_ticket',  db:'mongo' },
-    { id:'ecoloop_message',  label:'ecoloop_message', db:'mongo' },
-    { id:'smart_import_job', label:'smart_import_job',db:'mongo' },
-    { id:'golive',           label:'golive_checklist',db:'mongo' },
-    { id:'report_schedule',  label:'report_schedule', db:'mongo' },
-    { id:'audit_log',        label:'audit_log',       db:'mongo' }
-  ];
-  var N = NODES.length, pos = {};
-  NODES.forEach(function (n, i) {
-    var a = (-90 + i * (360 / N)) * Math.PI / 180;
-    var f = (i % 2 === 0) ? 1 : 0.73;
-    n.x = cx + RX * f * Math.cos(a);
-    n.y = cy + RY * f * Math.sin(a);
-    pos[n.id] = n;
-  });
-
-  var NW = 130, NH = 30, s = '';
-  s += '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Shared entity relationship diagram managed by the admin portal">';
-  NODES.forEach(function (n) {
-    if (n.noHub) return;
-    s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + n.x + '" y2="' + n.y + '" stroke="' + (n.cross ? C.bridge : C.line) + '" stroke-width="' + (n.cross ? 2 : 1.2) + '"' + (n.cross ? ' stroke-dasharray="6 5"' : '') + ' />';
-  });
-  [['banking','document',true], ['validation_item','banking',true], ['caterer_module','module',false]]
-    .forEach(function (p) {
-      var a = pos[p[0]], b = pos[p[1]], cross = p[2];
-      s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (cross ? C.bridge : '#3a4a5e') + '" stroke-width="' + (cross ? 1.8 : 1.3) + '" stroke-dasharray="' + (cross ? '6 5' : '2 4') + '" />';
-    });
-  s += '<circle cx="' + cx + '" cy="' + cy + '" r="60" fill="#1d1808" stroke="' + C.hub + '" stroke-width="2"/>';
-  s += '<text x="' + cx + '" y="' + (cy - 3) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="17" font-weight="700" fill="' + C.hub + '">caterer</text>';
-  s += '<text x="' + cx + '" y="' + (cy + 15) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" letter-spacing="1.5" fill="' + C.muted + '">THE HUB</text>';
-  NODES.forEach(function (n) {
-    var col = (n.db === 'pg') ? C.pg : C.mongo;
-    var fill = (n.db === 'pg') ? C.pgFill : C.card;
-    s += '<rect x="' + (n.x - NW / 2) + '" y="' + (n.y - NH / 2) + '" width="' + NW + '" height="' + NH + '" rx="7" fill="' + fill + '" stroke="' + col + '" stroke-width="1.3"/>';
-    s += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" fill="' + C.text + '">' + n.label + (n.db === 'pg' ? ' ★' : '') + '</text>';
-    if (n.rel) {
-      var mx = n.x + (cx - n.x) * 0.32, my = n.y + (cy - n.y) * 0.32;
-      s += '<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="10" fill="' + (n.cross ? C.bridge : C.muted) + '">' + n.rel + (n.cross ? ' ⇄' : '') + '</text>';
-    }
-  });
-  s += '</svg>';
-  var el = document.getElementById('erd');
-  if (el) el.innerHTML = s;
-})();
-</script>
