@@ -133,6 +133,12 @@
   .reveal { opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.7,.3,1) forwards; }
   @keyframes rise { to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
+
+  /* ER diagram (radial) */
+  .erd-panel { border: 1px solid var(--line); border-radius: 16px; background: radial-gradient(720px 420px at 50% 20%, #16213f 0%, #0b1020 72%); padding: clamp(8px, 2vw, 20px); overflow-x: auto; }
+  #erd { width: 100%; min-width: 540px; } #erd svg { display: block; width: 100%; height: auto; }
+  .erd-cap { text-align: center; color: var(--faint); font-family: var(--mono); font-size: .72rem; margin-top: 12px; line-height: 1.7; }
+  .erd-cap b.c { color: var(--cyan); } .erd-cap b.a { color: var(--amber); } .erd-cap b.i { color: var(--indigo); }
 </style>
 
 <div class="wrap">
@@ -218,6 +224,13 @@
     <p class="conn-lbl" style="text-align:left;margin-top:10px">Illustrative rows. The admin sorts, filters, and opens any caterer's full file from here — the entry point to every per-caterer task.</p>
   </section>
 
+  <!-- ===================== ER DIAGRAM (radial) ===================== -->
+  <section class="reveal">
+    <p class="sec-label"><b>Entity-relationship diagram</b> — the shared schema</p>
+    <div class="erd-panel"><div id="erd"></div></div>
+    <p class="erd-cap">Every table hangs off a <b class="i">caterer</b> record — and the admin sees <b class="i">all</b> of them &nbsp;·&nbsp; <b class="c">cyan</b> = MongoDB &nbsp;·&nbsp; <b style="color:var(--pg)">blue</b> = PostgreSQL &nbsp;·&nbsp; <b class="a">amber dashed</b> = cross-database link &nbsp;·&nbsp; grey dotted = secondary reference.</p>
+  </section>
+
   <!-- ===================== SCHEMA BY DOMAIN (clustered ER) ===================== -->
   <section class="reveal">
     <p class="sec-label"><b>Schema by domain</b> — the data the admin governs</p>
@@ -286,3 +299,54 @@
   </footer>
 
 </div>
+
+<script>
+(function () {
+  var C = { hub:'#818CF8', mongo:'#38BDF8', pg:'#5B9DF9', cross:'#FBBF24',
+            line:'#2a3556', sec:'#3a4566', text:'#E7EBF7', muted:'#8C95B6', pgFill:'#142340', card:'#131A2C' };
+  var W = 1040, H = 880, cx = 520, cy = 440, RX = 440, RY = 360;
+  var NODES = [
+    { id:'banking', label:'caterer_banking', db:'pg', rel:'1:1', cross:true },
+    { id:'document', label:'document', db:'mongo' },
+    { id:'validation_item', label:'validation_item', db:'mongo' },
+    { id:'signature_request', label:'signature_request', db:'mongo' },
+    { id:'onboarding_file', label:'onboarding_file', db:'mongo', rel:'1:1' },
+    { id:'user', label:'user', db:'mongo' },
+    { id:'establishment', label:'establishment', db:'mongo' },
+    { id:'menu', label:'menu', db:'mongo' },
+    { id:'contract', label:'contract', db:'mongo' },
+    { id:'caterer_module', label:'caterer_module', db:'mongo' },
+    { id:'module', label:'module', db:'mongo', noHub:true },
+    { id:'correction', label:'correction', db:'mongo' },
+    { id:'golive', label:'golive_checklist', db:'mongo' },
+    { id:'ecoloop_ticket', label:'ecoloop_ticket', db:'mongo' },
+    { id:'ecoloop_message', label:'ecoloop_message', db:'mongo' },
+    { id:'smart_import_job', label:'smart_import_job', db:'mongo' },
+    { id:'smart_import_field', label:'smart_import_field', db:'mongo' },
+    { id:'audit_log', label:'audit_log', db:'mongo' }
+  ];
+  var N = NODES.length, pos = {};
+  NODES.forEach(function (n, i) {
+    var a = (-90 + i * (360 / N)) * Math.PI / 180, f = (i % 2 === 0) ? 1 : 0.73;
+    n.x = cx + RX * f * Math.cos(a); n.y = cy + RY * f * Math.sin(a); pos[n.id] = n;
+  });
+  var NW = 134, NH = 30, s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Admin entity relationship diagram: the caterer record at the center, admin sees all caterers">';
+  NODES.forEach(function (n) { if (n.noHub) return;
+    s += '<line x1="' + cx + '" y1="' + cy + '" x2="' + n.x + '" y2="' + n.y + '" stroke="' + (n.cross ? C.cross : C.line) + '" stroke-width="' + (n.cross ? 2 : 1.2) + '"' + (n.cross ? ' stroke-dasharray="6 5"' : '') + ' />'; });
+  [['banking','document',true],['validation_item','banking',true],['caterer_module','module',false],['signature_request','contract',false],['ecoloop_message','ecoloop_ticket',false],['smart_import_field','smart_import_job',false]].forEach(function (p) {
+    var a = pos[p[0]], b = pos[p[1]], cr = p[2];
+    s += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (cr ? C.cross : C.sec) + '" stroke-width="' + (cr ? 1.8 : 1.3) + '" stroke-dasharray="' + (cr ? '6 5' : '2 4') + '" />'; });
+  s += '<circle cx="' + cx + '" cy="' + cy + '" r="62" fill="#1c2150" stroke="' + C.hub + '" stroke-width="2"/>';
+  s += '<text x="' + cx + '" y="' + (cy - 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="15" font-weight="700" fill="' + C.hub + '">caterer</text>';
+  s += '<text x="' + cx + '" y="' + (cy + 14) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="8" letter-spacing="1" fill="' + C.muted + '">admin sees ALL</text>';
+  NODES.forEach(function (n) {
+    var col = (n.db === 'pg') ? C.pg : C.mongo, fill = (n.db === 'pg') ? C.pgFill : C.card;
+    s += '<rect x="' + (n.x - NW / 2) + '" y="' + (n.y - NH / 2) + '" width="' + NW + '" height="' + NH + '" rx="7" fill="' + fill + '" stroke="' + col + '" stroke-width="1.3"/>';
+    s += '<text x="' + n.x + '" y="' + (n.y + 4) + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11" fill="' + C.text + '">' + n.label + (n.db === 'pg' ? ' 🔒' : '') + '</text>';
+    if (n.rel) { var mx = n.x + (cx - n.x) * 0.32, my = n.y + (cy - n.y) * 0.32;
+      s += '<text x="' + mx + '" y="' + my + '" text-anchor="middle" font-family="ui-monospace,monospace" font-size="10" fill="' + (n.cross ? C.cross : C.muted) + '">' + n.rel + '</text>'; }
+  });
+  s += '</svg>';
+  var el = document.getElementById('erd'); if (el) el.innerHTML = s;
+})();
+</script>
