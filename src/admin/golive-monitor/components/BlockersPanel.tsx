@@ -1,19 +1,21 @@
-import { ShieldAlert, FileX, DollarSign, Pen, ClipboardX, Utensils, Link2, ExternalLink } from 'lucide-react'
-import type { Blocker, BlockerCategory } from '../types/golive.types'
+import { ShieldAlert, FileX, DollarSign, Pen, ClipboardX, Puzzle, ExternalLink } from 'lucide-react'
+import type { GoLiveBlockerViewModel } from '@/features/adminGolive/types/golive.types'
 
-const CATEGORY_META: Record<BlockerCategory, { label: string; icon: React.ReactNode; color: string; bg: string; border: string }> = {
-  document:   { label: 'Document',   icon: <FileX      size={13} strokeWidth={1.8} />, color: '#f87171', bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.25)' },
-  contract:   { label: 'Contract',   icon: <Pen        size={13} strokeWidth={1.8} />, color: '#fb923c', bg: 'rgba(251,146,60,0.10)',  border: 'rgba(251,146,60,0.25)'  },
-  pricing:    { label: 'Pricing',    icon: <DollarSign size={13} strokeWidth={1.8} />, color: '#fbbf24', bg: 'rgba(251,191,36,0.10)', border: 'rgba(251,191,36,0.25)' },
-  validation: { label: 'Validation', icon: <ClipboardX size={13} strokeWidth={1.8} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.10)', border: 'rgba(167,139,250,0.25)' },
-  menu:       { label: 'Menu',       icon: <Utensils   size={13} strokeWidth={1.8} />, color: '#60a5fa', bg: 'rgba(96,165,250,0.10)',  border: 'rgba(96,165,250,0.25)'  },
-  ecoloop:    { label: 'EcoLoop',    icon: <Link2      size={13} strokeWidth={1.8} />, color: '#4ade80', bg: 'rgba(74,222,128,0.10)',  border: 'rgba(74,222,128,0.25)'  },
-  banking:    { label: 'Banking',    icon: <ShieldAlert size={13} strokeWidth={1.8} />, color: '#f87171', bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.25)' },
+/** Decoration only — keyed on the real backend `owningModule` values (`sourceModule` in `golive.dto.ts`'s `GoLiveChecklistItemDTO`), not an invented category enum. */
+const MODULE_META: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string; border: string }> = {
+  'document-vault':          { label: 'Document',   icon: <FileX      size={13} strokeWidth={1.8} />, color: '#f87171', bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.25)' },
+  contracts:                 { label: 'Contract',   icon: <Pen        size={13} strokeWidth={1.8} />, color: '#fb923c', bg: 'rgba(251,146,60,0.10)',  border: 'rgba(251,146,60,0.25)'  },
+  'modules-required-setup':  { label: 'Module Setup', icon: <Puzzle   size={13} strokeWidth={1.8} />, color: '#a3e635', bg: 'rgba(163,230,53,0.10)',  border: 'rgba(163,230,53,0.25)'  },
+  validation:                { label: 'Validation', icon: <ClipboardX size={13} strokeWidth={1.8} />, color: '#a78bfa', bg: 'rgba(167,139,250,0.10)', border: 'rgba(167,139,250,0.25)' },
+  corrections:                { label: 'Correction',  icon: <ClipboardX size={13} strokeWidth={1.8} />, color: '#fbbf24', bg: 'rgba(251,191,36,0.10)', border: 'rgba(251,191,36,0.25)' },
+  banking:                   { label: 'Banking',    icon: <ShieldAlert size={13} strokeWidth={1.8} />, color: '#f87171', bg: 'rgba(248,113,113,0.10)', border: 'rgba(248,113,113,0.25)' },
+  golive:                    { label: 'Onboarding',  icon: <DollarSign size={13} strokeWidth={1.8} />, color: '#60a5fa', bg: 'rgba(96,165,250,0.10)',  border: 'rgba(96,165,250,0.25)'  },
 }
+const DEFAULT_META = { label: 'Other', icon: <ShieldAlert size={13} strokeWidth={1.8} />, color: 'var(--text-3)', bg: 'var(--bg-inner)', border: 'var(--border-strong)' }
 
 interface BlockersPanelProps {
-  blockers: Blocker[]
-  onOpenSection: (section: string) => void
+  blockers: GoLiveBlockerViewModel[]
+  onOpenSection: (blocker: GoLiveBlockerViewModel) => void
 }
 
 export function BlockersPanel({ blockers, onOpenSection }: BlockersPanelProps) {
@@ -48,10 +50,9 @@ export function BlockersPanel({ blockers, onOpenSection }: BlockersPanelProps) {
 
       <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
         {blockers.map(b => {
-          const m = CATEGORY_META[b.category]
+          const m = MODULE_META[b.owningModule] ?? DEFAULT_META
           return (
             <div key={b.id} className="px-4 py-4 flex flex-col gap-2.5">
-              {/* Title row */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
@@ -68,12 +69,12 @@ export function BlockersPanel({ blockers, onOpenSection }: BlockersPanelProps) {
                 </div>
               </div>
 
-              {/* Description */}
-              <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-3)' }}>{b.description}</p>
+              {b.description && (
+                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-3)' }}>{b.description}</p>
+              )}
 
-              {/* CTA */}
               <button
-                onClick={() => onOpenSection(b.section)}
+                onClick={() => onOpenSection(b)}
                 className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11.5px] font-semibold cursor-pointer transition-all"
                 style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>
                 <ExternalLink size={11} strokeWidth={2} />

@@ -1,5 +1,5 @@
 import { Rocket, AlertTriangle, XCircle, Users } from 'lucide-react'
-import { StatCard } from '@/features/dashboard/components/StatCard'
+import { StatCard } from '@/features/adminDashboard/components/StatCard'
 
 interface KpiCardsProps {
   ready: number

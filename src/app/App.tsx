@@ -1,25 +1,32 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AdminLayout } from '@layouts/admin/AdminLayout'
-import { ClientLayout } from '@layouts/client/ClientLayout'
+import { CatererLayout } from '@layouts/caterer/CatererLayout'
 
 import { FullPageLoader } from '@shared/ui/FullPageLoader'
 import { ErrorBoundary } from '@shared/ui/ErrorBoundary'
 import { ThemeProvider } from '@shared/context/ThemeContext'
 import { LangProvider } from '@shared/context/LangContext'
+import { AuthProvider, ProtectedRoute } from '@/auth'
+import { LoginPage } from '@/auth/pages/LoginPage'
+import { CatererAuthProvider, CatererProtectedRoute } from '@/auth/caterer'
+import { CatererLoginPage } from '@/caterer/auth/pages/CatererLoginPage'
+import { CatererSetPasswordPage } from '@/caterer/auth/pages/CatererSetPasswordPage'
+import { CatererForgotPasswordPage } from '@/caterer/auth/pages/CatererForgotPasswordPage'
+import { CatererSupportSessionEntryPage } from '@/caterer/auth/pages/CatererSupportSessionEntryPage'
 
-// Client pages
-const ClientDashboard = lazy(() => import('@/client/dashboard/pages/ClientDashboardPage').then(m => ({ default: m.ClientDashboardPage })))
-const ClientProfile   = lazy(() => import('@/client/profil/pages/ClientProfilePage').then(m => ({ default: m.ClientProfilePage })))
-const ClientBanques    = lazy(() => import('@/client/banques/pages/ClientBanquesPage').then(m => ({ default: m.ClientBanquesPage })))
-const ClientMesClients = lazy(() => import('@/client/mes-clients/pages/ClientMesClientsPage').then(m => ({ default: m.ClientMesClientsPage })))
-const ClientMenus      = lazy(() => import('@/client/menus/pages/ClientMenusPage').then(m => ({ default: m.ClientMenusPage })))
-const ClientDocVault   = lazy(() => import('@/client/document-vault/pages/ClientDocumentVaultPage').then(m => ({ default: m.ClientDocumentVaultPage })))
-const ClientContrats   = lazy(() => import('@/client/contrats/pages/ClientContratsPage').then(m => ({ default: m.ClientContratsPage })))
-const ClientModules      = lazy(() => import('@/client/modules/pages/ClientModulesPage').then(m => ({ default: m.ClientModulesPage })))
-const ClientCorrections  = lazy(() => import('@/client/corrections/pages/ClientCorrectionsPage').then(m => ({ default: m.ClientCorrectionsPage })))
-const ClientGolive       = lazy(() => import('@/client/golive/pages/ClientGolivePage').then(m => ({ default: m.ClientGolivePage })))
-const ClientEcoloop      = lazy(() => import('@/client/ecoloop/pages/ClientEcoloopPage').then(m => ({ default: m.ClientEcoloopPage })))
+// Caterer Portal pages
+const CatererDashboard = lazy(() => import('@/caterer/dashboard/pages/CatererDashboardPage').then(m => ({ default: m.CatererDashboardPage })))
+const CatererProfile   = lazy(() => import('@/caterer/profil/pages/CatererProfilePage').then(m => ({ default: m.CatererProfilePage })))
+const CatererBanking      = lazy(() => import('@/caterer/banking/pages/CatererBankingPage').then(m => ({ default: m.CatererBankingPage })))
+const CatererEstablishments = lazy(() => import('@/caterer/establishments/pages/CatererEstablishmentsPage').then(m => ({ default: m.CatererEstablishmentsPage })))
+const CatererMenus      = lazy(() => import('@/caterer/menus/pages/CatererMenusPage').then(m => ({ default: m.CatererMenusPage })))
+const CatererDocVault   = lazy(() => import('@/caterer/document-vault/pages/CatererDocumentVaultPage').then(m => ({ default: m.CatererDocumentVaultPage })))
+const CatererContracts  = lazy(() => import('@/caterer/contracts/pages/CatererContractsPage').then(m => ({ default: m.CatererContractsPage })))
+const CatererModules      = lazy(() => import('@/caterer/modules/pages/CatererModulesPage').then(m => ({ default: m.CatererModulesPage })))
+const CatererCorrections  = lazy(() => import('@/caterer/corrections/pages/CatererCorrectionsPage').then(m => ({ default: m.CatererCorrectionsPage })))
+const CatererGolive       = lazy(() => import('@/caterer/golive/pages/CatererGolivePage').then(m => ({ default: m.CatererGolivePage })))
+const CatererEcoloop      = lazy(() => import('@/caterer/ecoloop/pages/CatererEcoloopPage').then(m => ({ default: m.CatererEcoloopPage })))
 
 // Admin pages
 const Dashboard           = lazy(() => import('@admin/dashboard/pages/AdminDashboardPage').then(m => ({ default: m.Dashboard })))
@@ -37,12 +44,21 @@ function App() {
     <ThemeProvider>
     <LangProvider>
     <BrowserRouter>
+      <AuthProvider>
+      <CatererAuthProvider>
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader label="Chargement…" />}>
           <Routes>
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
 
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/caterer/login" element={<CatererLoginPage />} />
+            <Route path="/caterer/set-password" element={<CatererSetPasswordPage />} />
+            <Route path="/caterer/forgot-password" element={<CatererForgotPasswordPage />} />
+            <Route path="/caterer/support-session" element={<CatererSupportSessionEntryPage />} />
+
+            <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard"            element={<Dashboard />} />
               <Route path="caterers"             element={<CaterersInOnboarding />} />
@@ -56,26 +72,28 @@ function App() {
               <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Route>
 
-            <Route path="/client" element={<ClientLayout />}>
-              <Route index element={<Navigate to="client-dashboard" replace />} />
-              <Route path="client-dashboard" element={<ClientDashboard />} />
-              <Route path="profil"          element={<ClientProfile />} />
-              <Route path="banques"         element={<ClientBanques />} />
-              <Route path="mes-clients"     element={<ClientMesClients />} />
-              <Route path="menus"           element={<ClientMenus />} />
-              <Route path="document-vault"  element={<ClientDocVault />} />
-              <Route path="contrats"        element={<ClientContrats />} />
-              <Route path="modules"         element={<ClientModules />} />
-              <Route path="corrections"     element={<ClientCorrections />} />
-              <Route path="go-live"         element={<ClientGolive />} />
-              <Route path="ecoloop"         element={<ClientEcoloop />} />
-              <Route path="*" element={<Navigate to="client-dashboard" replace />} />
+            <Route path="/caterer" element={<CatererProtectedRoute><CatererLayout /></CatererProtectedRoute>}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard"       element={<CatererDashboard />} />
+              <Route path="profil"          element={<CatererProfile />} />
+              <Route path="banking"         element={<CatererBanking />} />
+              <Route path="establishments"  element={<CatererEstablishments />} />
+              <Route path="menus"           element={<CatererMenus />} />
+              <Route path="document-vault"  element={<CatererDocVault />} />
+              <Route path="contracts"       element={<CatererContracts />} />
+              <Route path="modules"         element={<CatererModules />} />
+              <Route path="corrections"     element={<CatererCorrections />} />
+              <Route path="go-live"         element={<CatererGolive />} />
+              <Route path="ecoloop"         element={<CatererEcoloop />} />
+              <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
+      </CatererAuthProvider>
+      </AuthProvider>
     </BrowserRouter>
     </LangProvider>
     </ThemeProvider>

@@ -56,7 +56,7 @@ export const fr = {
   header: {
     prs: 'PRS · ONBOARDING',
     portalAdmin: 'Portail Admin',
-    portalClient: 'Portail Client',
+    portalClient: 'Portail Traiteur',
     admin: 'Admin',
     client: 'Client',
     traiteurAdmin: 'Traiteur · Admin',

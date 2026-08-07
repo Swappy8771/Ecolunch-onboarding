@@ -58,7 +58,7 @@ export const en: Translations = {
   header: {
     prs: 'PRS · ONBOARDING',
     portalAdmin: 'Admin Portal',
-    portalClient: 'Client Portal',
+    portalClient: 'Caterer Portal',
     admin: 'Admin',
     client: 'Client',
     traiteurAdmin: 'Caterer · Admin',

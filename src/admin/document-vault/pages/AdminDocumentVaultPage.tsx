@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   FolderLock, Search, Download,
   Users, FileText, AlertTriangle, XCircle,
@@ -7,19 +8,54 @@ import {
 import { PageHeader } from '@shared/components/PageHeader'
 import { FilterBar } from '@shared/components/FilterBar'
 import { SelectFilter } from '@shared/components/SelectFilter'
-import { StatCard } from '@/features/dashboard/components/StatCard'
+import { FullPageLoader } from '@shared/ui/FullPageLoader'
+import { StatCard } from '@/features/adminDashboard/components/StatCard'
 import { CatererSidePanel } from '../components/CatererSidePanel'
 import { CatererVaultGrid } from '../components/CatererVaultGrid'
 import { CategoryGrid } from '../components/CategoryGrid'
 import { DocumentTable } from '../components/DocumentTable'
-import { CATERERS, CATEGORIES } from '../services/mock/documentVaultMock'
-import type { CatererVault, CategoryInfo } from '../services/mock/documentVaultMock'
+import { useDocumentVaultSummary } from '@/features/adminDocumentVault/hooks/useDocumentVaultSummary'
+import { useExportDocumentVault } from '@/features/adminDocumentVault/hooks/useExportDocumentVault'
+import type { CatererVaultSummaryViewModel, DocumentCategoryTileViewModel } from '@/features/adminDocumentVault/types/documentVault.types'
 
-const CATEGORY_LABELS = CATEGORIES.map(c => c.label)
+/**
+ * Document Status/Category filters in the Level-1 filter bar are decorative
+ * placeholders (no wiring existed for them in the original mock either —
+ * `applied.status`/`applied.category`/`applied.date` were never read
+ * anywhere in that version's `CatererVaultGrid`). Preserved as-is; the
+ * backend has no endpoint to filter the *caterer summary* grid by
+ * document-status/category/date (only per-caterer document lists support
+ * category/status filters — see `documents.routes.ts`), so wiring these
+ * would require a new aggregate endpoint, out of this integration's scope.
+ */
+const DOCUMENT_STATUS_OPTIONS = [
+  { value: 'approved',   label: 'Approved'            },
+  { value: 'pending',    label: 'Pending Review'      },
+  { value: 'rejected',   label: 'Rejected'            },
+  { value: 'correction', label: 'Correction Required' },
+]
+
+/** The real 11-value backend category enum + labels (`documents.model.ts`'s `DOCUMENT_CATEGORIES`) — decorative filter only, same unwired status as in the original mock. */
+const CATEGORY_OPTIONS = [
+  { value: 'profile',        label: 'Profile / General Information' },
+  { value: 'legal',          label: 'Legal Information' },
+  { value: 'banking',        label: 'Banks & Banking Information' },
+  { value: 'compliance',     label: 'Compliance & Permits' },
+  { value: 'insurance',      label: 'Insurance' },
+  { value: 'establishments', label: 'My Clients / Establishments' },
+  { value: 'menus',          label: 'Menus & Packages' },
+  { value: 'modules',        label: 'Modules' },
+  { value: 'contracts',      label: 'Contracts & Signatures' },
+  { value: 'golive',         label: 'Go-live' },
+  { value: 'internal',       label: 'Internal Documents' },
+]
 
 export function DocumentVault() {
-  const [selectedCaterer,  setSelectedCaterer]  = useState<CatererVault | null>(null)
-  const [selectedCategory, setSelectedCategory] = useState<CategoryInfo | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const deepLinkCatererId = searchParams.get('catererId')
+
+  const [selectedCaterer,  setSelectedCaterer]  = useState<CatererVaultSummaryViewModel | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<DocumentCategoryTileViewModel | null>(null)
   const [headerSearch,     setHeaderSearch]     = useState('')
   const [filterSearch,     setFilterSearch]     = useState('')
   const [filterStatus,     setFilterStatus]     = useState('')
@@ -28,10 +64,30 @@ export function DocumentVault() {
   const [applied, setApplied] = useState({ search: '', status: '', category: '', date: '' })
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
-  const totalCaterers    = CATERERS.length
-  const totalDocuments   = CATERERS.reduce((s, c) => s + c.totalDocs, 0)
-  const totalPending     = CATERERS.reduce((s, c) => s + c.pending, 0)
-  const totalCorrections = CATERERS.reduce((s, c) => s + c.corrections, 0)
+  const { data: caterers, isLoading, isError, error } = useDocumentVaultSummary()
+  const exportMutation = useExportDocumentVault()
+  const items = caterers ?? []
+
+  /**
+   * Deep-link target for Caterers' "Open Document Vault" action
+   * (`AdminCaterersPage.tsx`) — jumps straight to Level 2 for that caterer
+   * once the summary list has loaded, then consumes the query param so it
+   * doesn't fight with in-page navigation (Back to All Vaults, etc.).
+   */
+  useEffect(() => {
+    if (!deepLinkCatererId || selectedCaterer) return
+    const match = items.find(c => c.id === deepLinkCatererId)
+    if (match) {
+      setSelectedCaterer(match)
+      setSearchParams(params => { params.delete('catererId'); return params }, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deepLinkCatererId, items])
+
+  const totalCaterers    = items.length
+  const totalDocuments   = items.reduce((s, c) => s + c.totalDocs, 0)
+  const totalPending     = items.reduce((s, c) => s + c.pending, 0)
+  const totalCorrections = items.reduce((s, c) => s + c.corrections, 0)
 
   const hasFilter = Object.values(applied).some(v => v !== '')
 
@@ -43,7 +99,7 @@ export function DocumentVault() {
     setApplied({ search: '', status: '', category: '', date: '' })
   }
 
-  function openCaterer(c: CatererVault) { setSelectedCaterer(c); setSelectedCategory(null) }
+  function openCaterer(c: CatererVaultSummaryViewModel) { setSelectedCaterer(c); setSelectedCategory(null) }
   function goBackToList()    { setSelectedCaterer(null); setSelectedCategory(null) }
   function goBackToCaterer() { setSelectedCategory(null) }
 
@@ -66,9 +122,12 @@ export function DocumentVault() {
                 className="pl-9 pr-3 py-2.5 rounded-xl text-[12.5px] outline-none w-[180px]"
                 style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--text-2)' }} />
             </div>
-            <button className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-[12.5px] font-medium cursor-pointer transition-opacity hover:opacity-80"
+            <button
+              onClick={() => exportMutation.mutate({ search: headerSearch || applied.search || undefined, format: 'csv' })}
+              disabled={exportMutation.isPending}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-[12.5px] font-medium cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border-default)' }}>
-              <Download size={13} strokeWidth={2} />Export
+              <Download size={13} strokeWidth={2} />{exportMutation.isPending ? 'Exporting…' : 'Export'}
             </button>
           </div>
         }
@@ -90,14 +149,9 @@ export function DocumentVault() {
               style={{ background: 'var(--bg-inner)', border: `1px solid ${filterSearch ? '#a3e63550' : 'var(--border-strong)'}`, color: 'var(--text-2)' }} />
           </div>
           <SelectFilter label="Document Status" value={filterStatus} onChange={setFilterStatus}
-            options={[
-              { value: 'approved',   label: 'Approved'            },
-              { value: 'pending',    label: 'Pending Review'      },
-              { value: 'rejected',   label: 'Rejected'            },
-              { value: 'correction', label: 'Correction Required' },
-            ]} />
+            options={DOCUMENT_STATUS_OPTIONS} />
           <SelectFilter label="Category" value={filterCategory} onChange={setFilterCategory}
-            options={CATEGORY_LABELS.map(l => ({ value: l, label: l }))} />
+            options={CATEGORY_OPTIONS} />
           <SelectFilter label="Activity Date" value={filterDate} onChange={setFilterDate}
             options={[
               { value: 'today',      label: 'Today'      },
@@ -107,14 +161,23 @@ export function DocumentVault() {
         </FilterBar>
       )}
 
-      {isLevel1 && (
-        <CatererVaultGrid caterers={CATERERS} searchQuery={headerSearch || applied.search} onOpen={openCaterer} />
+      {isLevel1 && isLoading && <FullPageLoader label="Loading vaults…" />}
+
+      {isLevel1 && isError && (
+        <div className="flex flex-col items-center justify-center py-20 gap-2">
+          <AlertTriangle size={28} strokeWidth={1.2} style={{ color: '#f87171' }} />
+          <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>{error?.message ?? 'Failed to load vaults.'}</span>
+        </div>
+      )}
+
+      {isLevel1 && !isLoading && !isError && (
+        <CatererVaultGrid caterers={items} searchQuery={headerSearch || applied.search} onOpen={openCaterer} />
       )}
 
       {(isLevel2 || isLevel3) && selectedCaterer && (
         <div className="flex gap-5 min-h-0">
           <CatererSidePanel
-            caterers={CATERERS}
+            caterers={items}
             selected={selectedCaterer}
             onSelect={c => { setSelectedCaterer(c); setSelectedCategory(null) }}
           />
@@ -146,7 +209,7 @@ export function DocumentVault() {
                   <h2 className="text-[22px] font-black tracking-tight" style={{ color: 'var(--text-1)' }}>{selectedCaterer.name}</h2>
                   <div className="flex items-center gap-1.5 mt-1">
                     <MapPin size={12} strokeWidth={1.8} style={{ color: 'var(--text-4)' }} />
-                    <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>{selectedCaterer.location}</span>
+                    <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>{selectedCaterer.city || '—'}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap shrink-0">
@@ -171,7 +234,7 @@ export function DocumentVault() {
             </div>
 
             {isLevel2 && (
-              <CategoryGrid onSelectCategory={setSelectedCategory} />
+              <CategoryGrid catererId={selectedCaterer.id} onSelectCategory={setSelectedCategory} />
             )}
 
             {isLevel3 && selectedCategory && (
@@ -183,17 +246,13 @@ export function DocumentVault() {
                     <ArrowLeft size={12} strokeWidth={2} />Back to categories
                   </button>
                   <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>·</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded-md flex items-center justify-center"
-                      style={{ background: selectedCategory.color + '18', color: selectedCategory.color }}>
-                      {selectedCategory.icon}
-                    </div>
-                    <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{selectedCategory.label}</span>
-                  </div>
+                  <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{selectedCategory.label}</span>
                 </div>
                 <DocumentTable
-                  caterer={selectedCaterer}
-                  category={selectedCategory}
+                  catererId={selectedCaterer.id}
+                  catererName={selectedCaterer.name}
+                  categoryKey={String(selectedCategory.key)}
+                  categoryLabel={selectedCategory.label}
                   openMenuId={openMenuId}
                   onMenuToggle={id => setOpenMenuId(openMenuId === id ? null : id)}
                   onMenuClose={() => setOpenMenuId(null)}

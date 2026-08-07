@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Search, ChevronDown, ExternalLink, AlertTriangle } from 'lucide-react'
-import type { CatererReadiness, GoLiveStatus } from '../types/golive.types'
+import type { GoLiveListItemViewModel, GoLiveReadiness } from '@/features/adminGolive/types/golive.types'
 import { GoLiveStatusBadge } from './GoLiveStatusBadge'
 
-function ProgressBar({ pct, status }: { pct: number; status: GoLiveStatus }) {
+function ProgressBar({ pct, status }: { pct: number; status: GoLiveReadiness }) {
   const color = status === 'ready' ? '#4ade80' : status === 'blocked' ? '#f87171' : '#fbbf24'
   return (
     <div className="flex items-center gap-2">
@@ -15,26 +15,22 @@ function ProgressBar({ pct, status }: { pct: number; status: GoLiveStatus }) {
   )
 }
 
-const VERTICAL_COLOR: Record<string, string> = {
-  Schools:  '#60a5fa',
-  Daycares: '#a78bfa',
-  Camps:    '#fb923c',
-}
-
 interface CatererTableProps {
-  caterers: CatererReadiness[]
+  caterers: GoLiveListItemViewModel[]
+  catererMetaById: Map<string, { city: string; vertical: string }>
   selectedId: string | null
   onSelect: (id: string) => void
 }
 
-export function CatererTable({ caterers, selectedId, onSelect }: CatererTableProps) {
+export function CatererTable({ caterers, catererMetaById, selectedId, onSelect }: CatererTableProps) {
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<GoLiveStatus | ''>('')
+  const [statusFilter, setStatusFilter] = useState<GoLiveReadiness | ''>('')
 
   const filtered = caterers.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-                        c.city.toLowerCase().includes(search.toLowerCase())
-    const matchStatus = !statusFilter || c.status === statusFilter
+    const meta = catererMetaById.get(c.catererId)
+    const matchSearch = c.catererName.toLowerCase().includes(search.toLowerCase()) ||
+                        (meta?.city ?? '').toLowerCase().includes(search.toLowerCase())
+    const matchStatus = !statusFilter || c.readiness === statusFilter
     return matchSearch && matchStatus
   })
 
@@ -56,13 +52,13 @@ export function CatererTable({ caterers, selectedId, onSelect }: CatererTablePro
         <div className="relative">
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as GoLiveStatus | '')}
+            onChange={e => setStatusFilter(e.target.value as GoLiveReadiness | '')}
             className="appearance-none pl-3 pr-7 py-2 rounded-xl text-[12px] font-medium outline-none cursor-pointer"
             style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-2)' }}
           >
             <option value="">All statuses</option>
             <option value="ready">Ready</option>
-            <option value="not-ready">Not Ready</option>
+            <option value="not_ready">Not Ready</option>
             <option value="blocked">Blocked</option>
           </select>
           <ChevronDown size={11} strokeWidth={2} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-4)' }} />
@@ -99,11 +95,12 @@ export function CatererTable({ caterers, selectedId, onSelect }: CatererTablePro
               </thead>
               <tbody>
                 {filtered.map((c, i) => {
-                  const isSelected = c.id === selectedId
+                  const isSelected = c.catererId === selectedId
+                  const meta = catererMetaById.get(c.catererId)
                   return (
                     <tr
-                      key={c.id}
-                      onClick={() => onSelect(c.id)}
+                      key={c.catererId}
+                      onClick={() => onSelect(c.catererId)}
                       className="cursor-pointer transition-all"
                       style={{
                         borderBottom: i < filtered.length - 1 ? '1px solid var(--border-subtle)' : 'none',
@@ -116,48 +113,52 @@ export function CatererTable({ caterers, selectedId, onSelect }: CatererTablePro
                     >
                       <td className="px-4 py-3.5">
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{c.name}</span>
+                          <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{c.catererName}</span>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{c.city}</span>
-                            <span className="w-1 h-1 rounded-full" style={{ background: 'var(--text-4)' }} />
-                            <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded"
-                              style={{ background: (VERTICAL_COLOR[c.vertical] ?? '#60a5fa') + '15', color: VERTICAL_COLOR[c.vertical] ?? '#60a5fa' }}>
-                              {c.vertical}
-                            </span>
+                            <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{meta?.city || '—'}</span>
+                            {meta?.vertical && (
+                              <>
+                                <span className="w-1 h-1 rounded-full" style={{ background: 'var(--text-4)' }} />
+                                <span className="text-[10.5px] font-medium px-1.5 py-0.5 rounded"
+                                  style={{ background: 'rgba(96,165,250,0.15)', color: '#60a5fa' }}>
+                                  {meta.vertical}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3.5" style={{ minWidth: '120px' }}>
-                        <ProgressBar pct={c.progressPct} status={c.status} />
+                        <ProgressBar pct={c.onboardingProgressPct} status={c.readiness} />
                         <p className="text-[10.5px] mt-1" style={{ color: 'var(--text-4)' }}>
-                          {c.completedSteps}/{c.totalSteps} steps
+                          {c.completedCount}/{c.totalRequirements} steps
                         </p>
                       </td>
                       <td className="px-4 py-3.5">
-                        <GoLiveStatusBadge status={c.status} />
+                        <GoLiveStatusBadge status={c.readiness} />
                       </td>
                       <td className="px-4 py-3.5">
-                        {c.blockingSteps > 0 ? (
+                        {c.blockerCount > 0 ? (
                           <span className="inline-flex items-center gap-1 text-[12px] font-bold" style={{ color: '#f87171' }}>
-                            <AlertTriangle size={11} strokeWidth={2} />{c.blockingSteps}
+                            <AlertTriangle size={11} strokeWidth={2} />{c.blockerCount}
                           </span>
                         ) : (
                           <span className="text-[12px]" style={{ color: '#4ade80' }}>—</span>
                         )}
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-[12.5px] font-semibold tabular-nums" style={{ color: c.openCorrections > 0 ? '#fbbf24' : 'var(--text-4)' }}>
-                          {c.openCorrections}
+                        <span className="text-[12.5px] font-semibold tabular-nums" style={{ color: c.openCorrectionsCount > 0 ? '#fbbf24' : 'var(--text-4)' }}>
+                          {c.openCorrectionsCount}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="text-[12.5px] font-semibold tabular-nums" style={{ color: c.openValidations > 0 ? '#a78bfa' : 'var(--text-4)' }}>
-                          {c.openValidations}
+                        <span className="text-[12.5px] font-semibold tabular-nums" style={{ color: c.openValidationsCount > 0 ? '#a78bfa' : 'var(--text-4)' }}>
+                          {c.openValidationsCount}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
                         <button
-                          onClick={e => { e.stopPropagation(); onSelect(c.id) }}
+                          onClick={e => { e.stopPropagation(); onSelect(c.catererId) }}
                           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer transition-all"
                           style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}
                         >

@@ -1,10 +1,12 @@
-import { Crown, Settings, ChevronRight, Menu } from 'lucide-react'
+import { Crown, Settings, ChevronRight, Menu, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import logo from '../../assets/ecotech-logo.jpg'
 import { ThemeToggle } from '../../shared/ui/ThemeToggle'
 import { LangToggle } from '../../shared/ui/LangToggle'
 import { NotificationBell } from '../../shared/ui/NotificationBell'
 import { useLang } from '../../shared/context/LangContext'
+import { useAuth } from '../../auth/AuthProvider'
+import { displayName } from '../../features/adminAuth/mappers/auth.mapper'
 
 interface AdminHeaderProps {
   sidebarWidth: number
@@ -14,6 +16,7 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeaderProps) {
   const { t } = useLang()
+  const { user, logout } = useAuth()
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[52px] flex items-stretch"
@@ -73,6 +76,16 @@ export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeade
                 <Crown size={10} strokeWidth={2.5} />
                 {t.header.admin}
               </div>
+              {user && (
+                <button
+                  onClick={logout}
+                  title="Sign out"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all cursor-pointer"
+                  style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-default)', color: 'var(--text-3)' }}
+                >
+                  <LogOut size={13} strokeWidth={2} />
+                </button>
+              )}
             </div>
           </>
         )}
@@ -99,7 +112,7 @@ export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeade
           <LangToggle />
 
           <Link
-            to="/client/client-dashboard"
+            to="/caterer/dashboard"
             className="flex items-center gap-1.5 text-[13px] font-medium shrink-0 px-3 py-1.5 rounded-lg transition-all"
             style={{ color: 'var(--text-3)', background: 'transparent', border: '1px solid transparent' }}
             onMouseEnter={e => {
@@ -115,6 +128,22 @@ export function AdminHeader({ sidebarWidth, isDesktop, onMenuClick }: AdminHeade
             {t.header.portalClient}
             <ChevronRight size={11} strokeWidth={2} />
           </Link>
+
+          {user && (
+            <>
+              <span className="text-[12.5px] font-semibold truncate max-w-[160px]" style={{ color: 'var(--text-3)' }}>
+                {displayName(user)}
+              </span>
+              <button
+                onClick={logout}
+                title="Sign out"
+                className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all cursor-pointer"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--text-3)' }}
+              >
+                <LogOut size={13} strokeWidth={2} />
+              </button>
+            </>
+          )}
         </div>
       )}
     </header>

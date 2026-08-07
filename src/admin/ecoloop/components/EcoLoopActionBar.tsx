@@ -1,29 +1,38 @@
 import {
   Send, Lock, Link2, FileText, FileSignature, Cpu, ShieldAlert,
-  UserPlus, ArrowUpDown, XCircle, Plus
+  UserPlus, ArrowUpDown, XCircle, Plus, ClipboardList
 } from 'lucide-react'
-import type { Ticket } from '../types/ecoloop.types'
+import type { ConversationViewModel, LinkedModule } from '@/features/adminEcoloop/types/ecoloop.types'
 
 interface EcoLoopActionBarProps {
-  selected: Ticket | null
+  selected: ConversationViewModel | null
   onCreateTicket: () => void
-  onAction: (a: string) => void
+  onSendMessage: () => void
+  onAddNote: () => void
+  onLinkNew: (module: LinkedModule) => void
+  onReassign: () => void
+  onChangePriority: () => void
+  onCloseTicket: () => void
 }
 
-export function EcoLoopActionBar({ selected, onCreateTicket, onAction }: EcoLoopActionBarProps) {
+export function EcoLoopActionBar({
+  selected, onCreateTicket, onSendMessage, onAddNote, onLinkNew, onReassign, onChangePriority, onCloseTicket,
+}: EcoLoopActionBarProps) {
   const dis = !selected
+  const closed = selected?.status === 'closed'
 
-  const actions: { id: string; label: string; icon: React.ReactNode; style: 'default' | 'accent' | 'danger' | 'purple' }[] = [
-    { id: 'send-message',      label: 'Send Message',          icon: <Send         size={12} strokeWidth={2} />, style: 'accent'  },
-    { id: 'add-note',          label: 'Add Internal Note',     icon: <Lock         size={12} strokeWidth={2} />, style: 'purple'  },
-    { id: 'link-validation',   label: 'Link Validation Item',  icon: <Link2        size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'link-document',     label: 'Link Document',         icon: <FileText     size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'link-contract',     label: 'Link Contract',         icon: <FileSignature size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'link-smart-import', label: 'Link Smart Import',     icon: <Cpu          size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'link-golive',       label: 'Link Go-live Blocker',  icon: <ShieldAlert  size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'reassign',          label: 'Reassign',              icon: <UserPlus     size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'change-priority',   label: 'Change Priority',       icon: <ArrowUpDown  size={12} strokeWidth={2} />, style: 'default' },
-    { id: 'close-ticket',      label: 'Close Ticket',          icon: <XCircle      size={12} strokeWidth={2} />, style: 'danger'  },
+  const actions: { id: string; label: string; icon: React.ReactNode; style: 'default' | 'accent' | 'danger' | 'purple'; onClick: () => void; disabled?: boolean }[] = [
+    { id: 'send-message',      label: 'Send Message',          icon: <Send          size={12} strokeWidth={2} />, style: 'accent',  onClick: onSendMessage },
+    { id: 'add-note',          label: 'Add Internal Note',     icon: <Lock          size={12} strokeWidth={2} />, style: 'purple',  onClick: onAddNote },
+    { id: 'link-validation',   label: 'Link Validation Item',  icon: <Link2         size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('validation') },
+    { id: 'link-document',     label: 'Link Document',         icon: <FileText      size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('documents') },
+    { id: 'link-contract',     label: 'Link Contract',         icon: <FileSignature size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('contracts') },
+    { id: 'link-smart-import', label: 'Link Smart Import',     icon: <Cpu           size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('smart-import') },
+    { id: 'link-golive',       label: 'Link Go-live Blocker',  icon: <ShieldAlert   size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('go-live') },
+    { id: 'link-correction',   label: 'Link Correction',       icon: <ClipboardList size={12} strokeWidth={2} />, style: 'default', onClick: () => onLinkNew('corrections') },
+    { id: 'reassign',          label: 'Reassign',              icon: <UserPlus      size={12} strokeWidth={2} />, style: 'default', onClick: onReassign },
+    { id: 'change-priority',   label: 'Change Priority',       icon: <ArrowUpDown   size={12} strokeWidth={2} />, style: 'default', onClick: onChangePriority },
+    { id: 'close-ticket',      label: 'Close Ticket',          icon: <XCircle       size={12} strokeWidth={2} />, style: 'danger',  onClick: onCloseTicket, disabled: closed },
   ]
 
   const bg = {
@@ -61,7 +70,7 @@ export function EcoLoopActionBar({ selected, onCreateTicket, onAction }: EcoLoop
       {selected ? (
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent)' }} />
-          <span className="text-[11.5px] font-semibold shrink-0" style={{ color: 'var(--text-3)' }}>{selected.number}</span>
+          <span className="text-[11.5px] font-semibold shrink-0" style={{ color: 'var(--text-3)' }}>{selected.id.slice(0, 8)}</span>
         </div>
       ) : (
         <span className="text-[11.5px] shrink-0" style={{ color: 'var(--text-4)' }}>Select a ticket</span>
@@ -71,8 +80,8 @@ export function EcoLoopActionBar({ selected, onCreateTicket, onAction }: EcoLoop
       <div className="flex items-center gap-1.5">
         {actions.map(a => (
           <button key={a.id}
-            disabled={dis}
-            onClick={() => onAction(a.id)}
+            disabled={dis || a.disabled}
+            onClick={a.onClick}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11.5px] font-semibold cursor-pointer transition-all disabled:opacity-35 disabled:cursor-not-allowed shrink-0"
             style={{ background: bg[a.style], color: fg[a.style], border: `1px solid ${bd[a.style]}` }}>
             {a.icon}{a.label}

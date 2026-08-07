@@ -1,6 +1,10 @@
 import { useState } from 'react'
-import { X, Plus } from 'lucide-react'
-import type { Priority, TicketCategory } from '../types/ecoloop.types'
+import { X, Plus, AlertTriangle } from 'lucide-react'
+import { useAuth } from '@/auth/AuthProvider'
+import { displayName } from '@/features/adminAuth/mappers/auth.mapper'
+import { useCaterers } from '@/features/adminCaterers/hooks/useCaterers'
+import { useCreateTicket } from '@/features/adminEcoloop/hooks/useEcoLoopActions'
+import type { ConversationPriority } from '@/features/adminEcoloop/types/ecoloop.types'
 
 const inputStyle = {
   background: 'var(--bg-inner)',
@@ -9,18 +13,29 @@ const inputStyle = {
 }
 
 export function CreateTicketModal({ onClose }: { onClose: () => void }) {
-  const [form, setForm] = useState({
-    caterer: '',
-    subject: '',
-    category: '' as TicketCategory | '',
-    priority: 'medium' as Priority,
-  })
+  const { user } = useAuth()
+  const caterersQuery = useCaterers({ limit: 100 })
+  const createMutation = useCreateTicket()
 
-  function set<K extends keyof typeof form>(k: K, v: typeof form[K]) {
-    setForm(prev => ({ ...prev, [k]: v }))
+  const [catererId, setCatererId] = useState('')
+  const [subject, setSubject] = useState('')
+  const [priority, setPriority] = useState<ConversationPriority>('normal')
+  const [message, setMessage] = useState('')
+
+  const valid = catererId && subject.trim().length >= 3 && message.trim().length > 0
+
+  function handleSubmit() {
+    if (!valid || !user) return
+    createMutation.mutate(
+      {
+        catererId,
+        subject: subject.trim(),
+        priority,
+        initialMessage: { senderId: user.id, senderName: displayName(user), content: message.trim() },
+      },
+      { onSuccess: onClose },
+    )
   }
-
-  const valid = form.caterer && form.subject && form.category
 
   return (
     <div
@@ -44,52 +59,50 @@ export function CreateTicketModal({ onClose }: { onClose: () => void }) {
 
         {/* Body */}
         <div className="flex flex-col gap-4 px-6 py-5">
-          {/* Caterer */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Caterer <span style={{ color: '#f87171' }}>*</span></label>
-            <input value={form.caterer} onChange={e => set('caterer', e.target.value)}
-              placeholder="Select or type caterer name"
-              className="px-3 py-2.5 rounded-xl text-[13px] outline-none"
-              style={inputStyle} />
+            <select value={catererId} onChange={e => setCatererId(e.target.value)}
+              className="px-3 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer" style={inputStyle}>
+              <option value="">Select a caterer…</option>
+              {caterersQuery.data?.items.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
           </div>
 
-          {/* Subject */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Subject <span style={{ color: '#f87171' }}>*</span></label>
-            <input value={form.subject} onChange={e => set('subject', e.target.value)}
+            <input value={subject} onChange={e => setSubject(e.target.value)}
               placeholder="Describe the issue or follow-up"
               className="px-3 py-2.5 rounded-xl text-[13px] outline-none"
               style={inputStyle} />
           </div>
 
-          {/* Category + Priority */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Category <span style={{ color: '#f87171' }}>*</span></label>
-              <select value={form.category} onChange={e => set('category', e.target.value as TicketCategory | '')}
-                className="px-3 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer"
-                style={inputStyle}>
-                <option value="">Select…</option>
-                <option value="correction-request">Correction Request</option>
-                <option value="client-message">Client Message</option>
-                <option value="validation-followup">Validation Follow-up</option>
-                <option value="contract-followup">Contract Follow-up</option>
-                <option value="golive-blocker">Go-live Blocker</option>
-                <option value="internal">Internal</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Priority</label>
-              <select value={form.priority} onChange={e => set('priority', e.target.value as Priority)}
-                className="px-3 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer"
-                style={inputStyle}>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Priority</label>
+            <select value={priority} onChange={e => setPriority(e.target.value as ConversationPriority)}
+              className="px-3 py-2.5 rounded-xl text-[13px] outline-none cursor-pointer"
+              style={inputStyle}>
+              <option value="low">Low</option>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold" style={{ color: 'var(--text-3)' }}>Initial Message <span style={{ color: '#f87171' }}>*</span></label>
+            <textarea value={message} onChange={e => setMessage(e.target.value)} rows={3}
+              placeholder="What does the caterer need to know or do?"
+              className="px-3 py-2.5 rounded-xl text-[13px] outline-none resize-none"
+              style={inputStyle} />
+          </div>
+
+          {createMutation.isError && (
+            <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl"
+              style={{ background: 'rgba(248,113,113,0.10)', border: '1px solid rgba(248,113,113,0.28)' }}>
+              <AlertTriangle size={13} strokeWidth={2} style={{ color: '#f87171' }} />
+              <span className="text-[12.5px]" style={{ color: '#f87171' }}>{createMutation.error.message}</span>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -100,10 +113,11 @@ export function CreateTicketModal({ onClose }: { onClose: () => void }) {
             style={{ background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border-default)' }}>
             Cancel
           </button>
-          <button disabled={!valid}
+          <button disabled={!valid || createMutation.isPending} onClick={handleSubmit}
             className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer disabled:opacity-40"
             style={{ background: 'var(--accent)', color: '#07070a' }}>
-            <Plus size={14} strokeWidth={2.5} />Create Ticket
+            <Plus size={14} strokeWidth={2.5} />
+            {createMutation.isPending ? 'Creating…' : 'Create Ticket'}
           </button>
         </div>
       </div>

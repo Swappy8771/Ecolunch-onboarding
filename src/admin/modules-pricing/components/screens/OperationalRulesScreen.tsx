@@ -1,190 +1,166 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, DollarSign, CreditCard, Clock, Bell, BarChart2, Tag, AlertTriangle, CheckCircle2 } from 'lucide-react'
-import type { CatererSetup, OperationalRule, RuleSection } from '../../types/modules.types'
+import { ChevronDown, ChevronRight, DollarSign, CreditCard, Clock, Bell, BarChart2, Tag, Plus, Trash2 } from 'lucide-react'
+import { ModuleSelector } from '../ModuleSelector'
+import { useModuleConfigurationDetail } from '@/features/adminModulesPricing/hooks/useModuleConfigurationDetail'
+import { useSaveConfiguration } from '@/features/adminModulesPricing/hooks/useModuleMutations'
+import type { CatererModuleViewModel } from '@/features/adminModulesPricing/types/modulesPricing.types'
 
-const SECTION_META: Record<RuleSection, { label: string; icon: React.ReactNode; color: string }> = {
-  payout:        { label: 'Payout',        icon: <DollarSign size={14} strokeWidth={1.8} />, color: '#4ade80'  },
-  credit:        { label: 'Credit',        icon: <CreditCard size={14} strokeWidth={1.8} />, color: '#60a5fa'  },
-  cutoff:        { label: 'Order Cutoff',  icon: <Clock      size={14} strokeWidth={1.8} />, color: '#fbbf24'  },
-  notifications: { label: 'Notifications', icon: <Bell       size={14} strokeWidth={1.8} />, color: '#a78bfa'  },
-  reports:       { label: 'Reports',       icon: <BarChart2  size={14} strokeWidth={1.8} />, color: '#f97316'  },
-  labels:        { label: 'Labels',        icon: <Tag        size={14} strokeWidth={1.8} />, color: '#e879f9'  },
+type RuleKey = 'cutoffRules' | 'payoutRules' | 'creditRules' | 'notificationSettings' | 'reportSettings' | 'labelSettings'
+
+const SECTION_META: Record<RuleKey, { label: string; icon: React.ReactNode; color: string }> = {
+  payoutRules:          { label: 'Payout',        icon: <DollarSign size={14} strokeWidth={1.8} />, color: '#4ade80' },
+  creditRules:          { label: 'Credit',        icon: <CreditCard size={14} strokeWidth={1.8} />, color: '#60a5fa' },
+  cutoffRules:          { label: 'Order Cutoff',  icon: <Clock      size={14} strokeWidth={1.8} />, color: '#fbbf24' },
+  notificationSettings: { label: 'Notifications', icon: <Bell       size={14} strokeWidth={1.8} />, color: '#a78bfa' },
+  reportSettings:       { label: 'Reports',       icon: <BarChart2  size={14} strokeWidth={1.8} />, color: '#f97316' },
+  labelSettings:        { label: 'Labels',        icon: <Tag        size={14} strokeWidth={1.8} />, color: '#e879f9' },
 }
 
-function RuleRow({ rule, onToggle }: { rule: OperationalRule; onToggle: (id: string) => void }) {
-  const statusColor = rule.status === 'pass' ? '#4ade80' : rule.status === 'warning' ? '#fbbf24' : rule.status === 'error' ? '#f87171' : 'var(--text-4)'
-  const StatusIcon = rule.status === 'pass' ? CheckCircle2 : rule.status === 'warning' ? AlertTriangle : rule.status === 'error' ? AlertTriangle : null
+type Row = { key: string; value: string }
 
-  return (
-    <div className="flex items-center gap-4 py-3 px-4 rounded-xl transition-all"
-      style={{ borderBottom: '1px solid var(--border-subtle)' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
-      {/* Toggle */}
-      <button
-        onClick={() => onToggle(rule.id)}
-        className="relative cursor-pointer rounded-full shrink-0 transition-colors"
-        style={{
-          width: '32px', height: '18px',
-          background: rule.enabled ? 'var(--accent)' : 'var(--bg-inner)',
-          border: `1px solid ${rule.enabled ? 'var(--accent)' : 'var(--border-strong)'}`,
-        }}
-      >
-        <span className="absolute top-[2px] rounded-full transition-all"
-          style={{
-            width: '12px', height: '12px',
-            background: rule.enabled ? '#07070a' : 'var(--text-4)',
-            left: rule.enabled ? '17px' : '2px',
-          }} />
-      </button>
-
-      {/* Text */}
-      <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold" style={{ color: rule.enabled ? 'var(--text-1)' : 'var(--text-4)' }}>{rule.label}</p>
-        <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{rule.description}</p>
-      </div>
-
-      {/* Value */}
-      {rule.value && (
-        <span className="text-[12px] font-medium px-2.5 py-1 rounded-lg shrink-0"
-          style={{ background: 'var(--bg-inner)', color: 'var(--text-2)', border: '1px solid var(--border-strong)' }}>
-          {rule.value}
-        </span>
-      )}
-
-      {/* Status */}
-      <div className="shrink-0">
-        {StatusIcon && <StatusIcon size={13} strokeWidth={2} style={{ color: statusColor }} />}
-      </div>
-    </div>
-  )
+function toRows(obj: Record<string, unknown>): Row[] {
+  return Object.entries(obj).map(([key, value]) => ({ key, value: typeof value === 'string' ? value : JSON.stringify(value) }))
 }
 
-function Section({
-  section, rules, expanded, onToggle, onToggleRule,
-}: {
-  section: RuleSection
-  rules: OperationalRule[]
-  expanded: boolean
-  onToggle: () => void
-  onToggleRule: (id: string) => void
-}) {
-  const meta = SECTION_META[section]
-  const warnings = rules.filter(r => r.status === 'warning' || r.status === 'error').length
-  const enabled = rules.filter(r => r.enabled).length
+function rowsToObject(rows: Row[]): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const r of rows) {
+    if (!r.key.trim()) continue
+    try { out[r.key] = JSON.parse(r.value) } catch { out[r.key] = r.value }
+  }
+  return out
+}
+
+function RuleSection({
+  ruleKey, rows, expanded, onToggle, onChange,
+}: { ruleKey: RuleKey; rows: Row[]; expanded: boolean; onToggle: () => void; onChange: (rows: Row[]) => void }) {
+  const meta = SECTION_META[ruleKey]
+
+  function updateRow(idx: number, field: 'key' | 'value', val: string) {
+    onChange(rows.map((r, i) => i === idx ? { ...r, [field]: val } : r))
+  }
+  function addRow() { onChange([...rows, { key: '', value: '' }]) }
+  function removeRow(idx: number) { onChange(rows.filter((_, i) => i !== idx)) }
 
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-      <button onClick={onToggle}
-        className="w-full flex items-center justify-between px-5 py-4 cursor-pointer"
-        style={{ background: expanded ? 'var(--bg-inner)' : 'transparent' }}>
+      <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 cursor-pointer" style={{ background: expanded ? 'var(--bg-inner)' : 'transparent' }}>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-            style={{ background: meta.color + '16', color: meta.color, border: `1px solid ${meta.color}28` }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: meta.color + '16', color: meta.color, border: `1px solid ${meta.color}28` }}>
             {meta.icon}
           </div>
           <div className="text-left">
             <p className="text-[13.5px] font-bold" style={{ color: 'var(--text-1)' }}>{meta.label}</p>
-            <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>
-              {enabled}/{rules.length} enabled
-              {warnings > 0 && <span style={{ color: '#fbbf24' }}> · {warnings} {warnings === 1 ? 'issue' : 'issues'}</span>}
-            </p>
+            <p className="text-[11px]" style={{ color: 'var(--text-4)' }}>{rows.length} field{rows.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {warnings > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold"
-              style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.25)' }}>
-              {warnings}
-            </span>
-          )}
-          {expanded ? <ChevronDown size={14} strokeWidth={2} style={{ color: 'var(--text-4)' }} />
-                    : <ChevronRight size={14} strokeWidth={2} style={{ color: 'var(--text-4)' }} />}
-        </div>
+        {expanded ? <ChevronDown size={14} strokeWidth={2} style={{ color: 'var(--text-4)' }} /> : <ChevronRight size={14} strokeWidth={2} style={{ color: 'var(--text-4)' }} />}
       </button>
 
       {expanded && (
-        <div className="px-2 py-1">
-          {rules.map(r => (
-            <RuleRow key={r.id} rule={r} onToggle={onToggleRule} />
+        <div className="px-5 py-4 flex flex-col gap-2">
+          {rows.length === 0 && <p className="text-[12px] mb-2" style={{ color: 'var(--text-4)' }}>No fields configured yet.</p>}
+          {rows.map((r, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <input value={r.key} onChange={e => updateRow(idx, 'key', e.target.value)} placeholder="key"
+                className="w-40 px-2.5 py-1.5 rounded-lg text-[12.5px] font-mono outline-none" style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-1)' }} />
+              <input value={r.value} onChange={e => updateRow(idx, 'value', e.target.value)} placeholder="value"
+                className="flex-1 px-2.5 py-1.5 rounded-lg text-[12.5px] outline-none" style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-strong)', color: 'var(--text-1)' }} />
+              <button onClick={() => removeRow(idx)} className="cursor-pointer p-1.5" style={{ color: '#f87171' }}><Trash2 size={13} strokeWidth={1.8} /></button>
+            </div>
           ))}
+          <button onClick={addRow} className="flex items-center gap-1.5 self-start px-3 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer mt-1"
+            style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
+            <Plus size={12} strokeWidth={2} />Add Field
+          </button>
         </div>
       )}
     </div>
   )
 }
 
-export function OperationalRulesScreen({ setup }: { setup: CatererSetup }) {
-  const [rules, setRules] = useState(setup.rules)
-  const [expanded, setExpanded] = useState<Set<RuleSection>>(new Set(['payout', 'credit']))
+/**
+ * The backend stores these 6 rule buckets as free-form JSON (`Schema.Types.Mixed`) with no named
+ * sub-fields — a plain key/value editor per bucket is the only honest UI here (no fabricated toggle
+ * rows/status pills the schema doesn't actually back).
+ */
+export function OperationalRulesScreen({ catererId, modules }: { catererId: string; modules: CatererModuleViewModel[] }) {
+  const active = modules.filter(m => m.status !== 'inactive')
+  const [selectedKey, setSelectedKey] = useState<string>(active[0]?.key ?? modules[0]?.key ?? '')
+  const detailQuery = useModuleConfigurationDetail(catererId, selectedKey, Boolean(selectedKey))
+  const saveMutation = useSaveConfiguration()
 
-  const sections = Object.keys(SECTION_META) as RuleSection[]
+  const [expanded, setExpanded] = useState<Set<RuleKey>>(new Set(['payoutRules', 'creditRules']))
+  const [rowsBySection, setRowsBySection] = useState<Record<RuleKey, Row[]>>({
+    cutoffRules: [], payoutRules: [], creditRules: [], notificationSettings: [], reportSettings: [], labelSettings: [],
+  })
 
-  function toggleSection(s: RuleSection) {
+  // Adjust form state during render when fresh data arrives, rather than an
+  // effect + setState (which triggers a redundant extra render) — see
+  // `FoundingPartnerScreen.tsx` for the same pattern.
+  const [prefilledFor, setPrefilledFor] = useState<typeof detailQuery.data>(undefined)
+  if (detailQuery.data && detailQuery.data !== prefilledFor) {
+    setPrefilledFor(detailQuery.data)
+    setRowsBySection({
+      cutoffRules: toRows(detailQuery.data.cutoffRules),
+      payoutRules: toRows(detailQuery.data.payoutRules),
+      creditRules: toRows(detailQuery.data.creditRules),
+      notificationSettings: toRows(detailQuery.data.notificationSettings),
+      reportSettings: toRows(detailQuery.data.reportSettings),
+      labelSettings: toRows(detailQuery.data.labelSettings),
+    })
+  }
+
+  function toggleSection(s: RuleKey) {
     setExpanded(prev => {
       const next = new Set(prev)
-      next.has(s) ? next.delete(s) : next.add(s)
+      if (next.has(s)) next.delete(s)
+      else next.add(s)
       return next
     })
   }
 
-  function toggleRule(id: string) {
-    setRules(prev => prev.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r))
+  function save() {
+    saveMutation.mutate({
+      catererId, moduleKey: selectedKey,
+      cutoffRules: rowsToObject(rowsBySection.cutoffRules),
+      payoutRules: rowsToObject(rowsBySection.payoutRules),
+      creditRules: rowsToObject(rowsBySection.creditRules),
+      notificationSettings: rowsToObject(rowsBySection.notificationSettings),
+      reportSettings: rowsToObject(rowsBySection.reportSettings),
+      labelSettings: rowsToObject(rowsBySection.labelSettings),
+    })
   }
 
-  const totalWarnings = rules.filter(r => r.status === 'warning' || r.status === 'error').length
-  const totalEnabled  = rules.filter(r => r.enabled).length
+  const sections = Object.keys(SECTION_META) as RuleKey[]
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Summary strip */}
-      <div className="flex items-center gap-4 flex-wrap px-5 py-3.5 rounded-2xl"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-        {[
-          { label: 'Total Rules', value: rules.length, color: 'var(--text-1)' },
-          { label: 'Enabled',     value: totalEnabled,  color: '#4ade80' },
-          { label: 'Disabled',    value: rules.length - totalEnabled, color: 'var(--text-4)' },
-          { label: 'Issues',      value: totalWarnings, color: totalWarnings > 0 ? '#fbbf24' : '#4ade80' },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <span className="text-[20px] font-black tabular-nums" style={{ color }}>{value}</span>
-            <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>{label}</span>
+      <ModuleSelector modules={modules} selectedKey={selectedKey} onChange={setSelectedKey} />
+
+      {detailQuery.isLoading ? (
+        <p className="text-[13px]" style={{ color: 'var(--text-4)' }}>Loading…</p>
+      ) : (
+        <>
+          {sections.map(s => (
+            <RuleSection
+              key={s}
+              ruleKey={s}
+              rows={rowsBySection[s]}
+              expanded={expanded.has(s)}
+              onToggle={() => toggleSection(s)}
+              onChange={rows => setRowsBySection(prev => ({ ...prev, [s]: rows }))}
+            />
+          ))}
+          <div>
+            <button onClick={save} disabled={saveMutation.isPending}
+              className="px-5 py-2.5 rounded-xl text-[13px] font-semibold cursor-pointer disabled:opacity-50"
+              style={{ background: 'var(--accent)', color: '#07070a' }}>
+              {saveMutation.isPending ? 'Saving…' : 'Save Configuration'}
+            </button>
           </div>
-        ))}
-        <div className="ml-auto flex gap-2">
-          <button onClick={() => setExpanded(new Set(sections))}
-            className="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer"
-            style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
-            Expand All
-          </button>
-          <button onClick={() => setExpanded(new Set())}
-            className="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold cursor-pointer"
-            style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
-            Collapse All
-          </button>
-        </div>
-      </div>
-
-      {totalWarnings > 0 && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
-          style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.22)' }}>
-          <AlertTriangle size={14} strokeWidth={2} style={{ color: '#fbbf24' }} />
-          <p className="text-[12.5px]" style={{ color: '#fbbf24' }}>
-            <strong>{totalWarnings}</strong> operational {totalWarnings === 1 ? 'rule needs' : 'rules need'} attention — review before generating contract.
-          </p>
-        </div>
+        </>
       )}
-
-      {sections.map(s => (
-        <Section
-          key={s}
-          section={s}
-          rules={rules.filter(r => r.section === s)}
-          expanded={expanded.has(s)}
-          onToggle={() => toggleSection(s)}
-          onToggleRule={toggleRule}
-        />
-      ))}
     </div>
   )
 }

@@ -5,8 +5,9 @@ import {
   LayoutDashboard, UserCheck,
   ClipboardCheck, FolderLock, FileText,
   MessageCircle, SlidersHorizontal, Rocket, ShieldCheck,
-  ChevronsLeft, ChevronsRight, X,
+  ChevronsLeft, ChevronsRight, X, LogOut,
 } from 'lucide-react'
+import { useAuth } from '@/auth'
 
 export type NavItemId =
   | 'dashboard' | 'caterers' | 'centre-validation'
@@ -63,6 +64,12 @@ function NavContent({ collapsed, onClose }: { collapsed: boolean; onClose?: () =
   const { pathname } = useLocation()
   const activeItem = useMemo(() => inferActiveAdminNavId(pathname), [pathname])
   const { t } = useLang()
+  const { logout } = useAuth()
+
+  function handleLogout() {
+    onClose?.()
+    logout()
+  }
   const NAV_LABELS: Record<NavItemId, string> = {
     dashboard:            t.adminSidebar.nav.dashboard,
     caterers:             t.adminSidebar.nav.caterers,
@@ -176,6 +183,35 @@ function NavContent({ collapsed, onClose }: { collapsed: boolean; onClose?: () =
           </div>
         </div>
       )}
+
+      {/* Sign out */}
+      <div className="px-3 pb-3 shrink-0" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 12 }}>
+        {collapsed ? (
+          <div className="flex justify-center">
+            <button
+              onClick={handleLogout}
+              title="Log out"
+              className="w-10 h-10 flex items-center justify-center rounded-xl transition-all cursor-pointer"
+              style={{ color: 'var(--text-3)' }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'rgba(248,113,113,0.10)'; el.style.color = '#f87171' }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'transparent'; el.style.color = 'var(--text-3)' }}
+            >
+              <LogOut size={16} strokeWidth={1.8} />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 rounded-xl text-left transition-all duration-150 cursor-pointer"
+            style={{ padding: '9px 12px', color: 'var(--text-3)' }}
+            onMouseEnter={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'rgba(248,113,113,0.10)'; el.style.color = '#f87171' }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLButtonElement; el.style.background = 'transparent'; el.style.color = 'var(--text-3)' }}
+          >
+            <LogOut size={16} strokeWidth={1.8} style={{ flexShrink: 0 }} />
+            <span className="flex-1 text-[13px] font-medium truncate">Log out</span>
+          </button>
+        )}
+      </div>
     </>
   )
 }

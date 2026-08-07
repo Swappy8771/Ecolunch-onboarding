@@ -1,10 +1,10 @@
 import { MapPin } from 'lucide-react'
-import type { CatererVault } from '../services/mock/documentVaultMock'
+import type { CatererVaultSummaryViewModel } from '@/features/adminDocumentVault/types/documentVault.types'
 
 interface CatererSidePanelProps {
-  caterers: CatererVault[]
-  selected: CatererVault
-  onSelect: (c: CatererVault) => void
+  caterers: CatererVaultSummaryViewModel[]
+  selected: CatererVaultSummaryViewModel
+  onSelect: (c: CatererVaultSummaryViewModel) => void
 }
 
 export function CatererSidePanel({ caterers, selected, onSelect }: CatererSidePanelProps) {
@@ -48,7 +48,7 @@ export function CatererSidePanel({ caterers, selected, onSelect }: CatererSidePa
               </div>
               <div className="flex items-center gap-1 mt-0.5">
                 <MapPin size={9} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
-                <span className="text-[11px] truncate" style={{ color: 'var(--text-4)' }}>{c.location}</span>
+                <span className="text-[11px] truncate" style={{ color: 'var(--text-4)' }}>{c.city || '—'}</span>
               </div>
             </button>
           )

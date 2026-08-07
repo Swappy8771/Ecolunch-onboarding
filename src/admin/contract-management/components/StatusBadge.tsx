@@ -1,8 +1,8 @@
-import type { ContractStatus } from '../types/contract.types'
-import { STATUS_META } from '../services/mock/contractsMock'
+import type { ContractStatus } from '@/features/adminContracts'
+import { CONTRACT_STATUS_META } from '@/features/adminContracts'
 
 export function StatusBadge({ status }: { status: ContractStatus }) {
-  const m = STATUS_META[status]
+  const m = CONTRACT_STATUS_META[status]
   return (
     <span
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap"

@@ -1,10 +1,25 @@
 import { useState } from 'react'
 import { Lock, Plus } from 'lucide-react'
-import type { InternalNote } from '../../types/ecoloop.types'
+import type { MessageViewModel } from '@/features/adminEcoloop/types/ecoloop.types'
 
-export function InternalNotesSection({ notes }: { notes: InternalNote[] }) {
+interface InternalNotesSectionProps {
+  messages: MessageViewModel[]
+  isSubmitting: boolean
+  onAdd: (content: string) => void
+}
+
+export function InternalNotesSection({ messages, isSubmitting, onAdd }: InternalNotesSectionProps) {
+  const notes = messages.filter(m => m.isInternal)
   const [draft, setDraft] = useState('')
   const [adding, setAdding] = useState(false)
+
+  function handleSave() {
+    const content = draft.trim()
+    if (!content) return
+    onAdd(content)
+    setDraft('')
+    setAdding(false)
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -35,11 +50,11 @@ export function InternalNotesSection({ notes }: { notes: InternalNote[] }) {
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
                       style={{ background: 'rgba(167,139,250,0.15)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.28)' }}>
-                      {n.author.charAt(0)}
+                      {n.senderName.charAt(0)}
                     </div>
-                    <span className="text-[12px] font-semibold" style={{ color: '#a78bfa' }}>{n.author}</span>
+                    <span className="text-[12px] font-semibold" style={{ color: '#a78bfa' }}>{n.senderName}</span>
                   </div>
-                  <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{n.ts}</span>
+                  <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{new Date(n.createdAt).toLocaleString()}</span>
                 </div>
                 <p className="text-[12.5px] leading-relaxed ml-8" style={{ color: 'var(--text-3)' }}>{n.content}</p>
               </div>
@@ -64,10 +79,10 @@ export function InternalNotesSection({ notes }: { notes: InternalNote[] }) {
                 style={{ background: 'var(--bg-card)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
                 Cancel
               </button>
-              <button disabled={!draft.trim()}
+              <button disabled={!draft.trim() || isSubmitting} onClick={handleSave}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer disabled:opacity-40"
                 style={{ background: 'rgba(167,139,250,0.15)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.30)' }}>
-                <Lock size={11} strokeWidth={2} />Save Note
+                <Lock size={11} strokeWidth={2} />{isSubmitting ? 'Saving…' : 'Save Note'}
               </button>
             </div>
           </div>

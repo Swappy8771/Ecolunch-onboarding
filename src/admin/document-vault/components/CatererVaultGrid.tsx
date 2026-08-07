@@ -1,17 +1,17 @@
 import { FolderLock, MapPin, Clock } from 'lucide-react'
-import type { CatererVault } from '../services/mock/documentVaultMock'
+import type { CatererVaultSummaryViewModel } from '@/features/adminDocumentVault/types/documentVault.types'
 
 interface CatererVaultGridProps {
-  caterers: CatererVault[]
+  caterers: CatererVaultSummaryViewModel[]
   searchQuery: string
-  onOpen: (c: CatererVault) => void
+  onOpen: (c: CatererVaultSummaryViewModel) => void
 }
 
 export function CatererVaultGrid({ caterers, searchQuery, onOpen }: CatererVaultGridProps) {
   const filtered = caterers.filter(c =>
     !searchQuery ||
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.location.toLowerCase().includes(searchQuery.toLowerCase())
+    c.city.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   if (filtered.length === 0) {
@@ -45,7 +45,7 @@ export function CatererVaultGrid({ caterers, searchQuery, onOpen }: CatererVault
             <p className="text-[15px] font-bold" style={{ color: 'var(--text-1)' }}>{c.name}</p>
             <div className="flex items-center gap-1.5 mt-1">
               <MapPin size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)' }} />
-              <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>{c.location}</span>
+              <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>{c.city || '—'}</span>
             </div>
           </div>
 
@@ -74,7 +74,9 @@ export function CatererVaultGrid({ caterers, searchQuery, onOpen }: CatererVault
 
           <div className="flex items-center gap-1.5">
             <Clock size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)' }} />
-            <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>Last activity {c.lastActivity}</span>
+            <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>
+              Last activity {c.lastActivity ? c.lastActivity.slice(0, 10) : '—'}
+            </span>
           </div>
 
           <button

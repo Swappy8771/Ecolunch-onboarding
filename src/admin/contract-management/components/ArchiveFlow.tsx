@@ -1,12 +1,21 @@
-import { Shield, Archive, Database, Rocket, CheckCircle2, Check } from 'lucide-react'
-import type { Contract } from '../types/contract.types'
+import { Shield, Database, CheckCircle2, Check } from 'lucide-react'
+import type { ContractDetailViewModel } from '@/features/adminContracts'
 
-export function ArchiveFlow({ contract }: { contract: Contract }) {
+/**
+ * Redesigned around the real backend DTOs (Phase 4B §7) — no more
+ * `dropboxStoragePath`/`documentVaultLinked`/`goLiveReEvaluated` (none of
+ * these have a backend equivalent). Only three real facts exist:
+ * `status === 'signed'`, and whether `signedDocumentId`/
+ * `auditTrailDocumentId` are populated. The old mock's 4th step ("webhook
+ * received") carried no information — it was always `done: true`
+ * whenever this component rendered at all — so it's dropped, not migrated.
+ */
+export function ArchiveFlow({ contract }: { contract: ContractDetailViewModel }) {
+  const archived = contract.signedDocumentId !== null && contract.auditTrailDocumentId !== null
+
   const steps = [
-    { icon: <Shield  size={13} strokeWidth={1.8} />, label: 'Dropbox Sign webhook received',  done: true,                          color: '#a78bfa' },
-    { icon: <Archive size={13} strokeWidth={1.8} />, label: 'Archived to Dropbox Storage',    done: !!contract.dropboxStoragePath, color: '#22d3ee' },
-    { icon: <Database size={13} strokeWidth={1.8} />,label: 'Linked in Document Vault',       done: contract.documentVaultLinked,  color: '#60a5fa' },
-    { icon: <Rocket  size={13} strokeWidth={1.8} />, label: 'Go-live Monitor re-evaluated',   done: contract.goLiveReEvaluated,    color: '#a3e635' },
+    { icon: <Shield size={13} strokeWidth={1.8} />, label: 'Contract signed', done: contract.status === 'signed', color: '#a78bfa' },
+    { icon: <Database size={13} strokeWidth={1.8} />, label: 'Archived to Document Vault (signed doc + audit trail)', done: archived, color: '#60a5fa' },
   ]
 
   return (
@@ -14,7 +23,7 @@ export function ArchiveFlow({ contract }: { contract: Contract }) {
       <div className="flex items-center gap-2 mb-3">
         <CheckCircle2 size={13} strokeWidth={2} style={{ color: '#4ade80' }} />
         <span className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#4ade80' }}>
-          Post-Signature Archiving Flow
+          Post-Signature Archiving
         </span>
       </div>
 
@@ -45,17 +54,6 @@ export function ArchiveFlow({ contract }: { contract: Contract }) {
           </div>
         ))}
       </div>
-
-      {contract.dropboxStoragePath && (
-        <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(74,222,128,0.15)' }}>
-          <p className="text-[10px] uppercase tracking-[0.1em] font-bold mb-1" style={{ color: 'var(--text-4)' }}>
-            Storage path
-          </p>
-          <p className="text-[11px] font-mono break-all" style={{ color: '#22d3ee' }}>
-            {contract.dropboxStoragePath}
-          </p>
-        </div>
-      )}
     </div>
   )
 }

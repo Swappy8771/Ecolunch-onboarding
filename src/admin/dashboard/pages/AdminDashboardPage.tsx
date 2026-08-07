@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom'
 
 import { StatCard } from '../components/StatCard'
 import { FeatureCard } from '../components/FeatureCard'
+import { useDashboardStats } from '@/features/adminDashboard/hooks/useDashboardStats'
 import { useLang } from '@shared/context/LangContext'
 import { PageHeader } from '@shared/components/PageHeader'
 import { SectionDivider } from '@shared/components/SectionDivider'
@@ -25,11 +26,14 @@ export function Dashboard() {
   const { t } = useLang()
   const now = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
+  const statsQuery = useDashboardStats(undefined)
+  const stats = statsQuery.data
+
   const STATS = [
-    { label: t.dashboard.stats.traiteurs,    value: 3, icon: <Users size={15} strokeWidth={2} />,       valueColor: 'lime' as const, trend: t.dashboard.stats.thisWeek },
-    { label: t.dashboard.stats.validations,  value: 5, icon: <ExternalLink size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: t.dashboard.stats.urgent },
-    { label: t.dashboard.stats.tickets,      value: 3, icon: <MessageCircle size={15} strokeWidth={2} />,valueColor: 'blue' as const, trend: t.dashboard.stats.new },
-    { label: t.dashboard.stats.goLiveBlocked,value: 2, icon: <Clock size={15} strokeWidth={2} />,        valueColor: 'red'  as const, trend: t.dashboard.stats.actionRequired },
+    { label: t.dashboard.stats.traiteurs,    value: stats?.caterersOnboarding ?? '—', icon: <Users size={15} strokeWidth={2} />,       valueColor: 'lime' as const, trend: t.dashboard.stats.thisWeek },
+    { label: t.dashboard.stats.validations,  value: stats?.openValidations ?? '—',    icon: <ExternalLink size={15} strokeWidth={2} />, valueColor: 'lime' as const, trend: t.dashboard.stats.urgent },
+    { label: t.dashboard.stats.tickets,      value: stats?.ecoloopTickets ?? '—',     icon: <MessageCircle size={15} strokeWidth={2} />,valueColor: 'blue' as const, trend: t.dashboard.stats.new },
+    { label: t.dashboard.stats.goLiveBlocked,value: stats?.blockedGoLives ?? '—',     icon: <Clock size={15} strokeWidth={2} />,        valueColor: 'red'  as const, trend: t.dashboard.stats.actionRequired },
   ]
 
   const FEATURE_CARDS = [

@@ -1,10 +1,12 @@
-import { ChevronRight, Shield, Menu } from 'lucide-react'
+import { ChevronRight, Shield, Menu, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import logo from '@/assets/ecotech-logo.jpg'
-import { ThemeToggle } from '@shared/ui/ThemeToggle'
-import { LangToggle } from '@shared/ui/LangToggle'
-import { NotificationBell } from '@shared/ui/NotificationBell'
-import { useLang } from '@shared/context/LangContext'
+import logo from '../../assets/ecotech-logo.jpg'
+import { ThemeToggle } from '../../shared/ui/ThemeToggle'
+import { LangToggle } from '../../shared/ui/LangToggle'
+import { NotificationBell } from '../../shared/ui/NotificationBell'
+import { useLang } from '../../shared/context/LangContext'
+import { useCatererAuth } from '@/auth/caterer'
+import { catererDisplayName } from '@/features/catererAuth/mappers/catererAuth.mapper'
 
 interface CatererHeaderProps {
   sidebarWidth: number
@@ -14,11 +16,14 @@ interface CatererHeaderProps {
 
 export function CatererHeader({ sidebarWidth, isDesktop, onMenuClick }: CatererHeaderProps) {
   const { t } = useLang()
+  const { user, logout } = useCatererAuth()
+  const initials = user ? catererDisplayName(user).split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() : 'CG'
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 h-[52px] flex items-stretch"
       style={{ borderBottom: '1px solid var(--border-subtle)' }}
     >
+      {/* Brand panel */}
       <div
         className="flex items-center gap-2.5 px-4 shrink-0 overflow-hidden"
         style={{
@@ -28,6 +33,7 @@ export function CatererHeader({ sidebarWidth, isDesktop, onMenuClick }: CatererH
           transition: 'width 260ms cubic-bezier(0.4,0,0.2,1)',
         }}
       >
+        {/* Hamburger on mobile */}
         {!isDesktop && (
           <button
             onClick={onMenuClick}
@@ -56,6 +62,7 @@ export function CatererHeader({ sidebarWidth, isDesktop, onMenuClick }: CatererH
           </div>
         )}
 
+        {/* Mobile: theme toggle + badge + user avatar inline */}
         {!isDesktop && (
           <>
             <div className="flex-1" />
@@ -73,13 +80,24 @@ export function CatererHeader({ sidebarWidth, isDesktop, onMenuClick }: CatererH
                 className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0"
                 style={{ background: 'linear-gradient(135deg,rgba(251,191,36,0.20),rgba(251,191,36,0.08))', border: '1px solid rgba(251,191,36,0.35)', color: '#fbbf24' }}
               >
-                CG
+                {initials}
               </div>
+              {user && (
+                <button
+                  onClick={logout}
+                  title="Sign out"
+                  className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all cursor-pointer"
+                  style={{ background: 'var(--bg-inner)', border: '1px solid var(--border-default)', color: 'var(--text-3)' }}
+                >
+                  <LogOut size={13} strokeWidth={2} />
+                </button>
+              )}
             </div>
           </>
         )}
       </div>
 
+      {/* Desktop-only content area */}
       {isDesktop && (
         <div
           className="flex-1 flex items-center px-5 gap-4"
@@ -96,19 +114,33 @@ export function CatererHeader({ sidebarWidth, isDesktop, onMenuClick }: CatererH
 
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <div className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--text-1)' }}>{t.header.companyName}</div>
-              <div className="text-[10.5px] uppercase tracking-[0.13em] font-bold mt-[2px]" style={{ color: 'var(--text-4)' }}>{t.header.traiteurAdmin}</div>
+              <div className="text-[13px] font-semibold leading-tight" style={{ color: 'var(--text-1)' }}>
+                {user ? catererDisplayName(user) : t.header.companyName}
+              </div>
+              <div className="text-[10.5px] uppercase tracking-[0.13em] font-bold mt-[2px]" style={{ color: 'var(--text-4)' }}>
+                {user ? user.role.replace('_', ' ') : t.header.traiteurAdmin}
+              </div>
             </div>
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0"
               style={{ background: 'linear-gradient(135deg,rgba(251,191,36,0.20),rgba(251,191,36,0.08))', border: '1px solid rgba(251,191,36,0.35)', color: '#fbbf24' }}
             >
-              CG
+              {initials}
             </div>
             <div className="w-px h-5 shrink-0" style={{ background: 'var(--border-default)' }} />
             <NotificationBell count={1} />
             <ThemeToggle />
             <LangToggle />
+            {user && (
+              <button
+                onClick={logout}
+                title="Sign out"
+                className="flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all cursor-pointer"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--text-3)' }}
+              >
+                <LogOut size={13} strokeWidth={2} />
+              </button>
+            )}
             <div className="w-px h-5 shrink-0" style={{ background: 'var(--border-default)' }} />
             <Link
               to="/admin/dashboard"

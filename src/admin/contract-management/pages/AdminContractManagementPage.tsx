@@ -1,25 +1,46 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   FileSignature, Search, Download, Filter, RotateCcw,
-  Eye, Send, RefreshCw, XCircle, FileDown, ExternalLink,
-  DollarSign, History, FilePen, Link2,
-  Database, Rocket, Calendar, Clock, CheckCircle2, AlertTriangle, FileText, Puzzle, Plus,
+  Eye, Send, RefreshCw, XCircle, FileDown, CheckSquare,
+  History, FilePen,
+  Database, Rocket, Calendar, Clock, CheckCircle2, AlertTriangle, FileText, Plus,
 } from 'lucide-react'
 import { PageHeader } from '@shared/components/PageHeader'
 import { SelectFilter } from '@shared/components/SelectFilter'
 import { DropdownMenu } from '@shared/components/DropdownMenu'
-import { StatCard } from '@/features/dashboard/components/StatCard'
-import type { Contract } from '../types/contract.types'
+import { FullPageLoader } from '@shared/ui/FullPageLoader'
+import { InlineLoader } from '@shared/ui/InlineLoader'
+import { StatCard } from '@/features/adminDashboard/components/StatCard'
+import { useCaterers } from '@/features/adminCaterers/hooks/useCaterers'
 import {
-  CONTRACTS, STATUS_META, CONTRACT_TYPES, CATERERS_LIST,
-} from '../services/mock/contractsMock'
+  useContracts, useContractTemplates,
+  useReadyContract, useSendContract, useRetryContract, useResendContract, useCancelContract, useDownloadContract,
+  useExportContracts,
+  CONTRACT_STATUS_META, CONTRACT_TYPE_LABELS,
+  type ContractListItemViewModel, type ContractStatus, type ContractType,
+} from '@/features/adminContracts'
 import { StatusBadge } from '../components/StatusBadge'
 import { ContractSlideOver } from '../components/ContractSlideOver'
 import { SendWizard } from '../components/SendWizard'
 
+/** Replaces the previously-hardcoded, always-"just now" sync label with the list query's real `dataUpdatedAt`. */
+function formatRelativeSync(updatedAtMs: number): string {
+  const diffSec = Math.round((Date.now() - updatedAtMs) / 1000)
+  if (diffSec < 5) return 'just now'
+  if (diffSec < 60) return `${diffSec}s ago`
+  const diffMin = Math.round(diffSec / 60)
+  if (diffMin < 60) return `${diffMin}m ago`
+  const diffHour = Math.round(diffMin / 60)
+  return `${diffHour}h ago`
+}
+
+const PENDING_STATUSES: ContractStatus[] = ['sent', 'viewed', 'partially_signed', 'ready_to_send']
+const DECLINED_OR_EXPIRED_STATUSES: ContractStatus[] = ['declined', 'expired', 'canceled', 'error']
+
 const TABLE_COLS = [
-  { label: 'Contract Name', width: 'auto'  },
+  { label: 'Contract',      width: 'auto'  },
   { label: 'Caterer',       width: '160px' },
   { label: 'Type',          width: '130px' },
   { label: 'Signatory',     width: '160px' },
@@ -28,53 +49,130 @@ const TABLE_COLS = [
   { label: 'Actions',       width: '60px'  },
 ]
 
-function buildRowActions(c: Contract): { label: string; icon: ReactNode; color?: string }[] {
-  const actions: { label: string; icon: ReactNode; color?: string }[] = [
-    { label: 'View Detail',          icon: <Eye        size={13} strokeWidth={1.8} /> },
-    { label: 'Link to Module',       icon: <Puzzle     size={13} strokeWidth={1.8} /> },
-    { label: 'Link to Fee Schedule', icon: <DollarSign size={13} strokeWidth={1.8} /> },
-    { label: 'View Audit',           icon: <History    size={13} strokeWidth={1.8} /> },
+interface RowActionHandlers {
+  onViewDetail: (id: string) => void
+  onSend: (c: ContractListItemViewModel) => void
+  onReady: (c: ContractListItemViewModel) => void
+  onRetry: (c: ContractListItemViewModel) => void
+  onResend: (c: ContractListItemViewModel) => void
+  onCancel: (c: ContractListItemViewModel) => void
+  onDownload: (id: string) => void
+  onOpenVault: (catererId: string) => void
+  onOpenGolive: () => void
+}
+
+function buildRowActions(c: ContractListItemViewModel, h: RowActionHandlers): { label: string; icon: ReactNode; color?: string; onClick?: () => void }[] {
+  const actions: { label: string; icon: ReactNode; color?: string; onClick?: () => void }[] = [
+    { label: 'View Detail', icon: <Eye size={13} strokeWidth={1.8} />, onClick: () => h.onViewDetail(c.id) },
   ]
-  if (c.status === 'ready' || c.status === 'draft')
-    actions.splice(1, 0, { label: 'Send for Signature', icon: <Send      size={13} strokeWidth={1.8} /> })
-  if (c.status === 'sent' || c.status === 'viewed')
-    actions.splice(1, 0, { label: 'Resend / Remind',    icon: <RefreshCw size={13} strokeWidth={1.8} /> })
-  if (c.status === 'signed') {
-    actions.push({ label: 'Download Signed Doc',     icon: <FileDown  size={13} strokeWidth={1.8} /> })
-    actions.push({ label: 'View in Document Vault',  icon: <Database  size={13} strokeWidth={1.8} /> })
-    actions.push({ label: 'Go-live Monitor',         icon: <Rocket    size={13} strokeWidth={1.8} /> })
+  if (c.status === 'draft') {
+    actions.push({ label: 'Mark Ready to Send', icon: <CheckSquare size={13} strokeWidth={1.8} />, onClick: () => h.onReady(c) })
   }
-  if (!['draft', 'cancelled', 'expired'].includes(c.status))
-    actions.push({ label: 'Cancel Contract', icon: <XCircle size={13} strokeWidth={1.8} />, color: '#f87171' })
-  actions.push({ label: 'Open in Dropbox', icon: <ExternalLink size={13} strokeWidth={1.8} /> })
+  if (c.status === 'draft' || c.status === 'ready_to_send') {
+    actions.push({ label: 'Send for Signature', icon: <Send size={13} strokeWidth={1.8} />, onClick: () => h.onSend(c) })
+  }
+  if (c.status === 'error') {
+    actions.push({ label: 'Retry Send', icon: <RefreshCw size={13} strokeWidth={1.8} />, onClick: () => h.onRetry(c) })
+  }
+  if (['sent', 'viewed', 'partially_signed'].includes(c.status)) {
+    actions.push({ label: 'Resend / Remind', icon: <RefreshCw size={13} strokeWidth={1.8} />, onClick: () => h.onResend(c) })
+  }
+  if (c.status === 'signed') {
+    actions.push({ label: 'Download Signed Doc', icon: <FileDown size={13} strokeWidth={1.8} />, onClick: () => h.onDownload(c.id) })
+    actions.push({ label: 'View in Document Vault', icon: <Database size={13} strokeWidth={1.8} />, onClick: () => h.onOpenVault(c.catererId) })
+    actions.push({ label: 'Go-live Monitor', icon: <Rocket size={13} strokeWidth={1.8} />, onClick: h.onOpenGolive })
+  }
+  actions.push({ label: 'View Audit', icon: <History size={13} strokeWidth={1.8} />, onClick: () => h.onViewDetail(c.id) })
+  if (!['draft', 'canceled', 'expired', 'signed'].includes(c.status)) {
+    actions.push({
+      label: 'Cancel Contract',
+      icon: <XCircle size={13} strokeWidth={1.8} />,
+      color: '#f87171',
+      onClick: () => { if (window.confirm('Cancel this contract? This cannot be undone.')) h.onCancel(c) },
+    })
+  }
   return actions
 }
 
 export function ContractManagement() {
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
   const [search, setSearch]               = useState('')
-  const [filterCaterer, setFilterCaterer] = useState('')
-  const [filterStatus, setFilterStatus]   = useState('')
-  const [filterType, setFilterType]       = useState('')
+  // Preselects from `?catererId=` — the deep-link target for Caterers'
+  // "Open Contract Management" action and Contract rows' own "View in
+  // Document Vault"-style cross-links (see `AdminCaterersPage.tsx`).
+  const [filterCaterer, setFilterCaterer] = useState(searchParams.get('catererId') ?? '')
+  const [filterStatus, setFilterStatus]   = useState<ContractStatus | ''>('')
+  const [filterType, setFilterType]       = useState<ContractType | ''>('')
   const [openMenuId, setOpenMenuId]       = useState<string | null>(null)
-  const [selectedContract, setSelectedContract] = useState<Contract | null>(null)
-  const [wizardContract, setWizardContract]     = useState<Contract | null>(null)
-  const [showWizard, setShowWizard]             = useState(false)
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(null)
+  const [showWizard, setShowWizard]       = useState(false)
 
-  const total           = CONTRACTS.length
-  const pending         = CONTRACTS.filter(c => ['sent', 'viewed', 'partially_signed', 'ready'].includes(c.status)).length
-  const signed          = CONTRACTS.filter(c => c.status === 'signed').length
-  const declinedExpired = CONTRACTS.filter(c => ['declined', 'expired', 'cancelled', 'error'].includes(c.status)).length
+  // Consume the query param once (so subsequent filter changes don't fight
+  // with a stale URL) — same pattern as removing a one-shot deep link.
+  useEffect(() => {
+    if (searchParams.has('catererId')) {
+      setSearchParams(params => { params.delete('catererId'); return params }, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const filtered = CONTRACTS.filter(c => {
-    if (filterCaterer && c.caterer !== filterCaterer) return false
-    if (filterStatus  && c.status  !== filterStatus)  return false
-    if (filterType    && c.type    !== filterType)    return false
+  const listQuery = useContracts(
+    {
+      caterer: filterCaterer || undefined,
+      status: filterStatus || undefined,
+      type: filterType || undefined,
+    },
+    {
+      // Same rationale as `ContractSlideOver`'s detail-query polling: keep
+      // the table from going stale while any visible contract is in a
+      // transient, webhook-driven state.
+      refetchInterval: query => {
+        const items = query.state.data?.items ?? []
+        return items.some(c => PENDING_STATUSES.includes(c.status)) ? 20_000 : false
+      },
+    },
+  )
+  const catererListQuery = useCaterers({ limit: 100 })
+  const templatesQuery = useContractTemplates()
+  const exportMutation = useExportContracts()
+
+  const catererNameById = useMemo(() => {
+    const map = new Map<string, string>()
+    catererListQuery.data?.items.forEach(c => map.set(c.id, c.name))
+    return map
+  }, [catererListQuery.data])
+
+  const templateNameByType = useMemo(() => {
+    const map = new Map<string, string>()
+    templatesQuery.data?.forEach(t => map.set(t.type, t.name))
+    return map
+  }, [templatesQuery.data])
+
+  const readyMutation = useReadyContract()
+  const sendMutation = useSendContract()
+  const retryMutation = useRetryContract()
+  const resendMutation = useResendContract()
+  const cancelMutation = useCancelContract()
+  const downloadMutation = useDownloadContract()
+
+  const items = listQuery.data?.items ?? []
+
+  const total           = items.length
+  const pending         = items.filter(c => PENDING_STATUSES.includes(c.status)).length
+  const signed          = items.filter(c => c.status === 'signed').length
+  const declinedExpired = items.filter(c => DECLINED_OR_EXPIRED_STATUSES.includes(c.status)).length
+
+  const filtered = items.filter(c => {
     if (search) {
       const q = search.toLowerCase()
+      const catererName = catererNameById.get(c.catererId) ?? ''
+      const contractName = templateNameByType.get(c.type) ?? CONTRACT_TYPE_LABELS[c.type] ?? c.type
       if (
-        !c.name.toLowerCase().includes(q) &&
-        !c.caterer.toLowerCase().includes(q) &&
-        !c.signatoryName.toLowerCase().includes(q) &&
+        !contractName.toLowerCase().includes(q) &&
+        !catererName.toLowerCase().includes(q) &&
+        !(c.signatoryName ?? '').toLowerCase().includes(q) &&
         !c.type.toLowerCase().includes(q)
       ) return false
     }
@@ -87,9 +185,35 @@ export function ContractManagement() {
     setSearch(''); setFilterCaterer(''); setFilterStatus(''); setFilterType('')
   }
 
-  function openSendWizard(c: Contract | null = null) {
-    setWizardContract(c)
-    setShowWizard(true)
+  function handleReady(c: ContractListItemViewModel) {
+    readyMutation.mutate({ cid: c.id, catererId: c.catererId })
+  }
+  function handleSend(c: ContractListItemViewModel) {
+    sendMutation.mutate({ cid: c.id, catererId: c.catererId })
+  }
+  function handleRetry(c: ContractListItemViewModel) {
+    retryMutation.mutate({ cid: c.id, catererId: c.catererId })
+  }
+  function handleResend(c: ContractListItemViewModel) {
+    resendMutation.mutate(c.id)
+  }
+  function handleCancel(c: ContractListItemViewModel) {
+    cancelMutation.mutate({ cid: c.id, catererId: c.catererId })
+  }
+  function handleDownload(id: string) {
+    downloadMutation.mutate(id)
+  }
+
+  const rowActionHandlers: RowActionHandlers = {
+    onViewDetail: setSelectedContractId,
+    onSend: handleSend,
+    onReady: handleReady,
+    onRetry: handleRetry,
+    onResend: handleResend,
+    onCancel: handleCancel,
+    onDownload: handleDownload,
+    onOpenVault: catererId => navigate(`/admin/document-vault?catererId=${catererId}`),
+    onOpenGolive: () => navigate('/admin/golive-monitor'),
   }
 
   return (
@@ -103,15 +227,22 @@ export function ContractManagement() {
         right={
           <div className="flex items-center gap-2">
             <button
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer"
+              onClick={() => exportMutation.mutate({
+                caterer: filterCaterer || undefined,
+                status: filterStatus || undefined,
+                type: filterType || undefined,
+                format: 'csv',
+              })}
+              disabled={exportMutation.isPending}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border-default)' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-default)' }}
             >
-              <Download size={13} strokeWidth={2} />Export
+              <Download size={13} strokeWidth={2} />{exportMutation.isPending ? 'Exporting…' : 'Export'}
             </button>
             <button
-              onClick={() => openSendWizard(null)}
+              onClick={() => setShowWizard(true)}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-[12.5px] font-semibold cursor-pointer"
               style={{ background: 'var(--accent)', color: '#07070a' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
@@ -156,13 +287,14 @@ export function ContractManagement() {
         </div>
 
         <SelectFilter label="All Caterers" value={filterCaterer} onChange={setFilterCaterer}
-          options={CATERERS_LIST.map(c => ({ value: c, label: c }))} />
-        <SelectFilter label="All Statuses" value={filterStatus}  onChange={setFilterStatus}
-          options={Object.entries(STATUS_META).map(([v, m]) => ({ value: v, label: m.label }))} />
-        <SelectFilter label="All Types"    value={filterType}    onChange={setFilterType}
-          options={CONTRACT_TYPES.map(t => ({ value: t, label: t }))} />
+          options={(catererListQuery.data?.items ?? []).map(c => ({ value: c.id, label: c.name }))} />
+        <SelectFilter label="All Statuses" value={filterStatus}  onChange={v => setFilterStatus(v as ContractStatus | '')}
+          options={Object.entries(CONTRACT_STATUS_META).map(([v, m]) => ({ value: v, label: m.label }))} />
+        <SelectFilter label="All Types"    value={filterType}    onChange={v => setFilterType(v as ContractType | '')}
+          options={Object.entries(CONTRACT_TYPE_LABELS).map(([v, label]) => ({ value: v, label }))} />
 
         <div className="flex items-center gap-2 flex-1 justify-end" style={{ minWidth: 'max-content' }}>
+          {listQuery.isFetching && !listQuery.isLoading && <InlineLoader size={12} />}
           {hasFilter && (
             <button onClick={resetFilters}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium cursor-pointer"
@@ -190,7 +322,29 @@ export function ContractManagement() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {listQuery.isLoading ? (
+                <tr>
+                  <td colSpan={TABLE_COLS.length}>
+                    <FullPageLoader label="Loading contracts…" />
+                  </td>
+                </tr>
+              ) : listQuery.isError ? (
+                <tr>
+                  <td colSpan={TABLE_COLS.length} className="px-4 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <AlertTriangle size={28} strokeWidth={1.2} style={{ color: '#f87171' }} />
+                      <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>
+                        {listQuery.error?.message ?? 'Failed to load contracts.'}
+                      </span>
+                      <button onClick={() => listQuery.refetch()}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12px] font-medium cursor-pointer"
+                        style={{ color: 'var(--text-2)', background: 'var(--bg-inner)', border: '1px solid var(--border-strong)' }}>
+                        <RotateCcw size={12} strokeWidth={2} />Retry
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={TABLE_COLS.length} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
@@ -200,57 +354,56 @@ export function ContractManagement() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((c, idx) => (
-                  <tr key={c.id}
-                    className="transition-colors cursor-pointer"
-                    style={{ borderBottom: idx < filtered.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
-                    onClick={() => setSelectedContract(c)}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                  >
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-2">
-                        <FilePen size={13} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
-                        <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{c.name}</span>
-                        {c.documentVaultLinked && (
-                          <span title="Linked in Document Vault">
-                            <Link2 size={11} strokeWidth={2} style={{ color: '#60a5fa', flexShrink: 0 }} />
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{c.caterer}</span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full"
-                        style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
-                        {c.type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{c.signatoryName}</span>
-                        <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{c.signatoryEmail}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5"><StatusBadge status={c.status} /></td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-[12px] tabular-nums" style={{ color: 'var(--text-4)' }}>
-                        {c.sentDate ?? '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
-                      <DropdownMenu
-                        open={openMenuId === c.id}
-                        onToggle={() => setOpenMenuId(openMenuId === c.id ? null : c.id)}
-                        onClose={() => setOpenMenuId(null)}
-                        actions={buildRowActions(c)}
-                        minWidth="220px"
-                      />
-                    </td>
-                  </tr>
-                ))
+                filtered.map((c, idx) => {
+                  const contractName = templateNameByType.get(c.type) ?? CONTRACT_TYPE_LABELS[c.type] ?? c.type
+                  const catererName = catererNameById.get(c.catererId) ?? c.catererId
+                  return (
+                    <tr key={c.id}
+                      className="transition-colors cursor-pointer"
+                      style={{ borderBottom: idx < filtered.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
+                      onClick={() => setSelectedContractId(c.id)}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-inner)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <FilePen size={13} strokeWidth={1.8} style={{ color: 'var(--text-4)', flexShrink: 0 }} />
+                          <span className="text-[13px] font-semibold" style={{ color: 'var(--text-1)' }}>{contractName}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{catererName}</span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full"
+                          style={{ background: 'var(--bg-inner)', color: 'var(--text-3)', border: '1px solid var(--border-strong)' }}>
+                          {CONTRACT_TYPE_LABELS[c.type] ?? c.type}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-2)' }}>{c.signatoryName ?? '—'}</span>
+                          <span className="text-[11px]" style={{ color: 'var(--text-4)' }}>{c.signatoryEmail ?? ''}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5"><StatusBadge status={c.status} /></td>
+                      <td className="px-4 py-3.5">
+                        <span className="text-[12px] tabular-nums" style={{ color: 'var(--text-4)' }}>
+                          {c.sentAt ?? '—'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5" onClick={e => e.stopPropagation()}>
+                        <DropdownMenu
+                          open={openMenuId === c.id}
+                          onToggle={() => setOpenMenuId(openMenuId === c.id ? null : c.id)}
+                          onClose={() => setOpenMenuId(null)}
+                          actions={buildRowActions(c, rowActionHandlers)}
+                          minWidth="220px"
+                        />
+                      </td>
+                    </tr>
+                  )
+                })
               )}
             </tbody>
           </table>
@@ -263,25 +416,22 @@ export function ContractManagement() {
           </span>
           <div className="flex items-center gap-1.5">
             <Calendar size={11} strokeWidth={1.8} style={{ color: 'var(--text-4)' }} />
-            <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>Last sync: just now</span>
+            <span className="text-[12px]" style={{ color: 'var(--text-4)' }}>
+              {listQuery.dataUpdatedAt ? `Last sync: ${formatRelativeSync(listQuery.dataUpdatedAt)}` : 'Not yet synced'}
+            </span>
           </div>
         </div>
       </div>
 
-      {selectedContract && (
+      {selectedContractId && (
         <ContractSlideOver
-          contract={selectedContract}
-          onClose={() => setSelectedContract(null)}
-          onSend={c => openSendWizard(c)}
+          contractId={selectedContractId}
+          onClose={() => setSelectedContractId(null)}
         />
       )}
 
       {showWizard && (
-        <SendWizard
-          initialContract={wizardContract}
-          contracts={CONTRACTS}
-          onClose={() => { setShowWizard(false); setWizardContract(null) }}
-        />
+        <SendWizard onClose={() => setShowWizard(false)} />
       )}
     </div>
   )

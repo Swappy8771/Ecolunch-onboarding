@@ -1,13 +1,13 @@
-import type { Priority } from '../services/mock/validationMock'
+import type { ValidationPriority } from '@/features/adminValidation/types/validation.types'
 
-export const PRIORITY_META: Record<Priority, { label: string; color: string; bg: string }> = {
+export const PRIORITY_META: Record<ValidationPriority, { label: string; color: string; bg: string }> = {
   critical: { label: 'Critical', color: '#f87171', bg: 'rgba(248,113,113,0.14)' },
   high:     { label: 'High',     color: '#fb923c', bg: 'rgba(251,146,60,0.14)'  },
   medium:   { label: 'Medium',   color: '#fbbf24', bg: 'rgba(251,191,36,0.14)'  },
   low:      { label: 'Low',      color: '#34d399', bg: 'rgba(52,211,153,0.14)'  },
 }
 
-export function PriorityBadge({ priority }: { priority: Priority }) {
+export function PriorityBadge({ priority }: { priority: ValidationPriority }) {
   const m = PRIORITY_META[priority]
   return (
     <span

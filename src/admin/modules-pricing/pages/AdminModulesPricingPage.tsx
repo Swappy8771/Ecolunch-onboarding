@@ -1,7 +1,12 @@
-import { useState } from 'react'
-import { ChevronDown, Save, CheckCircle2, Rocket, AlertTriangle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { ChevronDown, CheckCircle2, Rocket, AlertTriangle } from 'lucide-react'
+import { useCaterers } from '@/features/adminCaterers/hooks/useCaterers'
+import { useCatererModuleSetup } from '@/features/adminModulesPricing/hooks/useCatererModuleSetup'
+import { useValidationStatus } from '@/features/adminModulesPricing/hooks/useValidationStatus'
+import { useContractReadiness } from '@/features/adminModulesPricing/hooks/useContractReadiness'
+import { FullPageLoader } from '@shared/ui/FullPageLoader'
 import type { ConfigSection, ValidationLevel } from '../types/modules.types'
-import { CATERER_OPTIONS, getSetup, calcStats } from '../services/mock/modulesMock'
 import { ConfigNav } from '../components/ConfigNav'
 import { DashboardScreen } from '../components/screens/DashboardScreen'
 import { ModulesScreen } from '../components/screens/ModulesScreen'
@@ -27,47 +32,58 @@ const SCREEN_TITLES: Record<ConfigSection, string> = {
   'audit':              'Audit & History',
 }
 
-function buildSectionStatus(setup: ReturnType<typeof getSetup>): Partial<Record<ConfigSection, ValidationLevel>> {
-  const stats = calcStats(setup)
-  const pricedAll = stats.priced === stats.active
-  const hasTerms  = !!setup.terms.startDate
-  const missingDates = setup.modules.filter(m => m.status !== 'inactive' && !m.effectiveDate)
-  const ruleIssues   = setup.rules.filter(r => r.status === 'warning' || r.status === 'error')
-
-  return {
-    'dashboard':          stats.active > 0 && pricedAll && hasTerms ? 'pass' : 'warning',
-    'modules':            stats.active > 0 ? 'pass' : 'error',
-    'pricing':            pricedAll ? 'pass' : stats.priced > 0 ? 'warning' : 'error',
-    'founding-partner':   'pass',
-    'commercial-terms':   hasTerms ? 'pass' : 'error',
-    'operational-rules':  ruleIssues.length > 0 ? 'warning' : 'pass',
-    'effective-dates':    missingDates.length > 0 ? 'warning' : 'pass',
-    'validation':         pricedAll && hasTerms && stats.active > 0 ? 'pass' : 'warning',
-    'contract-readiness': setup.contractReady ? 'pass' : 'pending',
-    'audit':              'pass',
-  }
-}
-
 export function ModulesPricing() {
-  const [catererId, setCatererId] = useState('cat-1')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [catererId, setCatererId] = useState(searchParams.get('catererId') ?? '')
   const [section, setSection] = useState<ConfigSection>('dashboard')
-  const [unsaved, setUnsaved] = useState(false)
 
-  const setup = getSetup(catererId)
-  const sectionStatus = buildSectionStatus(setup)
-  const stats = calcStats(setup)
+  const caterersQuery = useCaterers({ limit: 100 })
+  const caterers = caterersQuery.data?.items ?? []
 
-  const active = CATERER_OPTIONS.find(c => c.id === catererId)!
+  // Consume the deep-link param once so later navigation doesn't fight with it — same pattern as Document Vault/Contract Management.
+  useEffect(() => {
+    if (searchParams.has('catererId')) {
+      setSearchParams(params => { params.delete('catererId'); return params }, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  function handleNavigate(s: string) {
-    setSection(s as ConfigSection)
+  // Default to the first real caterer once the list loads, if none was selected via deep link.
+  useEffect(() => {
+    if (!catererId && caterers.length > 0) setCatererId(caterers[0].id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caterers])
+
+  const setupQuery = useCatererModuleSetup(catererId, { enabled: Boolean(catererId) })
+  const validationQuery = useValidationStatus(catererId, { enabled: Boolean(catererId) })
+  const readinessQuery = useContractReadiness(catererId, { enabled: Boolean(catererId) })
+
+  const setup = setupQuery.data
+  const validationStatus = validationQuery.data
+  const readiness = readinessQuery.data
+  const activeCaterer = caterers.find(c => c.id === catererId)
+
+  function buildSectionStatus(): Partial<Record<ConfigSection, ValidationLevel>> {
+    if (!setup) return {}
+    const activeModules = setup.modules.filter(m => m.status !== 'inactive')
+    const missingDates = activeModules.filter(m => !m.effectiveDate)
+    return {
+      'dashboard':          setup.summary.activeCount > 0 && setup.summary.pricingConfigured ? 'pass' : 'warning',
+      'modules':            setup.summary.activeCount > 0 ? 'pass' : 'error',
+      'pricing':            setup.summary.pricingConfigured ? 'pass' : activeModules.length > 0 ? 'warning' : 'error',
+      'founding-partner':   'pending',
+      'commercial-terms':   'pending',
+      'operational-rules':  'pending',
+      'effective-dates':    missingDates.length > 0 ? 'warning' : 'pass',
+      'validation':         validationStatus?.overallReady ? 'pass' : 'warning',
+      'contract-readiness': readiness?.readyForContracts ? 'pass' : 'pending',
+      'audit':              'pass',
+    }
   }
-
-  const screenProps = { setup, onNavigate: handleNavigate }
+  const sectionStatus = buildSectionStatus()
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-surface)' }}>
-      {/* Page header */}
       <div className="px-6 pt-6 pb-0">
         <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
           <div>
@@ -79,17 +95,14 @@ export function ModulesPricing() {
             </h1>
           </div>
 
-          {/* Caterer selector */}
           <div className="relative shrink-0">
             <select
               value={catererId}
               onChange={e => { setCatererId(e.target.value); setSection('dashboard') }}
               className="appearance-none pl-4 pr-8 py-2.5 rounded-xl text-[13px] font-semibold outline-none cursor-pointer"
-              style={{
-                background: 'var(--bg-card)', border: '1px solid var(--border-default)',
-                color: 'var(--text-1)', minWidth: '200px',
-              }}>
-              {CATERER_OPTIONS.map(c => (
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)', color: 'var(--text-1)', minWidth: '220px' }}>
+              {caterers.length === 0 && <option value="">Loading caterers…</option>}
+              {caterers.map(c => (
                 <option key={c.id} value={c.id}>{c.name} — {c.city}</option>
               ))}
             </select>
@@ -97,107 +110,76 @@ export function ModulesPricing() {
           </div>
         </div>
 
-        {/* Unsaved banner */}
-        {unsaved && (
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl mb-4"
-            style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.22)' }}>
-            <AlertTriangle size={13} strokeWidth={2} style={{ color: '#fbbf24' }} />
-            <span className="text-[12.5px] font-medium" style={{ color: '#fbbf24' }}>Unsaved changes</span>
-            <button onClick={() => setUnsaved(false)}
-              className="ml-auto px-3 py-1 rounded-lg text-[11.5px] font-semibold cursor-pointer"
-              style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.30)' }}>
-              Save now
-            </button>
+        {activeCaterer && (
+          <div className="flex items-center gap-4 flex-wrap px-4 py-2.5 rounded-xl mb-4"
+            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0"
+              style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
+              {activeCaterer.name.charAt(0)}
+            </div>
+            <div className="flex items-center gap-1.5 text-[12.5px]">
+              <span className="font-bold" style={{ color: 'var(--text-1)' }}>{activeCaterer.name}</span>
+              <span style={{ color: 'var(--text-4)' }}>·</span>
+              <span style={{ color: 'var(--text-4)' }}>{activeCaterer.city || '—'}</span>
+            </div>
+            {setup && (
+              <div className="flex items-center gap-3 ml-auto text-[12px]">
+                <span style={{ color: 'var(--text-4)' }}>
+                  <strong style={{ color: 'var(--text-2)' }}>{setup.summary.activeCount}</strong> modules
+                </span>
+                <span style={{ color: 'var(--text-4)' }}>
+                  <strong style={{ color: 'var(--text-2)' }}>${(setup.summary.monthlyTotalCents / 100).toLocaleString()}</strong>/mo
+                </span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Caterer context strip */}
-        <div className="flex items-center gap-4 flex-wrap px-4 py-2.5 rounded-xl mb-4"
-          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-default)' }}>
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0"
-            style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
-            {active.name.charAt(0)}
-          </div>
-          <div className="flex items-center gap-1.5 text-[12.5px]">
-            <span className="font-bold" style={{ color: 'var(--text-1)' }}>{setup.name}</span>
-            <span style={{ color: 'var(--text-4)' }}>·</span>
-            <span style={{ color: 'var(--text-4)' }}>{setup.legalName}</span>
-            <span style={{ color: 'var(--text-4)' }}>·</span>
-            <span style={{ color: 'var(--text-4)' }}>{setup.city}</span>
-          </div>
-          <div className="flex items-center gap-3 ml-auto text-[12px]">
-            <span style={{ color: 'var(--text-4)' }}>
-              <strong style={{ color: 'var(--text-2)' }}>{stats.active}</strong> modules
-            </span>
-            {setup.foundingPartner.enabled && (
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold"
-                style={{ background: 'rgba(167,139,250,0.12)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.28)' }}>
-                Founding Partner
-              </span>
-            )}
-            <span className="text-[11.5px]" style={{ color: 'var(--text-4)' }}>
-              Last saved: {setup.lastSaved ?? '—'}
-            </span>
-          </div>
-        </div>
-
-        {/* Navigation tabs */}
         <ConfigNav active={section} onChange={setSection} sectionStatus={sectionStatus} />
       </div>
 
-      {/* Screen content */}
       <div className="flex-1 px-6 py-6">
-        {section === 'dashboard'          && <DashboardScreen          {...screenProps} />}
-        {section === 'modules'            && <ModulesScreen            {...screenProps} />}
-        {section === 'pricing'            && <PricingScreen            {...screenProps} />}
-        {section === 'founding-partner'   && <FoundingPartnerScreen    {...screenProps} />}
-        {section === 'commercial-terms'   && <CommercialTermsScreen    {...screenProps} />}
-        {section === 'operational-rules'  && <OperationalRulesScreen   {...screenProps} />}
-        {section === 'effective-dates'    && <EffectiveDatesScreen      {...screenProps} />}
-        {section === 'validation'         && <ValidationScreen          {...screenProps} />}
-        {section === 'contract-readiness' && <ContractReadinessScreen  {...screenProps} />}
-        {section === 'audit'              && <AuditScreen               {...screenProps} />}
+        {!catererId || setupQuery.isLoading ? (
+          <FullPageLoader label="Loading module setup…" />
+        ) : setupQuery.isError || !setup ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-2">
+            <AlertTriangle size={28} strokeWidth={1.2} style={{ color: '#f87171' }} />
+            <span className="text-[13px]" style={{ color: 'var(--text-3)' }}>{setupQuery.error?.message ?? 'Failed to load module setup.'}</span>
+          </div>
+        ) : (
+          <>
+            {section === 'dashboard'          && <DashboardScreen setup={setup} validationStatus={validationStatus} onNavigate={s => setSection(s as ConfigSection)} />}
+            {section === 'modules'            && <ModulesScreen catererId={catererId} modules={setup.modules} onNavigate={s => setSection(s as ConfigSection)} />}
+            {section === 'pricing'            && <PricingScreen catererId={catererId} modules={setup.modules} />}
+            {section === 'founding-partner'   && <FoundingPartnerScreen catererId={catererId} modules={setup.modules} />}
+            {section === 'commercial-terms'   && <CommercialTermsScreen catererId={catererId} modules={setup.modules} />}
+            {section === 'operational-rules'  && <OperationalRulesScreen catererId={catererId} modules={setup.modules} />}
+            {section === 'effective-dates'    && <EffectiveDatesScreen catererId={catererId} modules={setup.modules} />}
+            {section === 'validation'         && <ValidationScreen validationStatus={validationStatus} isLoading={validationQuery.isLoading} />}
+            {section === 'contract-readiness' && <ContractReadinessScreen readiness={readiness} isLoading={readinessQuery.isLoading} />}
+            {section === 'audit'              && <AuditScreen catererId={catererId} modules={setup.modules} />}
+          </>
+        )}
       </div>
 
-      {/* Sticky footer */}
       <div className="sticky bottom-0 z-10 px-6 py-3.5 flex items-center gap-3"
         style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', backdropFilter: 'blur(12px)' }}>
-        <button
-          onClick={() => setUnsaved(false)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold cursor-pointer"
-          style={{ background: 'var(--bg-card)', color: 'var(--text-2)', border: '1px solid var(--border-default)' }}>
-          <Save size={13} strokeWidth={2} />Save Draft
-        </button>
-
         <button
           onClick={() => setSection('validation')}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold cursor-pointer"
           style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }}>
           <CheckCircle2 size={13} strokeWidth={2} />Validate
         </button>
-
         <button
           onClick={() => setSection('contract-readiness')}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[12.5px] font-semibold cursor-pointer"
           style={{ background: 'var(--accent)', color: '#07070a' }}>
-          <Rocket size={13} strokeWidth={2} />Mark Contract Ready
+          <Rocket size={13} strokeWidth={2} />Contract Readiness
         </button>
 
         <div className="ml-auto flex items-center gap-3 text-[12px]">
-          {Object.values(sectionStatus).filter(s => s === 'error').length > 0 && (
-            <div className="flex items-center gap-1.5" style={{ color: '#f87171' }}>
-              <AlertTriangle size={12} strokeWidth={2} />
-              <span>{Object.values(sectionStatus).filter(s => s === 'error').length} error{Object.values(sectionStatus).filter(s => s === 'error').length > 1 ? 's' : ''}</span>
-            </div>
-          )}
-          {Object.values(sectionStatus).filter(s => s === 'warning').length > 0 && (
-            <div className="flex items-center gap-1.5" style={{ color: '#fbbf24' }}>
-              <AlertTriangle size={12} strokeWidth={2} />
-              <span>{Object.values(sectionStatus).filter(s => s === 'warning').length} warning{Object.values(sectionStatus).filter(s => s === 'warning').length > 1 ? 's' : ''}</span>
-            </div>
-          )}
           <span style={{ color: 'var(--text-4)' }}>
-            {Object.values(sectionStatus).filter(s => s === 'pass').length}/{Object.keys(sectionStatus).length} sections complete
+            {Object.values(sectionStatus).filter(s => s === 'pass').length}/{Object.keys(sectionStatus).length} sections ready
           </span>
         </div>
       </div>
