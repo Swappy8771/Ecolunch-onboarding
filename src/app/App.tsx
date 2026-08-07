@@ -7,9 +7,9 @@ import { FullPageLoader } from '@shared/ui/FullPageLoader'
 import { ErrorBoundary } from '@shared/ui/ErrorBoundary'
 import { ThemeProvider } from '@shared/context/ThemeContext'
 import { LangProvider } from '@shared/context/LangContext'
-import { AuthProvider, ProtectedRoute } from '@/auth'
+import { AuthProvider } from '@/auth'
 import { LoginPage } from '@/auth/pages/LoginPage'
-import { CatererAuthProvider, CatererProtectedRoute } from '@/auth/caterer'
+import { CatererAuthProvider } from '@/auth/caterer'
 import { CatererLoginPage } from '@/caterer/auth/pages/CatererLoginPage'
 import { CatererSetPasswordPage } from '@/caterer/auth/pages/CatererSetPasswordPage'
 import { CatererForgotPasswordPage } from '@/caterer/auth/pages/CatererForgotPasswordPage'
@@ -49,6 +49,10 @@ function App() {
       <ErrorBoundary>
         <Suspense fallback={<FullPageLoader label="Chargement…" />}>
           <Routes>
+            {/* Login gate temporarily removed on both /admin and /caterer — this build is
+                deployed standalone for a client demo with no backend to authenticate
+                against. Restore by wrapping AdminLayout/CatererLayout in
+                ProtectedRoute/CatererProtectedRoute (see git history) once a backend is live. */}
             <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
 
             <Route path="/login" element={<LoginPage />} />
@@ -58,7 +62,7 @@ function App() {
             <Route path="/caterer/forgot-password" element={<CatererForgotPasswordPage />} />
             <Route path="/caterer/support-session" element={<CatererSupportSessionEntryPage />} />
 
-            <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+            <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard"            element={<Dashboard />} />
               <Route path="caterers"             element={<CaterersInOnboarding />} />
@@ -72,7 +76,7 @@ function App() {
               <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Route>
 
-            <Route path="/caterer" element={<CatererProtectedRoute><CatererLayout /></CatererProtectedRoute>}>
+            <Route path="/caterer" element={<CatererLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard"       element={<CatererDashboard />} />
               <Route path="profil"          element={<CatererProfile />} />
