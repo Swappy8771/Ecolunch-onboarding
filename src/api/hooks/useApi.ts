@@ -5,7 +5,7 @@
  * build on these rather than calling `useQuery`/`useMutation` directly,
  * so error typing is consistent everywhere instead of each module
  * re-declaring `TError` as `unknown`/`Error`/`any`. No module-specific
- * query is defined here — see `development/phase-1-foundation/
+ * query is defined here — see `knowledge/03-frontend/phase-1-foundation/
  * REACT_QUERY.md` for the full strategy.
  */
 import { useMutation, useQuery, type UseMutationOptions, type UseMutationResult, type UseQueryOptions, type UseQueryResult } from '@tanstack/react-query'

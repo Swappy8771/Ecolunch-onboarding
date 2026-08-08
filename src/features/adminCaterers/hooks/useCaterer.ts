@@ -11,7 +11,7 @@ import type { CatererViewModel } from '../types/caterer.types'
  * alongside its onboarding file and go-live checklist; this hook exposes
  * only the caterer itself as a ViewModel (the current admin page's detail
  * modal doesn't need the other two — see
- * `development/phase-3-module-integration/Caterers.md`).
+ * `knowledge/03-frontend/phase-3-module-integration/Caterers.md`).
  */
 interface CatererDetailResponseDto {
   caterer: CatererDto

@@ -36,7 +36,7 @@ import type { CatererDisplayStatus, CatererVertical, CatererViewModel } from '@/
  * Keyed on the backend's real computed `displayStatus`
  * (`computeDisplayStatus` in `caterers.service.ts`), not the old mock
  * data's French onboarding-stage vocabulary — see
- * `development/phase-3-module-integration/Caterers.md` for this
+ * `knowledge/03-frontend/phase-3-module-integration/Caterers.md` for this
  * vocabulary-drift finding. */
 const STATUS_META: Record<CatererDisplayStatus, { label: string; color: string; bg: string; border: string }> = {
   'pre-onboarding':   { label: 'Pre-onboarding',   color: 'var(--text-3)', bg: 'var(--bg-inner)',        border: 'var(--border-strong)'   },
@@ -439,7 +439,7 @@ export function CaterersInOnboarding() {
    * `limit` of 100). Platform-wide totals beyond 100 caterers would
    * under-count; a dedicated aggregate endpoint would be needed for exact
    * counts at that scale, out of this phase's scope. See
-   * `development/phase-3-module-integration/Caterers.md`.
+   * `knowledge/03-frontend/phase-3-module-integration/Caterers.md`.
    */
   const statsQuery = useCaterers({ page: 1, limit: 100 })
 

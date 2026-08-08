@@ -6,7 +6,7 @@
  * Each leaf is a factory function returning a `readonly` tuple (`as
  * const`), so a mutation's `invalidateQueries({ queryKey: ... })` call
  * targets exactly the query it affects (per
- * `development/phase-1-foundation/REACT_QUERY.md` — never a bare
+ * `knowledge/03-frontend/phase-1-foundation/REACT_QUERY.md` — never a bare
  * `invalidateQueries()` with no key filter).
  */
 

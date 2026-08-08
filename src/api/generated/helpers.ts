@@ -13,7 +13,7 @@
  * below therefore resolves to `unknown` for nearly every endpoint today —
  * this is not a bug in this file, it's an accurate reflection of what the
  * backend's OpenAPI spec currently documents. See
- * `development/phase-2-api-integration/NOTES.md` for the recommendation
+ * `knowledge/03-frontend/phase-2-api-integration/NOTES.md` for the recommendation
  * this finding produced (add `content.application/json.schema` — ideally
  * via reusable `components.schemas` — to the backend's route JSDoc blocks)
  * and why it isn't done as part of this frontend-scoped phase.

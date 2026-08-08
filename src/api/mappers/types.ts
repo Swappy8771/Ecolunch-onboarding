@@ -1,6 +1,6 @@
 /**
  * The generic DTO → ViewModel mapping contract every module's own
- * mapper implements. Per `development/ARCHITECTURE.md`, no component
+ * mapper implements. Per `knowledge/03-frontend/ARCHITECTURE.md`, no component
  * should depend on a backend DTO type directly — a page reads a
  * ViewModel shape, produced by one of these mappers from the raw API
  * response.

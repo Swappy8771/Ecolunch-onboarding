@@ -5,7 +5,7 @@
  * params + request bodies come straight from the generated spec; response
  * bodies stay `unknown` — see `src/api/generated/helpers.ts`'s header for
  * why). Real usage begins during this module's own Phase 2 integration —
- * see `development/phase-2-api-integration/Caterers.md`.
+ * see `knowledge/03-frontend/phase-2-api-integration/Caterers.md`.
  */
 import { httpClient } from '../client/http'
 import type { PathParams, QueryParams, RequestBody } from '../generated/helpers'
@@ -19,7 +19,7 @@ import type { PathParams, QueryParams, RequestBody } from '../generated/helpers'
  * `GET /admin/caterers` filters on in practice. Widened here to `string`
  * rather than silently left broken; the real fix is a backend JSDoc
  * update so generation reflects the actual accepted values. See
- * `development/phase-3-module-integration/Caterers.md`.
+ * `knowledge/03-frontend/phase-3-module-integration/Caterers.md`.
  */
 type GeneratedListQuery = QueryParams<'/admin/caterers', 'get'>
 export type ListQuery = Omit<GeneratedListQuery, 'status'> & { status?: string }

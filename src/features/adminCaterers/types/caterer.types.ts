@@ -10,7 +10,7 @@
  * `computeDisplayStatus`) — NOT the mock data's French onboarding-stage
  * vocabulary (`pre-onboarding`/`en-cours`/`soumis`/`corrections`/
  * `approuves`/`go-live`), which has no backend equivalent. See
- * `development/phase-3-module-integration/Caterers.md` for this
+ * `knowledge/03-frontend/phase-3-module-integration/Caterers.md` for this
  * vocabulary-drift finding.
  */
 export type CatererDisplayStatus =

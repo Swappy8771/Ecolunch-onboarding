@@ -2,7 +2,7 @@
  * Generic, domain-agnostic types reused across modules. Never a copy of a
  * backend DTO — module-specific shapes live in each module's own
  * `types/` folder, mirrored from that module's real backend DTO at
- * integration time (see `development/STANDARDS.md`).
+ * integration time (see `knowledge/03-frontend/STANDARDS.md`).
  */
 
 export interface Identifiable {

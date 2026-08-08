@@ -1,6 +1,6 @@
 /**
  * Auth context — a thin facade over the existing `authSlice` (Redux),
- * not a second parallel state store. Per `development/ARCHITECTURE.md`'s
+ * not a second parallel state store. Per `knowledge/03-frontend/ARCHITECTURE.md`'s
  * state-management decision, Redux stays the source of truth for
  * genuine client state (auth included); this Context exists only to give
  * components a clean `useAuth()` API instead of importing
@@ -9,9 +9,12 @@
  * mount, without `src/api/` depending on React/Redux.
  *
  * Mounted in `App.tsx`, inside `BrowserRouter` (so its own `logout()` call
- * from `ProtectedRoute`/the 401 handler has router context), wrapping the
- * whole route tree — `/admin/*` is guarded by `ProtectedRoute`, `/login`
- * is not.
+ * from the 401 handler has router context), wrapping the whole route tree.
+ *
+ * NOTE (2026-08-08): `/admin/*` is NOT currently guarded. `ProtectedRoute`
+ * was removed from `App.tsx` so the frontend can be demoed standalone with
+ * no backend to authenticate against; the component still exists, unused.
+ * Restore it before any real deployment — see `App.tsx`'s route-tree comment.
  */
 import { createContext, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { useDispatch, useSelector } from 'react-redux'

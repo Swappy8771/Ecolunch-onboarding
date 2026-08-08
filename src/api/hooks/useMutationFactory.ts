@@ -8,7 +8,7 @@
  *   )
  *
  * Invalidation is deliberately NOT baked into this factory — per
- * `development/phase-1-foundation/REACT_QUERY.md`, every mutation
+ * `knowledge/03-frontend/phase-1-foundation/REACT_QUERY.md`, every mutation
  * invalidates the *specific* query keys it affects, which differs per
  * mutation (e.g. closing a Correction should also invalidate the
  * relevant Go-Live summary). That decision belongs to each module's own

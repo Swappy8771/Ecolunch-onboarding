@@ -12,7 +12,7 @@
  * returns the overview object itself, not `{ data: overview }`), and no
  * module anywhere returns a metadata block. Inventing either type here
  * would document a contract the backend doesn't actually have — see
- * `development/phase-2-api-integration/NOTES.md` for this finding.
+ * `knowledge/03-frontend/phase-2-api-integration/NOTES.md` for this finding.
  * `ApiListResponse`/`PaginatedResponse` below are kept because that
  * `{ data, total }` / `{ data, total, page, limit }` shape genuinely is
  * the real, repeated pattern across every list endpoint audited this

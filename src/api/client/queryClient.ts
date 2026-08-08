@@ -1,6 +1,6 @@
 /**
  * The single TanStack Query client instance for the app. Defaults chosen
- * per `development/phase-1-foundation/REACT_QUERY.md`:
+ * per `knowledge/03-frontend/phase-1-foundation/REACT_QUERY.md`:
  *   - staleTime: 30s — admin data changes via explicit actions, not
  *     high-frequency, so a short-lived "fresh" window avoids redundant
  *     refetching without going stale for long.

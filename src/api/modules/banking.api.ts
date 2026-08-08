@@ -3,7 +3,7 @@
  * Backend: `/api/admin/banking/*`. One of this phase's 3 reference
  * modules demonstrating full generated-type consumption. Real usage
  * begins when this module's admin page is built (no frontend page exists
- * yet — see `development/phase-2-api-integration/Banking.md`).
+ * yet — see `knowledge/03-frontend/phase-2-api-integration/Banking.md`).
  */
 import { httpClient } from '../client/http'
 import type { RequestBody } from '../generated/helpers'
